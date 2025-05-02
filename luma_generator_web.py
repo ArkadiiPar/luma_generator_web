@@ -303,20 +303,45 @@ def generate_bayer_hex(values_list, level_names, level_slices):
 
         modified_block = original_bayer_hex_lines[start:end]
 
-        # Замены
-        modified_block[1] = float_to_hex(l1)           # L1
-        modified_block[3] = float_to_hex(l1a)          # L1A
-        modified_block[5] = float_to_hex(l1b)          # L1B
-        modified_block[7] = float_to_hex(l2)
-        modified_block[9] = float_to_hex(l2a)
-        modified_block[11] = float_to_hex(l2b)
-        modified_block[13] = float_to_hex(l3)
-        modified_block[15] = float_to_hex(l3a)
-        modified_block[17] = float_to_hex(l3b)
-        modified_block[19] = float_to_hex(l4)
-        modified_block[21] = float_to_hex(l4a)
-        modified_block[23] = float_to_hex(l4b)
-        modified_block[26] = float_to_hex(l5a)         # L5A (после 0a0a0d идут L5 и L5A не подряд)
+        # Меняем только те индексы, которые существуют в блоке
+
+        # L1, L1A, L1B
+        if len(modified_block) > 1:
+            modified_block[1] = float_to_hex(l1)
+        if len(modified_block) > 3:
+            modified_block[3] = float_to_hex(l1a)
+        if len(modified_block) > 5:
+            modified_block[5] = float_to_hex(l1b)
+
+        # L2, L2A, L2B
+        if len(modified_block) > 7:
+            modified_block[7] = float_to_hex(l2)
+        if len(modified_block) > 9:
+            modified_block[9] = float_to_hex(l2a)
+        if len(modified_block) > 11:
+            modified_block[11] = float_to_hex(l2b)
+
+        # L3, L3A, L3B
+        if len(modified_block) > 13:
+            modified_block[13] = float_to_hex(l3)
+        if len(modified_block) > 15:
+            modified_block[15] = float_to_hex(l3a)
+        if len(modified_block) > 17:
+            modified_block[17] = float_to_hex(l3b)
+
+        # L4, L4A, L4B
+        if len(modified_block) > 19:
+            modified_block[19] = float_to_hex(l4)
+        if len(modified_block) > 21:
+            modified_block[21] = float_to_hex(l4a)
+        if len(modified_block) > 23:
+            modified_block[23] = float_to_hex(l4b)
+
+        # L5 и L5A — находятся не на фиксированных позициях во всех блоках
+        if len(modified_block) > 25:
+            modified_block[25] = float_to_hex(l5)
+        if len(modified_block) > 26:
+            modified_block[26] = float_to_hex(l5a)
 
         lines.extend(modified_block)
 
