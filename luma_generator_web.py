@@ -457,7 +457,7 @@ with tab1:
             sharp_parsed[level["name"]] = [l1, l1a, l2, l2a, l3, l3a]
 
         st.session_state.sharp_inputs = sharp_parsed
-        st.experimental_rerun()
+        st.rerun()
 
 
 # === ВКЛАДКА 2: BAYER DENOISE ===
@@ -501,4 +501,4 @@ with tab2:
         for level in bayer_levels:
             level["default"] = parsed_data[level["name"]]
         st.session_state.bayer_inputs = parsed_data
-        st.experimental_rerun()
+        st.rerun()
