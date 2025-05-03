@@ -323,14 +323,15 @@ def generate_bayer_hex(values_list, level_names, level_slices):
         if len(modified_block) > 21: modified_block[21] = float_to_hex(l4a)
         if len(modified_block) > 23: modified_block[23] = float_to_hex(l4b)
 
-        # === L5 и L5A (динамически, зависит от структуры) ===
-        # Ищем позиции "0a0f0d" как маркера начала нового подблока
+        # === L5 и L5A (всегда после "0a0a0d") ===
         try:
-            l5_index = modified_block.index("0a0f0d") + 1
-            if len(modified_block) > l5_index: modified_block[l5_index] = float_to_hex(l5)
-            if len(modified_block) > l5_index + 2: modified_block[l5_index + 2] = float_to_hex(l5a)
+            l5_marker_index = modified_block.index("0a0a0d")
+            if len(modified_block) > l5_marker_index + 1:
+                modified_block[l5_marker_index + 1] = float_to_hex(l5)  # L5
+            if len(modified_block) > l5_marker_index + 3:
+                modified_block[l5_marker_index + 3] = float_to_hex(l5a)  # L5A
         except ValueError:
-            pass  # Если нет маркера "0a0f0d", пропускаем
+            pass  # Если нет маркера, не меняем
 
         lines.extend(modified_block)
 
