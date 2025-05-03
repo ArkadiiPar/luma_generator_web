@@ -3,15 +3,6 @@ import struct
 from copy import deepcopy
 
 
-# --- Инициализация session_state ---
-if 'sharp_bento_values' not in st.session_state:
-    # Берём дефолтные значения из all_sharp_levels[5] и [6]
-    st.session_state.sharp_bento_values = [
-        all_sharp_levels[5]["default"].copy(),
-        all_sharp_levels[6]["default"].copy()
-    ]
-
-
 # --- Вспомогательные функции ---
 def float_to_hex(f):
     return struct.pack('<f', f).hex()
@@ -26,6 +17,27 @@ def hex_to_float(hex_str):
 
 
 # === SHARP LEVELS ===
+
+# --- Sharp уровни по умолчанию ---
+all_sharp_levels = [
+    {"name": "Sharp very low",  "default": [7.0, 0.060, 3.075, 0.040, 1.875, 0.058]},
+    {"name": "Sharp low",       "default": [8.6, 0.060, 3.69, 0.040, 2.25, 0.058]},
+    {"name": "Sharp med",       "default": [10.0, 0.060, 4.225, 0.040, 2.5, 0.058]},
+    {"name": "Sharp high",      "default": [10.0, 0.066, 3.87, 0.040, 4.62, 0.0224]},
+    {"name": "Sharp very high", "default": [11.3, 0.0436, 3.70, 0.032, 2.05, 0.0232]},
+    {"name": "Sharp bento low", "default": [16.0, 0.0195, 3.10, 0.01975, 1.89, 0.02]},
+    {"name": "Sharp bento high","default": [18.5, 0.0174, 2.70, 0.0187, 1.70, 0.02]}
+]
+
+main_sharp_levels = all_sharp_levels[:5]
+bento_sharp_levels = all_sharp_levels[5:]
+
+# --- Инициализация session_state ---
+if 'sharp_bento_values' not in st.session_state:
+    st.session_state.sharp_bento_values = [
+        all_sharp_levels[5]["default"].copy(),
+        all_sharp_levels[6]["default"].copy()
+    ]
 
 # --- Все строки из оригинального сообщения (Sharp) ---
 original_sharp_hex_lines = [
@@ -100,20 +112,6 @@ sharp_bento_slices = {
     "Sharp bento high": (36, 42)
 }
 
-# --- Sharp уровни по умолчанию ---
-all_sharp_levels = [
-    {"name": "Sharp very low",  "default": [7.0, 0.060, 3.075, 0.040, 1.875, 0.058]},
-    {"name": "Sharp low",       "default": [8.6, 0.060, 3.69, 0.040, 2.25, 0.058]},
-    {"name": "Sharp med",       "default": [10.0, 0.060, 4.225, 0.040, 2.5, 0.058]},
-    {"name": "Sharp high",      "default": [10.0, 0.066, 3.87, 0.040, 4.62, 0.0224]},
-    {"name": "Sharp very high", "default": [11.3, 0.0436, 3.70, 0.032, 2.05, 0.0232]},
-    {"name": "Sharp bento low", "default": [16.0, 0.0195, 3.10, 0.01975, 1.89, 0.02]},
-    {"name": "Sharp bento high","default": [18.5, 0.0174, 2.70, 0.0187, 1.70, 0.02]}
-]
-
-main_sharp_levels = all_sharp_levels[:5]
-bento_sharp_levels = all_sharp_levels[5:]
-
 
 # --- Генерация HEX для Sharp Levels ---
 def generate_sharp_hex(values_list, level_names, level_slices):
@@ -155,6 +153,7 @@ def parse_bento_sharp_hex(hex_data):
             st.session_state.sharp_bento_values[i] = [l1, l1a, l2, l2a, l3, l3a]
 
         st.success("✅ HEX успешно разобран и применён к Bento Sharp")
+
     except Exception as e:
         st.error(f"❌ Ошибка при разборе HEX: {str(e)}")
 
@@ -217,6 +216,7 @@ with tab2:
             st.rerun()
         else:
             st.warning("❌ Пустой HEX")
+
 
     if st.button("🚀 Сгенерировать Bento Sharp HEX"):
         full_hex = generate_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
