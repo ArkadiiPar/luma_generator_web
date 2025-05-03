@@ -335,7 +335,7 @@ def generate_bayer_hex(values_list, level_names, level_slices):
 
         lines.extend(modified_block)
 
-    full_hex = "".join(lines)
+    full_hex = "\n".join(lines)
     return full_hex
 
 # --- Интерфейс Streamlit ---
