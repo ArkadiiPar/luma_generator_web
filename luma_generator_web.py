@@ -39,6 +39,7 @@ if 'sharp_bento_values' not in st.session_state:
         all_sharp_levels[6]["default"].copy()
     ]
 
+
 # --- Все строки из оригинального сообщения (Sharp) ---
 original_sharp_hex_lines = [
     # Sharp very low
@@ -109,7 +110,7 @@ sharp_slices = {
 
 sharp_bento_slices = {
     "Sharp bento low": (30, 36),
-    "Sharp bento high": (36, 42)
+    "Sharp bento high": (36, 42),
 }
 
 
@@ -138,18 +139,27 @@ def parse_bento_sharp_hex(hex_data):
     try:
         hex_blocks = [hex_data[i:i+48] for i in range(0, len(hex_data), 48)]
 
-        for i in range(2):  # Sharp bento low/high
-            line_0 = hex_blocks[i][0:16]   # L1 + L1A
-            line_2 = hex_blocks[i][24:40]  # L2 + L2A
-            line_4 = hex_blocks[i][56:72]  # L3 + L3A
+        for i in range(2):  # Sharp bento low и high
+            block = hex_blocks[i]
 
-            l1 = hex_to_float(line_0[:8])
-            l1a = hex_to_float(line_0[10:18])  # после '1d'
-            l2 = hex_to_float(line_2[:8])
-            l2a = hex_to_float(line_2[10:18])
-            l3 = hex_to_float(line_4[:8])
-            l3a = hex_to_float(line_4[10:18])
+            # === Извлечение L1, L1A ===
+            l1 = hex_to_float(block[0:8])
+            l1a_pos = block.find("1d", 8) + 2
+            l1a = hex_to_float(block[l1a_pos:l1a_pos+8])
 
+            # === Извлечение L2, L2A ===
+            l2_marker = block.find("0a140d", 24) + 6
+            l2 = hex_to_float(block[l2_marker:l2_marker+8])
+            l2a_pos = block.find("1d", l2_marker+8) + 2
+            l2a = hex_to_float(block[l2a_pos:l2a_pos+8])
+
+            # === Извлечение L3, L3A ===
+            l3_marker = block.find("0a140d", l2a_pos+8) + 6
+            l3 = hex_to_float(block[l3_marker:l3_marker+8])
+            l3a_pos = block.find("1d", l3_marker+8) + 2
+            l3a = hex_to_float(block[l3a_pos:l3a_pos+8])
+
+            # === Сохраняем в session_state ===
             st.session_state.sharp_bento_values[i] = [l1, l1a, l2, l2a, l3, l3a]
 
         st.success("✅ HEX успешно разобран и применён к Bento Sharp")
