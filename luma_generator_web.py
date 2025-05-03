@@ -5,11 +5,113 @@ from copy import deepcopy
 
 # --- Вспомогательные функции ---
 def float_to_hex(f):
-    """Конвертирует float в hex (8 символов, little-endian)"""
     return struct.pack('<f', f).hex()
 
 
-# --- Блоки Bayer Denoise — каждый уровень полностью независим ---
+# === SHARP LEVELS ===
+
+# --- Все строки из оригинального сообщения (Sharp) ---
+original_sharp_hex_lines = [
+    # Sharp very low
+    "0000e0401d8fc2753d",
+    "250000803f2d0000803f0a140d",
+    "cdcc44401d0ad7233d",
+    "250000803f2d0000803f0a140d",
+    "0000f03f1d68916d3d",
+    "250000803f2d0000803f12050d0000a03f0a490a140d",
+
+    # Sharp low
+    "9a9909411d8fc2753d",
+    "250000803f2d0000803f0a140d",
+    "f6286c401d0ad7233d",
+    "250000803f2d0000803f0a140d",
+    "000010401d68916d3d",
+    "250000803f2d0000803f12050d000020400a490a140d",
+
+    # Sharp med
+    "000020411d8fc2753d",
+    "250000803f2d0000803f0a140d",
+    "333387401d0ad7233d",
+    "250000803f2d0000803f0a140d",
+    "000020401d68916d3d",
+    "250000803f2d0000803f12050d0000a0400a490a140d",
+
+    # Sharp high
+    "000020411d022b873d",
+    "250000803f2d0000803f0a140d",
+    "14ae77401d0ad7233d",
+    "250000803f2d0000803f0a140d",
+    "0ad793401d3480b73c",
+    "250000803f2d0000803f12050d000020410a490a140d",
+
+    # Sharp very high
+    "cdcc34411dea95323d",
+    "250000803f2d0000803f0a140d",
+    "cdcc6c401d6f12033d",
+    "250000803f2d0000803f0a140d",
+    "333303401ded0dbe3c",
+    "250000803f2d0000803f12050d0000a0410a490a140d",
+
+    # Sharp bento low
+    "000080411d77be9f3c",
+    "250000803f2d0000803f0a140d",
+    "666646401dc1caa13c",
+    "250000803f2d0000803f0a140d",
+    "85ebf13f1d0ad7a33c",
+    "250000803f2d0000803f12050d000020420a490a140d",
+
+    # Sharp bento high
+    "000094411d728a8e3c",
+    "250000803f2d0000803f0a140d",
+    "cdcc2c401dbe30993c",
+    "250000803f2d0000803f0a140d",
+    "9a99d93f1d0ad7a33c",
+    "250000803f2d0000803f12050d0000a042000000"
+]
+
+# --- Индексы для Sharp Levels ---
+sharp_slices = {
+    "Sharp very low": (0, 6),
+    "Sharp low": (6, 12),
+    "Sharp med": (12, 18),
+    "Sharp high": (18, 24),
+    "Sharp very high": (24, 30),
+}
+
+# --- Sharp уровни по умолчанию ---
+sharp_levels = [
+    {"name": "Sharp very low",  "default": [7.0, 0.060, 3.075, 0.040, 1.875, 0.058]},
+    {"name": "Sharp low",       "default": [8.6, 0.060, 3.69, 0.040, 2.25, 0.058]},
+    {"name": "Sharp med",       "default": [10.0, 0.060, 4.225, 0.040, 2.5, 0.058]},
+    {"name": "Sharp high",      "default": [10.0, 0.066, 3.87, 0.040, 4.62, 0.0224]},
+    {"name": "Sharp very high", "default": [11.3, 0.0436, 3.70, 0.032, 2.05, 0.0232]}
+]
+
+# --- Генерация HEX для Sharp Levels ---
+def generate_sharp_hex(values_list, level_names, level_slices):
+    lines = []
+
+    for i, values in enumerate(values_list):
+        l1, l1a, l2, l2a, l3, l3a = values
+        name = level_names[i]["name"]
+        start, end = level_slices[name]
+
+        modified_block = deepcopy(original_sharp_hex_lines[start:end])
+
+        # Замена значений
+        modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
+        modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
+        modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
+
+        lines.extend(modified_block)
+
+    full_hex = "0a490a140d" + "".join(lines)
+    return full_hex
+
+
+# === BAYER LUMA DENOISE (уже рабочий блок, не трогаем) ===
+
+# --- Bayer Denoise Blocks ---
 bayer_blocks = {
     "Bayer luma denoise very low": [
         "00000a610a0f0d",
@@ -174,7 +276,7 @@ bayer_levels = [
 ]
 
 
-# --- Функция генерации HEX для Bayer Levels с динамическим поиском позиций ---
+# --- Функция генерации HEX для Bayer Levels с динамическим поиском маркеров ---
 def generate_bayer_hex(values_list, level_names):
     lines = []
 
@@ -182,7 +284,7 @@ def generate_bayer_hex(values_list, level_names):
         l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a = values
         name = level_names[i]["name"]
 
-        # --- Глубокая копия блока ---
+        # --- Глубокая копия — чтобы не менять оригинал ---
         modified_block = deepcopy(bayer_blocks[name])
 
         # === Находим позиции через маркеры ===
@@ -195,33 +297,29 @@ def generate_bayer_hex(values_list, level_names):
         idx = 0
 
         # === L1, L1A, L1B ===
-        if name == "Bayer luma denoise very low":
-            idx = find_next_marker("00000a610a0f0d")
-        else:
-            idx = find_next_marker("0a0f0d")
-
-        if idx != -1 and len(modified_block) > idx + 5:
+        idx = find_next_marker("0a0f0d")
+        if idx != -1:
             modified_block[idx + 1] = float_to_hex(l1)
             modified_block[idx + 3] = float_to_hex(l1a)
             modified_block[idx + 5] = float_to_hex(l1b)
 
         # === L2, L2A, L2B ===
         idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1 and len(modified_block) > idx + 5:
+        if idx != -1:
             modified_block[idx + 1] = float_to_hex(l2)
             modified_block[idx + 3] = float_to_hex(l2a)
             modified_block[idx + 5] = float_to_hex(l2b)
 
         # === L3, L3A, L3B ===
         idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1 and len(modified_block) > idx + 5:
+        if idx != -1:
             modified_block[idx + 1] = float_to_hex(l3)
             modified_block[idx + 3] = float_to_hex(l3a)
             modified_block[idx + 5] = float_to_hex(l3b)
 
         # === L4, L4A, L4B ===
         idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1 and len(modified_block) > idx + 5:
+        if idx != -1:
             modified_block[idx + 1] = float_to_hex(l4)
             modified_block[idx + 3] = float_to_hex(l4a)
             modified_block[idx + 5] = float_to_hex(l4b)
@@ -229,14 +327,14 @@ def generate_bayer_hex(values_list, level_names):
         # === L5, L5A (после "0a0a0d") ===
         idx = find_next_marker("0a0a0d")
         if idx != -1:
-            if len(modified_block) > idx + 1:
+            if idx + 1 < len(modified_block):
                 modified_block[idx + 1] = float_to_hex(l5)
-            if len(modified_block) > idx + 3:
+            if idx + 3 < len(modified_block):
                 modified_block[idx + 3] = float_to_hex(l5a)
 
         lines.extend(modified_block)
 
-    full_hex = "".join(lines)
+    full_hex = "\n".join(lines)
     return full_hex
 
 
@@ -246,10 +344,29 @@ st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
 tab1, tab2 = st.tabs(["🔍 Sharp Levels", "🌪️ Bayer Denoise"])
 
-# === ВКЛАДКА 1: SHARP LEVELS (временно заглушка) ===
+
+# === ВКЛАДКА 1: SHARP LEVELS ===
 with tab1:
-    st.markdown("### 🔍 Sharp Levels — временно недоступны")
-    st.write("Здесь можно добавить первую часть приложения (Sharp), если захочешь.")
+    st.markdown("### 🔧 Редактирование Sharp Levels")
+
+    sharp_inputs = []
+    for idx, level in enumerate(sharp_levels[:5]):  # первые 5 уровней
+        with st.expander(level["name"], expanded=True):
+            cols = st.columns(3)
+            l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"sharp_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"sharp_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"sharp_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"sharp_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"sharp_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"sharp_l3a_{idx}")
+            sharp_inputs.append([l1, l1a, l2, l2a, l3, l3a])
+
+    if st.button("🚀 Сгенерировать Sharp HEX"):
+        full_hex = generate_sharp_hex(sharp_inputs, sharp_levels[:5], sharp_slices)
+        st.text_area("Сгенерированный HEX (Sharp):", value=full_hex, height=400)
+        st.code(full_hex, language="text")
+        st.download_button(label="⬇️ Скачать Sharp HEX", data=full_hex, file_name="sharp_output.hex")
+
 
 # === ВКЛАДКА 2: BAYER DENOISE ===
 with tab2:
