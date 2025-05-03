@@ -83,12 +83,12 @@ sharp_slices = {
     "Sharp low": (6, 12),
     "Sharp med": (12, 18),
     "Sharp high": (18, 24),
-    "Sharp very high": (24, 30)
+    "Sharp very high": (24, 30),
 }
 
 sharp_bento_slices = {
     "Sharp bento low": (30, 36),
-    "Sharp bento high": (36, 42)
+    "Sharp bento high": (36, 42),
 }
 
 # --- Sharp уровни по умолчанию ---
@@ -127,18 +127,15 @@ def generate_sharp_hex(values_list, level_names, level_slices):
 # --- Парсинг HEX для Bento Sharp ---
 def parse_bento_sharp_hex(hex_data):
     try:
-        # Разбиваем на части по 8 символов на каждую строку
         hex_blocks = [hex_data[i:i+48] for i in range(0, len(hex_data), 48)]
 
-        for i, block_name in enumerate(["Sharp bento low", "Sharp bento high"]):
-            start_idx = i * 6  # 6 строк на уровень
-            level_index = i + 5  # индекс в all_sharp_levels
+        for i in range(2):  # Sharp bento low и high
+            level_index = 5 + i  # индекс в all_sharp_levels
 
-            line_0 = hex_blocks[i][0:16]  # L1 + L1A
+            line_0 = hex_blocks[i][0:16]   # L1 + L1A
             line_2 = hex_blocks[i][24:40]  # L2 + L2A
             line_4 = hex_blocks[i][56:72]  # L3 + L3A
 
-            # Извлекаем значения
             l1 = hex_to_float(line_0[:8])
             l1a = hex_to_float(line_0[10:18])  # после '1d'
             l2 = hex_to_float(line_2[:8])
@@ -146,10 +143,9 @@ def parse_bento_sharp_hex(hex_data):
             l3 = hex_to_float(line_4[:8])
             l3a = hex_to_float(line_4[10:18])
 
-            # Обновляем дефолтные значения
             all_sharp_levels[level_index]["default"] = [l1, l1a, l2, l2a, l3, l3a]
 
-        st.success("✅ HEX успешно разобран и применён к уровням Sharp Bento")
+        st.success("✅ HEX успешно разобран и применён к Bento Sharp")
 
     except Exception as e:
         st.error(f"❌ Ошибка при разборе HEX: {str(e)}")
@@ -191,12 +187,22 @@ with tab2:
     for idx, level in enumerate(bento_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
-            l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"bento_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"bento_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"bento_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
+
+            # Берём значения напрямую из all_sharp_levels[5:] — чтобы они обновлялись после парсинга
+            l1_val = all_sharp_levels[5 + idx]["default"][0]
+            l1a_val = all_sharp_levels[5 + idx]["default"][1]
+            l2_val = all_sharp_levels[5 + idx]["default"][2]
+            l2a_val = all_sharp_levels[5 + idx]["default"][3]
+            l3_val = all_sharp_levels[5 + idx]["default"][4]
+            l3a_val = all_sharp_levels[5 + idx]["default"][5]
+
+            l1 = cols[0].number_input("L1", value=l1_val, format="%.4f", key=f"bento_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=l1a_val, format="%.4f", key=f"bento_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=l2_val, format="%.4f", key=f"bento_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=l2a_val, format="%.4f", key=f"bento_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=l3_val, format="%.4f", key=f"bento_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=l3a_val, format="%.4f", key=f"bento_l3a_{idx}")
+
             bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     # --- Поле ввода HEX для обратной парсилки ---
@@ -206,7 +212,7 @@ with tab2:
     if st.button("🔄 Применить HEX к Bento Sharp"):
         if hex_input.strip():
             parse_bento_sharp_hex(hex_input)
-            st.rerun()  # Перезапуск для обновления значений по умолчанию
+            st.rerun()
         else:
             st.warning("❌ Пустой HEX")
 
@@ -215,7 +221,7 @@ with tab2:
         st.text_area("Сгенерированный HEX (Bento Sharp):", value=full_hex, height=300)
 
 
-# === ВКЛАДКА 3: BAYER DENOISE (остаётся без изменений) ===
+# === ВКЛАДКА 3: BAYER DENOISE (временно без изменений) ===
 with tab3:
     st.markdown("### 🌪️ Настройка параметров: Bayer Luma Denoise")
-    st.write("Здесь будет генератор Bayer Denoise (пока не трогаем)")
+    st.write("Здесь будет генератор для Bayer Denoise (пока не трогаем)")
