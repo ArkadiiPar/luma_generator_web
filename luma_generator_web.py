@@ -108,7 +108,7 @@ def generate_bento_sharp_hex(values_list, level_names, level_slices):
     return full_hex
 
 
-# --- Парсинг HEX обратно в параметры (только Sharp Bento) ---
+# --- Парсинг HEX обратно в параметры (Sharp Bento) ---
 def parse_sharp_bento_hex(hex_string):
     parsed_values = []
 
@@ -116,39 +116,32 @@ def parse_sharp_bento_hex(hex_string):
         name = level["name"]
         start, end = sharp_bento_slices[name]
 
+        # Берём оригинальный блок из original_sharp_hex_lines
         block = original_sharp_hex_lines[start:end]
 
-        l1_pos = block[0][:8]
-        l1a_pos = block[0][block[0].find("1d") + 2:][:8]
+        # Находим позиции L1, L1A, L2, L2A, L3, L3A в строках 0, 2, 4
+        l1_str = block[0][:8]
+        l1a_str = block[0][block[0].find("1d") + 2:][:8]
+        l2_str = block[2][:8]
+        l2a_str = block[2][block[2].find("1d") + 2:][:8]
+        l3_str = block[4][:8]
+        l3a_str = block[4][block[4].find("1d") + 2:][:8]
 
-        l2_pos = block[2][:8]
-        l2a_pos = block[2][block[2].find("1d") + 2:][:8]
+        # Ищем эти подстроки в hex_input и вычисляем смещения
+        l1_pos = hex_string.find(l1_str)
+        l1a_pos = hex_string.find(l1a_str)
+        l2_pos = hex_string.find(l2_str)
+        l2a_pos = hex_string.find(l2a_str)
+        l3_pos = hex_string.find(l3_str)
+        l3a_pos = hex_string.find(l3a_str)
 
-        l3_pos = block[4][:8]
-        l3a_pos = block[4][block[4].find("1d") + 2:][:8]
-
-        # Получаем позиции в hex_string
-        l1_start = hex_string.find(l1_pos)
-        l1_end = l1_start + 8
-        l1a_start = hex_string.find(l1a_pos)
-        l1a_end = l1a_start + 8
-
-        l2_start = hex_string.find(l2_pos)
-        l2_end = l2_start + 8
-        l2a_start = hex_string.find(l2a_pos)
-        l2a_end = l2a_start + 8
-
-        l3_start = hex_string.find(l3_pos)
-        l3_end = l3_start + 8
-        l3a_start = hex_string.find(l3a_pos)
-        l3a_end = l3a_start + 8
-
-        l1_val = hex_to_float(hex_string[l1_start:l1_end])
-        l1a_val = hex_to_float(hex_string[l1a_start:l1a_end])
-        l2_val = hex_to_float(hex_string[l2_start:l2_end])
-        l2a_val = hex_to_float(hex_string[l2a_start:l2a_end])
-        l3_val = hex_to_float(hex_string[l3_start:l3_end])
-        l3a_val = hex_to_float(hex_string[l3a_start:l3a_end])
+        # Извлекаем float-значения
+        l1_val = hex_to_float(hex_string[l1_pos:l1_pos+8]) if l1_pos != -1 else 0.0
+        l1a_val = hex_to_float(hex_string[l1a_pos:l1a_pos+8]) if l1a_pos != -1 else 0.0
+        l2_val = hex_to_float(hex_string[l2_pos:l2_pos+8]) if l2_pos != -1 else 0.0
+        l2a_val = hex_to_float(hex_string[l2a_pos:l2a_pos+8]) if l2a_pos != -1 else 0.0
+        l3_val = hex_to_float(hex_string[l3_pos:l3_pos+8]) if l3_pos != -1 else 0.0
+        l3a_val = hex_to_float(hex_string[l3a_pos:l3a_pos+8]) if l3a_pos != -1 else 0.0
 
         parsed_values.append([l1_val, l1a_val, l2_val, l2a_val, l3_val, l3a_val])
 
@@ -166,37 +159,37 @@ tab1, tab2, tab3 = st.tabs(["🔍 Sharp Main", "🍱 Sharp Bento", "🌪️ Baye
 with tab2:
     st.markdown("### 🍱 Редактирование Bento Sharp уровней")
 
-    bento_inputs = []
+    # Инициализируем session_state для хранения значений
+    if 'bento_inputs' not in st.session_state:
+        st.session_state.bento_inputs = [level["default"][:] for level in bento_sharp_levels]
+
+    # Поля ввода
+    input_values = []
     for idx, level in enumerate(bento_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
-            l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"bento_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"bento_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"bento_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
-            bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
+            l1 = cols[0].number_input("L1", value=st.session_state.bento_inputs[idx][0], format="%.4f", key=f"bento_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=st.session_state.bento_inputs[idx][1], format="%.4f", key=f"bento_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=st.session_state.bento_inputs[idx][2], format="%.4f", key=f"bento_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=st.session_state.bento_inputs[idx][3], format="%.4f", key=f"bento_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=st.session_state.bento_inputs[idx][4], format="%.4f", key=f"bento_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=st.session_state.bento_inputs[idx][5], format="%.4f", key=f"bento_l3a_{idx}")
+            input_values.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать Bento Sharp HEX"):
-        full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
+        full_hex = generate_bento_sharp_hex(input_values, bento_sharp_levels, sharp_bento_slices)
         st.text_area("Сгенерированный HEX (Bento Sharp):", value=full_hex, height=200)
 
-    st.markdown("### 🔁 Загрузите HEX-строку для авто-заполнения")
-    hex_input = st.text_area("HEX-строка:", "", placeholder="Вставьте HEX-строку сюда", height=200)
+    st.markdown("### 🔁 Загрузка HEX и авто-заполнение")
+    hex_input = st.text_area("Вставьте HEX-строку сюда:", "", placeholder="Пример: cdcc4c3f...", height=200)
 
     if st.button("🔄 Разобрать HEX (Bento Sharp)") and hex_input:
         try:
             parsed_data = parse_sharp_bento_hex(hex_input)
-
-            # Обновляем inputs
-            for i, data in enumerate(parsed_data):
-                bento_sharp_levels[i]["default"] = data
-
-            st.success("✅ Данные успешно загружены из HEX!")
-            st.rerun()
+            st.session_state.bento_inputs = parsed_data  # Сохраняем спарсенные значения в session_state
+            st.success("✅ Данные загружены из HEX")
         except Exception as e:
-            st.error(f"❌ Ошибка при разборе: {str(e)}")
+            st.error(f"❌ Ошибка разбора: {str(e)}")
 
 
 # === Остальная часть программы (Sharp Main / Bayer Denoise) остаётся как есть ===
