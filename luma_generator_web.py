@@ -76,6 +76,8 @@ sharp_slices = {
     "Sharp med": (12, 18),
     "Sharp high": (18, 24),
     "Sharp very high": (24, 30),
+    "Sharp bento low": (30, 36),
+    "Sharp bento high": (36, 42)
 }
 
 # --- Sharp уровни по умолчанию ---
@@ -84,7 +86,9 @@ sharp_levels = [
     {"name": "Sharp low",       "default": [8.6, 0.060, 3.69, 0.040, 2.25, 0.058]},
     {"name": "Sharp med",       "default": [10.0, 0.060, 4.225, 0.040, 2.5, 0.058]},
     {"name": "Sharp high",      "default": [10.0, 0.066, 3.87, 0.040, 4.62, 0.0224]},
-    {"name": "Sharp very high", "default": [11.3, 0.0436, 3.70, 0.032, 2.05, 0.0232]}
+    {"name": "Sharp very high", "default": [11.3, 0.0436, 3.70, 0.032, 2.05, 0.0232]},
+    {"name": "Sharp bento low", "default": [16.0, 0.0195, 3.10, 0.01975, 1.89, 0.02]},
+    {"name": "Sharp bento high","default": [18.5, 0.0174, 2.70, 0.0187, 1.70, 0.02]}
 ]
 
 # --- Генерация HEX для Sharp Levels ---
@@ -97,8 +101,6 @@ def generate_sharp_hex(values_list, level_names, level_slices):
         start, end = level_slices[name]
 
         modified_block = deepcopy(original_sharp_hex_lines[start:end])
-
-        # Замена значений
         modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
         modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
         modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
@@ -109,7 +111,7 @@ def generate_sharp_hex(values_list, level_names, level_slices):
     return full_hex
 
 
-# === BAYER LUMA DENOISE (уже рабочий блок, не трогаем) ===
+# === BAYER LUMA DENOISE ===
 
 # --- Bayer Denoise Blocks ---
 bayer_blocks = {
@@ -350,7 +352,7 @@ with tab1:
     st.markdown("### 🔧 Редактирование Sharp Levels")
 
     sharp_inputs = []
-    for idx, level in enumerate(sharp_levels[:5]):  # первые 5 уровней
+    for idx, level in enumerate(sharp_levels):  # теперь все 7 уровней
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
             l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"sharp_l1_{idx}")
@@ -362,7 +364,7 @@ with tab1:
             sharp_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать Sharp HEX"):
-        full_hex = generate_sharp_hex(sharp_inputs, sharp_levels[:5], sharp_slices)
+        full_hex = generate_sharp_hex(sharp_inputs, sharp_levels, sharp_slices)
         st.text_area("Сгенерированный HEX (Sharp):", value=full_hex, height=400)
         st.code(full_hex, language="text")
         st.download_button(label="⬇️ Скачать Sharp HEX", data=full_hex, file_name="sharp_output.hex")
@@ -373,6 +375,7 @@ with tab2:
     st.markdown("### 🌪️ Настройка параметров: Bayer Luma Denoise")
 
     bayer_inputs = []
+
     for idx, level in enumerate(bayer_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
