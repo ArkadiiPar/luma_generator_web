@@ -5,10 +5,11 @@ from copy import deepcopy
 
 # --- Вспомогательные функции ---
 def float_to_hex(f):
+    """Конвертирует float в hex (8 символов, little-endian)"""
     return struct.pack('<f', f).hex()
 
 
-# --- Каждый уровень — отдельный блок (независимые строки) ---
+# --- Блоки Bayer Denoise — каждый уровень полностью независим ---
 bayer_blocks = {
     "Bayer luma denoise very low": [
         "00000a610a0f0d",
@@ -163,18 +164,17 @@ bayer_blocks = {
     ]
 }
 
-
-# --- Значения по умолчанию ---
+# --- Значения по умолчанию для новых уровней ---
 bayer_levels = [
     {"name": "Bayer luma denoise very low", "default": [1.00, 0.10, 0.634044, 0.90, 0.10, 0.231936, 0.85, 0.050, 0.244724, 0.80, 0.050, 0.238304, 0.75, 0.347278]},
     {"name": "Bayer luma denoise low",      "default": [0.80, 0.10, 0.568930, 0.70, 0.10, 0.301318, 0.70, 0.075, 0.283374, 0.60, 0.0625, 0.373138, 0.70, 0.464653]},
     {"name": "Bayer luma denoise med",      "default": [0.70, 0.10, 0.503816, 0.80, 0.10, 0.370699, 0.60, 0.10, 0.322023, 0.40, 0.075, 0.507972, 0.50, 0.582028]},
     {"name": "Bayer luma denoise high",     "default": [0.60, 0.15, 0.642869, 0.50, 0.10, 0.627118, 0.25, 0.10, 0.472521, 0.25, 0.10, 0.362973, 0.20, 0.0777525]},
     {"name": "Bayer luma denoise very high", "default": [0.65, 0.15, 0.642869, 0.75, 0.10, 0.627118, 0.38, 0.10, 0.472521, 0.30, 0.10, 0.362973, 0.25, 0.0777525]}
-]
+}
 
 
-# --- Функция генерации HEX для Bayer Levels ---
+# --- Функция генерации HEX для Bayer Levels с динамическим поиском позиций ---
 def generate_bayer_hex(values_list, level_names):
     lines = []
 
@@ -182,38 +182,57 @@ def generate_bayer_hex(values_list, level_names):
         l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a = values
         name = level_names[i]["name"]
 
-        # --- Берём копию блока — чтобы не менять оригинал ---
+        # --- Глубокая копия блока ---
         modified_block = deepcopy(bayer_blocks[name])
 
+        # === Находим позиции через маркеры ===
+        def find_next_marker(marker, start=0):
+            try:
+                return modified_block.index(marker, start)
+            except ValueError:
+                return -1
+
+        idx = 0
+
         # === L1, L1A, L1B ===
-        if len(modified_block) > 1: modified_block[1] = float_to_hex(l1)
-        if len(modified_block) > 3: modified_block[3] = float_to_hex(l1a)
-        if len(modified_block) > 5: modified_block[5] = float_to_hex(l1b)
+        if name == "Bayer luma denoise very low":
+            idx = find_next_marker("00000a610a0f0d")
+        else:
+            idx = find_next_marker("0a0f0d")
+
+        if idx != -1 and len(modified_block) > idx + 5:
+            modified_block[idx + 1] = float_to_hex(l1)
+            modified_block[idx + 3] = float_to_hex(l1a)
+            modified_block[idx + 5] = float_to_hex(l1b)
 
         # === L2, L2A, L2B ===
-        if len(modified_block) > 7: modified_block[7] = float_to_hex(l2)
-        if len(modified_block) > 9: modified_block[9] = float_to_hex(l2a)
-        if len(modified_block) > 11: modified_block[11] = float_to_hex(l2b)
+        idx = find_next_marker("0a0f0d", idx + 6)
+        if idx != -1 and len(modified_block) > idx + 5:
+            modified_block[idx + 1] = float_to_hex(l2)
+            modified_block[idx + 3] = float_to_hex(l2a)
+            modified_block[idx + 5] = float_to_hex(l2b)
 
         # === L3, L3A, L3B ===
-        if len(modified_block) > 13: modified_block[13] = float_to_hex(l3)
-        if len(modified_block) > 15: modified_block[15] = float_to_hex(l3a)
-        if len(modified_block) > 17: modified_block[17] = float_to_hex(l3b)
+        idx = find_next_marker("0a0f0d", idx + 6)
+        if idx != -1 and len(modified_block) > idx + 5:
+            modified_block[idx + 1] = float_to_hex(l3)
+            modified_block[idx + 3] = float_to_hex(l3a)
+            modified_block[idx + 5] = float_to_hex(l3b)
 
         # === L4, L4A, L4B ===
-        if len(modified_block) > 19: modified_block[19] = float_to_hex(l4)
-        if len(modified_block) > 21: modified_block[21] = float_to_hex(l4a)
-        if len(modified_block) > 23: modified_block[23] = float_to_hex(l4b)
+        idx = find_next_marker("0a0f0d", idx + 6)
+        if idx != -1 and len(modified_block) > idx + 5:
+            modified_block[idx + 1] = float_to_hex(l4)
+            modified_block[idx + 3] = float_to_hex(l4a)
+            modified_block[idx + 5] = float_to_hex(l4b)
 
         # === L5, L5A (после "0a0a0d") ===
-        try:
-            l5_marker_index = modified_block.index("0a0a0d")
-            if len(modified_block) > l5_marker_index + 1:
-                modified_block[l5_marker_index + 1] = float_to_hex(l5)
-            if len(modified_block) > l5_marker_index + 3:
-                modified_block[l5_marker_index + 3] = float_to_hex(l5a)
-        except ValueError:
-            pass
+        idx = find_next_marker("0a0a0d")
+        if idx != -1:
+            if len(modified_block) > idx + 1:
+                modified_block[idx + 1] = float_to_hex(l5)
+            if len(modified_block) > idx + 3:
+                modified_block[idx + 3] = float_to_hex(l5a)
 
         lines.extend(modified_block)
 
@@ -230,14 +249,13 @@ tab1, tab2 = st.tabs(["🔍 Sharp Levels", "🌪️ Bayer Denoise"])
 # === ВКЛАДКА 1: SHARP LEVELS (временно заглушка) ===
 with tab1:
     st.markdown("### 🔍 Sharp Levels — временно недоступны")
-    st.write("Здесь будет первая часть приложения (Sharp), если ты захочешь её добавить.")
+    st.write("Здесь можно добавить первую часть приложения (Sharp), если захочешь.")
 
 # === ВКЛАДКА 2: BAYER DENOISE ===
 with tab2:
     st.markdown("### 🌪️ Настройка параметров: Bayer Luma Denoise")
 
     bayer_inputs = []
-
     for idx, level in enumerate(bayer_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
@@ -266,4 +284,4 @@ with tab2:
         full_hex = generate_bayer_hex(bayer_inputs, bayer_levels)
         st.text_area("Сгенерированный HEX (Bayer Denoise):", value=full_hex, height=400)
         st.code(full_hex, language="text")
-        st.download_button(label="⬇️ Скачать Bayer HEX", data=full_hex, file_name="bayer_output.hex")
+        st.download_button(label="⬇️ Скачать файл .hex", data=full_hex, file_name="bayer_output.hex")
