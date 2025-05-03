@@ -123,164 +123,164 @@ def generate_sharp_hex(values_list, level_names, level_slices, start_header=True
 # --- Все строки из нового HEX (Bayer luma denoise) ---
 original_bayer_hex_lines = [
     # Bayer luma denoise very low
-    "00000a610a0f0d",
-    "0000803f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "ae50223f",
-    "0a0f0d",
-    "6666663f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "95806d3e",
-    "0a0f0d",
-    "9a99593f",
-    "15",
-    "cdcc4c3d",
-    "1d",
-    "09997a3e",
-    "0a0f0d",
-    "cdcc4c3f",
-    "15",
-    "cdcc4c3d",
-    "1d",
-    "0e06743e",
-    "0a0a0d",
-    "0000403f",
-    "1d",
-    "68ceb13e",
-    "12050d0000a0401dcdcccc3f250000003f0a610a0f0d",
+    "00000a610a0f0d",  # 0
+    "0000803f",         # L1 (1)
+    "15",               # 2
+    "cdcccc3d",         # L1A (3)
+    "1d",               # 4
+    "ae50223f",         # L1B (5)
+    "0a0f0d",           # 6
+    "6666663f",         # L2 (7)
+    "15",               # 8
+    "cdcccc3d",         # L2A (9)
+    "1d",               # 10
+    "95806d3e",         # L2B (11)
+    "0a0f0d",           # 12
+    "9a99593f",         # L3 (13)
+    "15",               # 14
+    "cdcc4c3d",         # L3A (15)
+    "1d",               # 16
+    "09997a3e",         # L3B (17)
+    "0a0f0d",           # 18
+    "cdcc4c3f",         # L4 (19)
+    "15",               # 20
+    "cdcc4c3d",         # L4A (21)
+    "1d",               # 22
+    "0e06743e",         # L4B (23)
+    "0a0a0d",           # 24
+    "0000403f",         # L5 (25)
+    "1d",               # 26
+    "68ceb13e",         # L5A (27)
+    "12050d0000a0401dcdcccc3f250000003f0a610a0f0d",  # 28
 
     # Bayer luma denoise low
-    "cdcc4c3f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "65a5113f",
-    "0a0f0d",
-    "3333333f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "5a469a3e",
-    "0a0f0d",
-    "3333333f",
-    "15",
-    "9a99993d",
-    "1d",
-    "6616913e",
-    "0a0f0d",
-    "9a99193f",
-    "15",
-    "0000803d",
-    "1d",
-    "f20bbf3e",
-    "0a0a0d",
-    "3333333f",
-    "1d",
-    "ffe6ed3e",
-    "12050d000020411dcdcccc3f250000003f0a610a0f0d",
+    "cdcc4c3f",         # L1 (29)
+    "15",               # 30
+    "cdcccc3d",         # L1A (31)
+    "1d",               # 32
+    "65a5113f",         # L1B (33)
+    "0a0f0d",           # 34
+    "3333333f",         # L2 (35)
+    "15",               # 36
+    "cdcccc3d",         # L2A (37)
+    "1d",               # 38
+    "5a469a3e",         # L2B (39)
+    "0a0f0d",           # 40
+    "3333333f",         # L3 (41)
+    "15",               # 42
+    "9a99993d",         # L3A (43)
+    "1d",               # 44
+    "6616913e",         # L3B (45)
+    "0a0f0d",           # 46
+    "9a99193f",         # L4 (47)
+    "15",               # 48
+    "0000803d",         # L4A (49)
+    "1d",               # 50
+    "f20bbf3e",         # L4B (51)
+    "0a0a0d",           # 52
+    "3333333f",         # L5 (53)
+    "1d",               # 54
+    "ffe6ed3e",         # L5A (55)
+    "12050d000020411dcdcccc3f250000003f0a610a0f0d",  # 56
 
     # Bayer luma denoise med
-    "3333333f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "14fa003f",
-    "0a0f0d",
-    "cdcc4c3f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "49ccbd3e",
-    "0a0f0d",
-    "9a99193f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "37e0a43e",
-    "0a0f0d",
-    "cdcccc3e",
-    "15",
-    "9a99993d",
-    "1d",
-    "7b0a023f",
-    "0a0a0d",
-    "0000003f",
-    "1d",
-    "d1ff143f",
-    "12050d0000a0411dcdcccc3f250000003f0a610a0f0d",
+    "3333333f",         # L1 (57)
+    "15",               # 58
+    "cdcccc3d",         # L1A (59)
+    "1d",               # 60
+    "14fa003f",         # L1B (61)
+    "0a0f0d",           # 62
+    "cdcc4c3f",         # L2 (63)
+    "15",               # 64
+    "cdcccc3d",         # L2A (65)
+    "1d",               # 66
+    "49ccbd3e",         # L2B (67)
+    "0a0f0d",           # 68
+    "9a99193f",         # L3 (69)
+    "15",               # 70
+    "cdcccc3d",         # L3A (71)
+    "1d",               # 72
+    "37e0a43e",         # L3B (73)
+    "0a0f0d",           # 74
+    "cdcccc3e",         # L4 (75)
+    "15",               # 76
+    "9a99993d",         # L4A (77)
+    "1d",               # 78
+    "7b0a023f",         # L4B (79)
+    "0a0a0d",           # 80
+    "0000003f",         # L5 (81)
+    "1d",               # 82
+    "d1ff143f",         # L5A (83)
+    "12050d0000a0411dcdcccc3f250000003f0a610a0f0d",  # 84
 
     # Bayer luma denoise high
-    "9a99193f",
-    "15",
-    "9a99193e",
-    "1d",
-    "1093243f",
-    "0a0f0d",
-    "0000003f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "d08a203f",
-    "0a0f0d",
-    "5c8fc23e",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "54eef13e",
-    "0a0f0d",
-    "9a99993e",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "93d7b93e",
-    "0a0a0d",
-    "0000803e",
-    "1d",
-    "af3c9f3d",
-    "12050d000020421dcdcccc3f250000003f0a610a0f0d",
+    "9a99193f",         # L1 (85)
+    "15",               # 86
+    "9a99193e",         # L1A (87)
+    "1d",               # 88
+    "1093243f",         # L1B (89)
+    "0a0f0d",           # 90
+    "0000003f",         # L2 (91)
+    "15",               # 92
+    "cdcccc3d",         # L2A (93)
+    "1d",               # 94
+    "d08a203f",         # L2B (95)
+    "0a0f0d",           # 96
+    "5c8fc23e",         # L3 (97)
+    "15",               # 98
+    "cdcccc3d",         # L3A (99)
+    "1d",               # 100
+    "54eef13e",         # L3B (101)
+    "0a0f0d",           # 102
+    "9a99993e",         # L4 (103)
+    "15",               # 104
+    "cdcccc3d",         # L4A (105)
+    "1d",               # 106
+    "93d7b93e",         # L4B (107)
+    "0a0a0d",           # 108
+    "cdcc4c3e",         # L5 (109)
+    "1d",               # 110
+    "af3c9f3d",         # L5A (111)
+    "12050d000020421dcdcccc3f250000003f0a610a0f0d",  # 112
 
     # Bayer luma denoise very high
-    "6666263f",
-    "15",
-    "9a99193e",
-    "1d",
-    "1093243f",
-    "0a0f0d",
-    "0000403f",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "d08a203f",
-    "0a0f0d",
-    "0000803e",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "54eef13e",
-    "0a0f0d",
-    "0000803e",
-    "15",
-    "cdcccc3d",
-    "1d",
-    "93d7b93e",
-    "0a0a0d",
-    "cdcc4c3e",
-    "1d",
-    "af3c9f3d",
-    "12050d0000a0421dcdcccc3f250000003f000a610a0f0d"
+    "6666263f",         # L1 (113)
+    "15",               # 114
+    "9a99193e",         # L1A (115)
+    "1d",               # 116
+    "1093243f",         # L1B (117)
+    "0a0f0d",           # 118
+    "0000403f",         # L2 (119)
+    "15",               # 120
+    "cdcccc3d",         # L2A (121)
+    "1d",               # 122
+    "d08a203f",         # L2B (123)
+    "0a0f0d",           # 124
+    "0000803e",         # L3 (125)
+    "15",               # 126
+    "cdcccc3d",         # L3A (127)
+    "1d",               # 128
+    "54eef13e",         # L3B (129)
+    "0a0f0d",           # 130
+    "9a99993e",         # L4 (131)
+    "15",               # 132
+    "cdcccc3d",         # L4A (133)
+    "1d",               # 134
+    "93d7b93e",         # L4B (135)
+    "0a0a0d",           # 136
+    "0000803e",         # L5 (137)
+    "1d",               # 138
+    "af3c9f3d",         # L5A (139)
+    "12050d0000a0421dcdcccc3f250000003f000a610a0f0d"  # 140
 ]
 
 # --- Индексы для уровней Bayer Denoise ---
 bayer_slices = {
-    "Bayer luma denoise very low": (0, 25),
-    "Bayer luma denoise low": (25, 49),
-    "Bayer luma denoise med": (49, 73),
-    "Bayer luma denoise high": (73, 97),
-    "Bayer luma denoise very high": (97, 121)
+    "Bayer luma denoise very low": (0, 29),
+    "Bayer luma denoise low": (29, 57),
+    "Bayer luma denoise med": (57, 85),
+    "Bayer luma denoise high": (85, 113),
+    "Bayer luma denoise very high": (113, 141)
 }
 
 # --- Значения по умолчанию для новых уровней ---
@@ -323,7 +323,7 @@ def generate_bayer_hex(values_list, level_names, level_slices):
         if len(modified_block) > 21: modified_block[21] = float_to_hex(l4a)
         if len(modified_block) > 23: modified_block[23] = float_to_hex(l4b)
 
-        # === L5 и L5A (всегда после "0a0a0d") ===
+        # === L5, L5A (после "0a0a0d") ===
         try:
             l5_marker_index = modified_block.index("0a0a0d")
             if len(modified_block) > l5_marker_index + 1:
@@ -337,7 +337,6 @@ def generate_bayer_hex(values_list, level_names, level_slices):
 
     full_hex = "".join(lines)
     return full_hex
-
 
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Config Generator", layout="wide")
