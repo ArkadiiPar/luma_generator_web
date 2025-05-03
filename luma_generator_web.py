@@ -194,7 +194,7 @@ with tab2:
                 bento_sharp_levels[i]["default"] = data
 
             st.success("✅ Данные успешно загружены из HEX!")
-            st.experimental_rerun()
+            st.rerun()
         except Exception as e:
             st.error(f"❌ Ошибка при разборе: {str(e)}")
 
