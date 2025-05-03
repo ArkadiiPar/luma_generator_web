@@ -3,6 +3,15 @@ import struct
 from copy import deepcopy
 
 
+# --- Инициализация session_state ---
+if 'sharp_bento_values' not in st.session_state:
+    # Берём дефолтные значения из all_sharp_levels[5] и [6]
+    st.session_state.sharp_bento_values = [
+        all_sharp_levels[5]["default"].copy(),
+        all_sharp_levels[6]["default"].copy()
+    ]
+
+
 # --- Вспомогательные функции ---
 def float_to_hex(f):
     return struct.pack('<f', f).hex()
@@ -88,7 +97,7 @@ sharp_slices = {
 
 sharp_bento_slices = {
     "Sharp bento low": (30, 36),
-    "Sharp bento high": (36, 42),
+    "Sharp bento high": (36, 42)
 }
 
 # --- Sharp уровни по умолчанию ---
@@ -104,6 +113,7 @@ all_sharp_levels = [
 
 main_sharp_levels = all_sharp_levels[:5]
 bento_sharp_levels = all_sharp_levels[5:]
+
 
 # --- Генерация HEX для Sharp Levels ---
 def generate_sharp_hex(values_list, level_names, level_slices):
@@ -124,14 +134,13 @@ def generate_sharp_hex(values_list, level_names, level_slices):
     full_hex = "0a490a140d" + "".join(lines)
     return full_hex
 
+
 # --- Парсинг HEX для Bento Sharp ---
 def parse_bento_sharp_hex(hex_data):
     try:
         hex_blocks = [hex_data[i:i+48] for i in range(0, len(hex_data), 48)]
 
-        for i in range(2):  # Sharp bento low и high
-            level_index = 5 + i  # индекс в all_sharp_levels
-
+        for i in range(2):  # Sharp bento low/high
             line_0 = hex_blocks[i][0:16]   # L1 + L1A
             line_2 = hex_blocks[i][24:40]  # L2 + L2A
             line_4 = hex_blocks[i][56:72]  # L3 + L3A
@@ -143,10 +152,9 @@ def parse_bento_sharp_hex(hex_data):
             l3 = hex_to_float(line_4[:8])
             l3a = hex_to_float(line_4[10:18])
 
-            all_sharp_levels[level_index]["default"] = [l1, l1a, l2, l2a, l3, l3a]
+            st.session_state.sharp_bento_values[i] = [l1, l1a, l2, l2a, l3, l3a]
 
         st.success("✅ HEX успешно разобран и применён к Bento Sharp")
-
     except Exception as e:
         st.error(f"❌ Ошибка при разборе HEX: {str(e)}")
 
@@ -184,24 +192,18 @@ with tab2:
     st.markdown("### 🍱 Редактирование Sharp Bento уровней")
 
     bento_inputs = []
-    for idx, level in enumerate(bento_sharp_levels):
+    for idx in range(2):
+        level = bento_sharp_levels[idx]
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
+            l1_val, l1a_val, l2_val, l2a_val, l3_val, l3a_val = st.session_state.sharp_bento_values[idx]
 
-            # Берём значения напрямую из all_sharp_levels[5:] — чтобы они обновлялись после парсинга
-            l1_val = all_sharp_levels[5 + idx]["default"][0]
-            l1a_val = all_sharp_levels[5 + idx]["default"][1]
-            l2_val = all_sharp_levels[5 + idx]["default"][2]
-            l2a_val = all_sharp_levels[5 + idx]["default"][3]
-            l3_val = all_sharp_levels[5 + idx]["default"][4]
-            l3a_val = all_sharp_levels[5 + idx]["default"][5]
-
-            l1 = cols[0].number_input("L1", value=l1_val, format="%.4f", key=f"bento_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=l1a_val, format="%.4f", key=f"bento_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=l2_val, format="%.4f", key=f"bento_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=l2a_val, format="%.4f", key=f"bento_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=l3_val, format="%.4f", key=f"bento_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=l3a_val, format="%.4f", key=f"bento_l3a_{idx}")
+            l1 = cols[0].number_input("L1", value=l1_val, format="%.4f", key=f"bento_l1_edit_{idx}")
+            l1a = cols[1].number_input("L1A", value=l1a_val, format="%.4f", key=f"bento_l1a_edit_{idx}")
+            l2 = cols[0].number_input("L2", value=l2_val, format="%.4f", key=f"bento_l2_edit_{idx}")
+            l2a = cols[1].number_input("L2A", value=l2a_val, format="%.4f", key=f"bento_l2a_edit_{idx}")
+            l3 = cols[0].number_input("L3", value=l3_val, format="%.4f", key=f"bento_l3_edit_{idx}")
+            l3a = cols[1].number_input("L3A", value=l3a_val, format="%.4f", key=f"bento_l3a_edit_{idx}")
 
             bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
@@ -224,4 +226,4 @@ with tab2:
 # === ВКЛАДКА 3: BAYER DENOISE (временно без изменений) ===
 with tab3:
     st.markdown("### 🌪️ Настройка параметров: Bayer Luma Denoise")
-    st.write("Здесь будет генератор для Bayer Denoise (пока не трогаем)")
+    st.write("Здесь будет генератор для Bayer Denoise (в следующих версиях)")
