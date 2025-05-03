@@ -12,153 +12,153 @@ def float_to_hex(f):
 original_bayer_hex_lines = [
     # Bayer luma denoise very low
     "00000a610a0f0d",
-    "0000803f",  # L1
+    "0000803f",         # L1
     "15",
-    "cdcccc3d",  # L1A
+    "cdcccc3d",         # L1A
     "1d",
-    "ae50223f",  # L1B
+    "ae50223f",         # L1B
     "0a0f0d",
-    "6666663f",  # L2
+    "6666663f",         # L2
     "15",
-    "cdcccc3d",  # L2A
+    "cdcccc3d",         # L2A
     "1d",
-    "95806d3e",  # L2B
+    "95806d3e",         # L2B
     "0a0f0d",
-    "9a99593f",  # L3
+    "9a99593f",         # L3
     "15",
-    "cdcc4c3d",  # L3A
+    "cdcc4c3d",         # L3A
     "1d",
-    "09997a3e",  # L3B
+    "09997a3e",         # L3B
     "0a0f0d",
-    "cdcc4c3f",  # L4
+    "cdcc4c3f",         # L4
     "15",
-    "cdcc4c3d",  # L4A
+    "cdcc4c3d",         # L4A
     "1d",
-    "0e06743e",  # L4B
+    "0e06743e",         # L4B
     "0a0a0d",
-    "0000403f",  # L5
+    "0000403f",         # L5
     "1d",
-    "68ceb13e",  # L5A
+    "68ceb13e",         # L5A
     "12050d0000a0401dcdcccc3f250000003f0a610a0f0d",
 
     # Bayer luma denoise low
-    "cdcc4c3f",  # L1
+    "cdcc4c3f",         # L1
     "15",
-    "cdcccc3d",  # L1A
+    "cdcccc3d",         # L1A
     "1d",
-    "65a5113f",  # L1B
+    "65a5113f",         # L1B
     "0a0f0d",
-    "3333333f",  # L2
+    "3333333f",         # L2
     "15",
-    "cdcccc3d",  # L2A
+    "cdcccc3d",         # L2A
     "1d",
-    "5a469a3e",  # L2B
+    "5a469a3e",         # L2B
     "0a0f0d",
-    "3333333f",  # L3
+    "3333333f",         # L3
     "15",
-    "9a99993d",  # L3A
+    "9a99993d",         # L3A
     "1d",
-    "6616913e",  # L3B
+    "6616913e",         # L3B
     "0a0f0d",
-    "9a99193f",  # L4
+    "9a99193f",         # L4
     "15",
-    "0000803d",  # L4A
+    "0000803d",         # L4A
     "1d",
-    "f20bbf3e",  # L4B
+    "f20bbf3e",         # L4B
     "0a0a0d",
-    "3333333f",  # L5
+    "3333333f",         # L5
     "1d",
-    "ffe6ed3e",  # L5A
+    "ffe6ed3e",         # L5A
     "12050d000020411dcdcccc3f250000003f0a610a0f0d",
 
     # Bayer luma denoise med
-    "3333333f",  # L1
+    "3333333f",         # L1
     "15",
-    "cdcccc3d",  # L1A
+    "cdcccc3d",         # L1A
     "1d",
-    "14fa003f",  # L1B
+    "14fa003f",         # L1B
     "0a0f0d",
-    "cdcc4c3f",  # L2
+    "cdcc4c3f",         # L2
     "15",
-    "cdcccc3d",  # L2A
+    "cdcccc3d",         # L2A
     "1d",
-    "49ccbd3e",  # L2B
+    "49ccbd3e",         # L2B
     "0a0f0d",
-    "9a99193f",  # L3
+    "9a99193f",         # L3
     "15",
-    "cdcccc3d",  # L3A
+    "cdcccc3d",         # L3A
     "1d",
-    "37e0a43e",  # L3B
+    "37e0a43e",         # L3B
     "0a0f0d",
-    "cdcccc3e",  # L4
+    "cdcccc3e",         # L4
     "15",
-    "9a99993d",  # L4A
+    "9a99993d",         # L4A
     "1d",
-    "7b0a023f",  # L4B
+    "7b0a023f",         # L4B
     "0a0a0d",
-    "0000003f",  # L5
+    "0000003f",         # L5
     "1d",
-    "d1ff143f",  # L5A
+    "d1ff143f",         # L5A
     "12050d0000a0411dcdcccc3f250000003f0a610a0f0d",
 
     # Bayer luma denoise high
-    "9a99193f",  # L1
+    "9a99193f",         # L1
     "15",
-    "9a99193e",  # L1A
+    "9a99193e",         # L1A
     "1d",
-    "1093243f",  # L1B
+    "1093243f",         # L1B
     "0a0f0d",
-    "0000003f",  # L2
+    "0000003f",         # L2
     "15",
-    "cdcccc3d",  # L2A
+    "cdcccc3d",         # L2A
     "1d",
-    "d08a203f",  # L2B
+    "d08a203f",         # L2B
     "0a0f0d",
-    "5c8fc23e",  # L3
+    "5c8fc23e",         # L3
     "15",
-    "cdcccc3d",  # L3A
+    "cdcccc3d",         # L3A
     "1d",
-    "54eef13e",  # L3B
+    "54eef13e",         # L3B
     "0a0f0d",
-    "9a99993e",  # L4
+    "9a99993e",         # L4
     "15",
-    "cdcccc3d",  # L4A
+    "cdcccc3d",         # L4A
     "1d",
-    "93d7b93e",  # L4B
+    "93d7b93e",         # L4B
     "0a0a0d",
-    "cdcc4c3e",  # L5
+    "cdcc4c3e",         # L5
     "1d",
-    "af3c9f3d",  # L5A
+    "af3c9f3d",         # L5A
     "12050d000020421dcdcccc3f250000003f0a610a0f0d",
 
     # Bayer luma denoise very high
-    "6666263f",  # L1
+    "6666263f",         # L1
     "15",
-    "9a99193e",  # L1A
+    "9a99193e",         # L1A
     "1d",
-    "1093243f",  # L1B
+    "1093243f",         # L1B
     "0a0f0d",
-    "0000403f",  # L2
+    "0000403f",         # L2
     "15",
-    "cdcccc3d",  # L2A
+    "cdcccc3d",         # L2A
     "1d",
-    "d08a203f",  # L2B
+    "d08a203f",         # L2B
     "0a0f0d",
-    "0000803e",  # L3
+    "0000803e",         # L3
     "15",
-    "cdcccc3d",  # L3A
+    "cdcccc3d",         # L3A
     "1d",
-    "54eef13e",  # L3B
+    "54eef13e",         # L3B
     "0a0f0d",
-    "0000803e",  # L4
+    "0000803e",         # L4
     "15",
-    "cdcccc3d",  # L4A
+    "cdcccc3d",         # L4A
     "1d",
-    "93d7b93e",  # L4B
+    "93d7b93e",         # L4B
     "0a0a0d",
-    "cdcc4c3e",  # L5
+    "cdcc4c3e",         # L5
     "1d",
-    "af3c9f3d",  # L5A
+    "af3c9f3d",         # L5A
     "12050d0000a0421dcdcccc3f250000003f000a610a0f0d"
 ]
 
@@ -233,10 +233,10 @@ st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
 tab1, tab2 = st.tabs(["🔍 Sharp Levels", "🌪️ Bayer Denoise"])
 
-# === ВКЛАДКА 1: SHARP LEVELS (если нужно, можно добавить аналогично) ===
+# === ВКЛАДКА 1: SHARP LEVELS (временно заглушка) ===
 with tab1:
-    st.markdown("### 🔍 Sharp Levels — временно отключены")
-    st.write("Здесь будет первая часть приложения (Sharp), если ты захочешь её вернуть.")
+    st.markdown("### 🔍 Sharp Levels — временно недоступны")
+    st.write("Здесь можно добавить первую часть приложения (Sharp), если захочешь.")
 
 # === ВКЛАДКА 2: BAYER DENOISE ===
 with tab2:
@@ -271,4 +271,4 @@ with tab2:
         full_hex = generate_bayer_hex(bayer_inputs, bayer_levels, bayer_slices)
         st.text_area("Сгенерированный HEX (Bayer Denoise):", value=full_hex, height=400)
         st.code(full_hex, language="text")
-        st.download_button(label="⬇️ Скачать HEX", data=full_hex, file_name="bayer_output.hex")
+        st.download_button(label="⬇️ Скачать файл .hex", data=full_hex, file_name="bayer_output.hex")
