@@ -1,17 +1,11 @@
 import streamlit as st
 import struct
+from copy import deepcopy
 
 
 # --- Вспомогательные функции ---
 def float_to_hex(f):
     return struct.pack('<f', f).hex()
-
-
-def hex_to_float(h):
-    try:
-        return round(struct.unpack('<f', bytes.fromhex(h))[0], 6)
-    except Exception as e:
-        raise ValueError(f"Ошибка преобразования HEX '{h}' в float: {e}")
 
 
 # === SHARP LEVELS ===
@@ -81,13 +75,16 @@ sharp_slices = {
     "Sharp low": (6, 12),
     "Sharp med": (12, 18),
     "Sharp high": (18, 24),
-    "Sharp very high": (24, 30),
+    "Sharp very high": (24, 30)
+}
+
+sharp_bento_slices = {
     "Sharp bento low": (30, 36),
     "Sharp bento high": (36, 42)
 }
 
 # --- Sharp уровни по умолчанию ---
-sharp_levels = [
+all_sharp_levels = [
     {"name": "Sharp very low",  "default": [7.0, 0.060, 3.075, 0.040, 1.875, 0.058]},
     {"name": "Sharp low",       "default": [8.6, 0.060, 3.69, 0.040, 2.25, 0.058]},
     {"name": "Sharp med",       "default": [10.0, 0.060, 4.225, 0.040, 2.5, 0.058]},
@@ -97,6 +94,8 @@ sharp_levels = [
     {"name": "Sharp bento high","default": [18.5, 0.0174, 2.70, 0.0187, 1.70, 0.02]}
 ]
 
+main_sharp_levels = all_sharp_levels[:5]
+bento_sharp_levels = all_sharp_levels[5:]
 
 # --- Генерация HEX для Sharp Levels ---
 def generate_sharp_hex(values_list, level_names, level_slices):
@@ -107,7 +106,7 @@ def generate_sharp_hex(values_list, level_names, level_slices):
         name = level_names[i]["name"]
         start, end = level_slices[name]
 
-        modified_block = original_sharp_hex_lines[start:end]
+        modified_block = deepcopy(original_sharp_hex_lines[start:end])
         modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
         modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
         modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
@@ -117,34 +116,24 @@ def generate_sharp_hex(values_list, level_names, level_slices):
     full_hex = "0a490a140d" + "".join(lines)
     return full_hex
 
+# --- Генерация HEX для Bento Sharp Levels ---
+def generate_bento_sharp_hex(values_list, level_names, level_slices):
+    lines = []
 
-# --- Парсинг HEX -> Sharp Levels ---
-def parse_sharp_hex(hex_string):
-    result = {}
-    sharp_parsed_values = []
+    for i, values in enumerate(values_list):
+        l1, l1a, l2, l2a, l3, l3a = values
+        name = level_names[i]["name"]
+        start, end = level_slices[name]
 
-    for i, level in enumerate(sharp_levels):
-        offset = i * 60  # каждый уровень занимает 60 символов
+        modified_block = deepcopy(original_sharp_hex_lines[start:end])
+        modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
+        modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
+        modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
 
-        if offset + 138 > len(hex_string):
-            st.warning("HEX слишком короткий для разбора")
-            break
+        lines.extend(modified_block)
 
-        try:
-            l1 = hex_to_float(hex_string[offset:offset+8])
-            l1a = hex_to_float(hex_string[offset+10:offset+18])
-            l2 = hex_to_float(hex_string[offset+60:offset+68])
-            l2a = hex_to_float(hex_string[offset+70:offset+78])
-            l3 = hex_to_float(hex_string[offset+120:offset+128])
-            l3a = hex_to_float(hex_string[offset+130:offset+138])
-            sharp_parsed_values.append([l1, l1a, l2, l2a, l3, l3a])
-            result[level["name"]] = [l1, l1a, l2, l2a, l3, l3a]
-        except Exception as e:
-            st.warning(f"Ошибка разбора уровня {level['name']}: {e}")
-            sharp_parsed_values.append(level["default"])
-            continue
-
-    return result
+    full_hex = "".join(lines)  # без заголовка
+    return full_hex
 
 
 # === BAYER LUMA DENOISE ===
@@ -314,108 +303,79 @@ bayer_levels = [
 ]
 
 
-# --- Генерация HEX для Bayer Levels ---
+# --- Функция генерации HEX для Bayer Levels с динамическим поиском маркеров ---
 def generate_bayer_hex(values_list, level_names):
     lines = []
+
     for i, values in enumerate(values_list):
         l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a = values
         name = level_names[i]["name"]
 
-        block = deepcopy(bayer_blocks[name])
+        # --- Глубокая копия — чтобы не менять оригинал ---
+        modified_block = deepcopy(bayer_blocks[name])
 
+        # === Находим позиции через маркеры ===
         def find_next_marker(marker, start=0):
             try:
-                return block.index(marker, start)
+                return modified_block.index(marker, start)
             except ValueError:
                 return -1
 
+        idx = 0
+
+        # === L1, L1A, L1B ===
         idx = find_next_marker("0a0f0d")
-        if idx != -1:
-            block[idx + 1] = float_to_hex(l1)
-            block[idx + 3] = float_to_hex(l1a)
-            block[idx + 5] = float_to_hex(l1b)
+        if idx != -1 and idx + 5 < len(modified_block):
+            modified_block[idx + 1] = float_to_hex(l1)
+            modified_block[idx + 3] = float_to_hex(l1a)
+            modified_block[idx + 5] = float_to_hex(l1b)
 
+        # === L2, L2A, L2B ===
         idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1:
-            block[idx + 1] = float_to_hex(l2)
-            block[idx + 3] = float_to_hex(l2a)
-            block[idx + 5] = float_to_hex(l2b)
+        if idx != -1 and idx + 5 < len(modified_block):
+            modified_block[idx + 1] = float_to_hex(l2)
+            modified_block[idx + 3] = float_to_hex(l2a)
+            modified_block[idx + 5] = float_to_hex(l2b)
 
+        # === L3, L3A, L3B ===
         idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1:
-            block[idx + 1] = float_to_hex(l3)
-            block[idx + 3] = float_to_hex(l3a)
-            block[idx + 5] = float_to_hex(l3b)
+        if idx != -1 and idx + 5 < len(modified_block):
+            modified_block[idx + 1] = float_to_hex(l3)
+            modified_block[idx + 3] = float_to_hex(l3a)
+            modified_block[idx + 5] = float_to_hex(l3b)
 
+        # === L4, L4A, L4B ===
         idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1:
-            block[idx + 1] = float_to_hex(l4)
-            block[idx + 3] = float_to_hex(l4a)
-            block[idx + 5] = float_to_hex(l4b)
+        if idx != -1 and idx + 5 < len(modified_block):
+            modified_block[idx + 1] = float_to_hex(l4)
+            modified_block[idx + 3] = float_to_hex(l4a)
+            modified_block[idx + 5] = float_to_hex(l4b)
 
+        # === L5, L5A (после "0a0a0d") ===
         idx = find_next_marker("0a0a0d")
-        if idx != -1:
-            if idx + 1 < len(block):
-                block[idx + 1] = float_to_hex(l5)
-            if idx + 3 < len(block):
-                block[idx + 3] = float_to_hex(l5a)
+        if idx != -1 and idx + 3 < len(modified_block):
+            modified_block[idx + 1] = float_to_hex(l5)
+            modified_block[idx + 3] = float_to_hex(l5a)
 
-        lines.extend(block)
+        lines.extend(modified_block)
 
-    full_hex = "".join(lines)
+    full_hex = "\n".join(lines)
     return full_hex
-
-
-# --- Парсинг HEX -> Bayer Levels ---
-def parse_bayer_hex(hex_string):
-    parsed_data = {}
-
-    positions = {
-        "Bayer luma denoise very low": 0,
-        "Bayer luma denoise low": 140,
-        "Bayer luma denoise med": 280,
-        "Bayer luma denoise high": 420,
-        "Bayer luma denoise very high": 560
-    }
-
-    for name, offset in positions.items():
-        try:
-            l1 = hex_to_float(hex_string[offset+8:offset+16])
-            l1a = hex_to_float(hex_string[offset+10:offset+18])
-            l1b = hex_to_float(hex_string[offset+20:offset+28])
-            l2 = hex_to_float(hex_string[offset+30:offset+38])
-            l2a = hex_to_float(hex_string[offset+40:offset+48])
-            l2b = hex_to_float(hex_string[offset+50:offset+58])
-            l3 = hex_to_float(hex_string[offset+60:offset+68])
-            l3a = hex_to_float(hex_string[offset+70:offset+78])
-            l3b = hex_to_float(hex_string[offset+80:offset+88])
-            l4 = hex_to_float(hex_string[offset+90:offset+98])
-            l4a = hex_to_float(hex_string[offset+100:offset+108])
-            l4b = hex_to_float(hex_string[offset+110:offset+118])
-            l5 = hex_to_float(hex_string[offset+120:offset+128])
-            l5a = hex_to_float(hex_string[offset+130:offset+138])
-
-            parsed_data[name] = [l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a]
-        except Exception as e:
-            parsed_data[name] = [0.0]*14
-            st.warning(f"Ошибка разбора уровня {name}: {e}")
-
-    return parsed_data
 
 
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
-tab1, tab2 = st.tabs(["🔍 Sharp Levels", "🌪️ Bayer Denoise"])
+tab1, tab2, tab3 = st.tabs(["🔍 Sharp Main", "🍱 Sharp Bento", "🌪️ Bayer Denoise"])
 
 
-# === ВКЛАДКА 1: SHARP LEVELS ===
+# === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
 with tab1:
-    st.markdown("### 🔧 Редактирование Sharp Levels")
+    st.markdown("### 🔧 Редактирование основных Sharp уровней")
 
     sharp_inputs = []
-    for idx, level in enumerate(st.session_state.get('sharp_inputs', sharp_levels)):
+    for idx, level in enumerate(main_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
             l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"sharp_l1_{idx}")
@@ -424,38 +384,46 @@ with tab1:
             l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"sharp_l2a_{idx}")
             l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"sharp_l3_{idx}")
             l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"sharp_l3a_{idx}")
-            sharp_inputs.append({"name": level["name"], "default": [l1, l1a, l2, l2a, l3, l3a]})
+            sharp_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
-    if st.button("🚀 Сгенерировать Sharp HEX"):
-        full_hex = generate_sharp_hex(sharp_inputs, sharp_inputs, sharp_slices)
-        st.text_area("Сгенерированный HEX (Sharp):", value=full_hex, height=200)
+    if st.button("🚀 Сгенерировать основной Sharp HEX"):
+        full_hex = generate_sharp_hex(sharp_inputs, main_sharp_levels, sharp_slices)
+        st.text_area("Сгенерированный HEX (Sharp Main):", value=full_hex, height=400)
         st.code(full_hex, language="text")
-        st.download_button(label="⬇️ Скачать файл .hex", data=full_hex, file_name="sharp_output.hex")
-
-    hex_input_sharp = st.text_area("📄 Введите HEX-строку для разборки (Sharp)", value="", height=100)
-    if st.button("🔄 Разобрать Sharp HEX"):
-        if not hex_input_sharp.strip():
-            st.warning("Введите HEX-строку для разборки.")
-        else:
-            try:
-                parsed = parse_sharp_hex(hex_input_sharp)
-                for i, level in enumerate(sharp_levels):
-                    sharp_levels[i]["default"] = parsed[level["name"]]
-                st.session_state.sharp_inputs = sharp_levels
-                st.rerun()
-            except Exception as e:
-                st.error(f"Ошибка при разборке: {e}")
+        st.download_button(label="⬇️ Скачать Sharp Main", data=full_hex, file_name="sharp_main_output.hex")
 
 
-# === ВКЛАДКА 2: BAYER DENOISE ===
+# === ВКЛАДКА 2: BENTO SHARP ===
 with tab2:
-    st.markdown("### 🌪️ Редактирование Bayer Luma Denoise")
+    st.markdown("### 🍱 Редактирование Bento Sharp уровней")
 
-    bayer_inputs = []
-    for idx, level in enumerate(st.session_state.get('bayer_inputs', bayer_levels)):
+    bento_inputs = []
+    for idx, level in enumerate(bento_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
+            l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"bento_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"bento_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"bento_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
+            bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
+    if st.button("🚀 Сгенерировать Bento Sharp HEX"):
+        full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
+        st.text_area("Сгенерированный HEX (Bento Sharp):", value=full_hex, height=400)
+        st.code(full_hex, language="text")
+        st.download_button(label="⬇️ Скачать Bento Sharp HEX", data=full_hex, file_name="sharp_bento_output.hex")
+
+
+# === ВКЛАДКА 3: BAYER DENOISE ===
+with tab3:
+    st.markdown("### 🌪️ Настройка параметров: Bayer Luma Denoise")
+
+    bayer_inputs = []
+    for idx, level in enumerate(bayer_levels):
+        with st.expander(level["name"], expanded=True):
+            cols = st.columns(3)
             l1 = cols[0].number_input("L1", value=level["default"][0], format="%.6f", key=f"bayer_l1_{idx}")
             l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.6f", key=f"bayer_l1a_{idx}")
             l1b = cols[2].number_input("L1B", value=level["default"][2], format="%.6f", key=f"bayer_l1b_{idx}")
@@ -466,7 +434,7 @@ with tab2:
 
             l3 = cols[0].number_input("L3", value=level["default"][6], format="%.6f", key=f"bayer_l3_{idx}")
             l3a = cols[1].number_input("L3A", value=level["default"][7], format="%.6f", key=f"bayer_l3a_{idx}")
-            l3b = cols[2].number_input("L3B", value=level["default"][8], format="%.6f", key=f"bayer_l3b_{idx}")
+            l3b = cols[2].number_input("L3B", value=level["default"][8], format="%.6f", key=f"bento_l3b_{idx}")
 
             l4 = cols[0].number_input("L4", value=level["default"][9], format="%.6f", key=f"bayer_l4_{idx}")
             l4a = cols[1].number_input("L4A", value=level["default"][10], format="%.6f", key=f"bayer_l4a_{idx}")
@@ -475,31 +443,10 @@ with tab2:
             l5 = cols[0].number_input("L5", value=level["default"][12], format="%.6f", key=f"bayer_l5_{idx}")
             l5a = cols[1].number_input("L5A", value=level["default"][13], format="%.6f", key=f"bayer_l5a_{idx}")
 
-            bayer_inputs.append({
-                "name": level["name"],
-                "default": [l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a]
-            })
+            bayer_inputs.append([l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a])
 
     if st.button("🚀 Сгенерировать HEX (Bayer Denoise)"):
-        values_list = []
-        for level in bayer_inputs:
-            values_list.append(level["default"])
-
-        full_hex = generate_bayer_hex(values_list, bayer_inputs)
-        st.text_area("Сгенерированный HEX (Bayer Denoise):", value=full_hex, height=200)
+        full_hex = generate_bayer_hex(bayer_inputs, bayer_levels)
+        st.text_area("Сгенерированный HEX (Bayer Denoise):", value=full_hex, height=400)
         st.code(full_hex, language="text")
         st.download_button(label="⬇️ Скачать файл .hex", data=full_hex, file_name="bayer_output.hex")
-
-    hex_input_bayer = st.text_area("📄 Введите HEX-строку для разборки (Bayer)", value="", height=100)
-    if st.button("🔄 Разобрать HEX (Bayer)"):
-        if not hex_input_bayer.strip():
-            st.warning("Введите HEX-строку для разборки.")
-        else:
-            try:
-                parsed = parse_bayer_hex(hex_input_bayer)
-                for i, level in enumerate(bayer_levels):
-                    bayer_levels[i]["default"] = parsed[level["name"]]
-                st.session_state.bayer_inputs = bayer_levels
-                st.rerun()
-            except Exception as e:
-                st.error(f"Ошибка при разборке HEX: {e}")
