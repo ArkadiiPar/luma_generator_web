@@ -206,7 +206,7 @@ with tab2:
     if st.button("🔄 Применить HEX к Bento Sharp"):
         if hex_input.strip():
             parse_bento_sharp_hex(hex_input)
-            st.experimental_rerun()  # Перезапуск для обновления значений по умолчанию
+            st.rerun()  # Перезапуск для обновления значений по умолчанию
         else:
             st.warning("❌ Пустой HEX")
 
