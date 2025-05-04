@@ -66,42 +66,39 @@ def generate_bento_sharp_hex(values_list, level_names):
 
 # --- Функция для парсинга HEX-строки в поля ввода ---
 def parse_bento_values_from_hex(hex_input):
-    """Разбивает HEX на строки и извлекает значения"""
-    # Длина строки: 4 символа на байт → каждая строка должна быть кратна 4
+    """Разбивает HEX на строки и извлекает значения из нужных частей"""
+    idx = 0
     hex_blocks = []
 
-    idx = 0
+    # Сначала разбиваем на строки по длине исходных строк
     for line in bento_low_block + bento_high_block:
         length = len(line)
+        if idx + length > len(hex_input):
+            raise ValueError(f"HEX-строка слишком короткая для {line}")
         hex_blocks.append(hex_input[idx:idx + length])
         idx += length
-
-    # Теперь hex_blocks содержит 12 строк: 6 для low + 6 для high
 
     parsed_values = []
 
     # Sharp bento low
-    l1 = hex_to_float(hex_blocks[0][0:8])
-    l1a = hex_to_float(hex_blocks[0][16:24])  # 16–24 в строке 0
-    l2 = hex_to_float(hex_blocks[2][0:8])
-    l2a = hex_to_float(hex_blocks[2][16:24])
-    l3 = hex_to_float(hex_blocks[4][0:8])
-    l3a = hex_to_float(hex_blocks[4][16:24])
-
-    parsed_values.append([l1, l1a, l2, l2a, l3, l3a])
+    l1 = hex_blocks[0][0:8]
+    l1a = hex_blocks[0][16:24]
+    l2 = hex_blocks[2][0:8]
+    l2a = hex_blocks[2][16:24]
+    l3 = hex_blocks[4][0:8]
+    l3a = hex_blocks[4][16:24]
+    parsed_values.append([hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)])
 
     # Sharp bento high
-    l1 = hex_to_float(hex_blocks[6][0:8])
-    l1a = hex_to_float(hex_blocks[6][16:24])
-    l2 = hex_to_float(hex_blocks[8][0:8])
-    l2a = hex_to_float(hex_blocks[8][16:24])
-    l3 = hex_to_float(hex_blocks[10][0:8])
-    l3a = hex_to_float(hex_blocks[10][16:24])
-
-    parsed_values.append([l1, l1a, l2, l2a, l3, l3a])
+    l1 = hex_blocks[6][0:8]
+    l1a = hex_blocks[6][16:24]
+    l2 = hex_blocks[8][0:8]
+    l2a = hex_blocks[8][16:24]
+    l3 = hex_blocks[10][0:8]
+    l3a = hex_blocks[10][16:24]
+    parsed_values.append([hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)])
 
     return parsed_values
-
 
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
