@@ -181,18 +181,20 @@ with st.expander("🍱 Sharp Bento", expanded=True):
 
 
 # === ВКЛАДКА 3: PARSE HEX TO BENTO ===
-with st.expander("🧮 Parse HEX to Bento", expanded=True):
+with st.container():
+    st.markdown("### 🧮 Parse HEX to Bento Levels")
+
     hex_input = st.text_area("Вставьте HEX-код для обратного разбора", height=300)
 
     if st.button("🔄 Разобрать HEX в поля"):
         try:
             # Позиции для Sharp bento low
-            l1_low = hex_input[0:8]    # L1
-            l1a_low = hex_input[10:18]  # после "1d"
-            l2_low = hex_input[46:54]   # после первой службы
-            l2a_low = hex_input[56:64]  # после "1d"
-            l3_low = hex_input[92:100] # после второй службы
-            l3a_low = hex_input[102:110] # после "1d"
+            l1_low = hex_input[0:8]      # L1
+            l1a_low = hex_input[10:18]   # L1A
+            l2_low = hex_input[46:54]    # L2
+            l2a_low = hex_input[56:64]   # L2A
+            l3_low = hex_input[92:100]   # L3
+            l3a_low = hex_input[102:110]  # L3A
 
             # Позиции для Sharp bento high
             l1_high = hex_input[156:164]
@@ -202,22 +204,43 @@ with st.expander("🧮 Parse HEX to Bento", expanded=True):
             l3_high = hex_input[248:256]
             l3a_high = hex_input[258:266]
 
-            # Обновляем поля ввода
-            st.session_state[f"bento_l1_0"] = hex_to_float(l1_low)
-            st.session_state[f"bento_l1a_0"] = hex_to_float(l1a_low)
-            st.session_state[f"bento_l2_0"] = hex_to_float(l2_low)
-            st.session_state[f"bento_l2a_0"] = hex_to_float(l2a_low)
-            st.session_state[f"bento_l3_0"] = hex_to_float(l3_low)
-            st.session_state[f"bento_l3a_0"] = hex_to_float(l3a_low)
+            # Конвертируем HEX → float
+            def hex_to_float(h):
+                return struct.unpack('<f', bytes.fromhex(h))[0]
 
-            st.session_state[f"bento_l1_1"] = hex_to_float(l1_high)
-            st.session_state[f"bento_l1a_1"] = hex_to_float(l1a_high)
-            st.session_state[f"bento_l2_1"] = hex_to_float(l2_high)
-            st.session_state[f"bento_l2a_1"] = hex_to_float(l2a_high)
-            st.session_state[f"bento_l3_1"] = hex_to_float(l3_high)
-            st.session_state[f"bento_l3a_1"] = hex_to_float(l3a_high)
+            parsed_values = {
+                "Sharp bento low": [
+                    hex_to_float(l1_low),
+                    hex_to_float(l1a_low),
+                    hex_to_float(l2_low),
+                    hex_to_float(l2a_low),
+                    hex_to_float(l3_low),
+                    hex_to_float(l3a_low)
+                ],
+                "Sharp bento high": [
+                    hex_to_float(l1_high),
+                    hex_to_float(l1a_high),
+                    hex_to_float(l2_high),
+                    hex_to_float(l2a_high),
+                    hex_to_float(l3_high),
+                    hex_to_float(l3a_high)
+                ]
+            }
+
+            # Обновляем session_state
+            for i in range(2):  # для low и high
+                level = bento_sharp_levels[i]
+                name = level["name"]
+                values = parsed_values[name]
+
+                st.session_state[f"bento_l1_{i}"] = values[0]
+                st.session_state[f"bento_l1a_{i}"] = values[1]
+                st.session_state[f"bento_l2_{i}"] = values[2]
+                st.session_state[f"bento_l2a_{i}"] = values[3]
+                st.session_state[f"bento_l3_{i}"] = values[4]
+                st.session_state[f"bento_l3a_{i}"] = values[5]
 
             st.success("✅ HEX успешно разобран в поля ввода")
 
         except Exception as e:
-            st.error("❌ Ошибка при разборе — проверь, что HEX соответствует структуре Bento Sharp")
+            st.error(f"❌ Не удалось разобрать HEX — структура не соответствует ожидаемой. Ошибка: {str(e)}")
