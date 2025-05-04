@@ -10,50 +10,46 @@ def float_to_hex(f):
 def hex_to_float(hex_str):
     return round(struct.unpack('<f', bytes.fromhex(hex_str))[0], 6)
 
+# === SHARP LEVELS (не меняем) ===
+original_sharp_hex_lines = [
+    # Sharp bento low
+    "000080411d77be9f3c",
+    "250000803f2d0000803f0a140d",
+    "666646401dc1caa13c",
+    "250000803f2d0000803f0a140d",
+    "85ebf13f1d0ad7a33c",
+    "250000803f2d0000803f12050d000020420a490a140d",
 
-# === SHARP BENTO LEVELS ===
-
-# --- Исходные строки для Sharp Bento (не меняем!) ---
-bento_low_block = [
-    "000080411d77be9f3c",         # L1
+    # Sharp bento high
+    "000094411d728a8e3c",
     "250000803f2d0000803f0a140d",
-    "666646401dc1caa13c",         # L2
+    "cdcc2c401dbe30993c",
     "250000803f2d0000803f0a140d",
-    "85ebf13f1d0ad7a33c",         # L3
-    "250000803f2d0000803f12050d000020420a490a140d"
-]
-
-bento_high_block = [
-    "000094411d728a8e3c",         # L1
-    "250000803f2d0000803f0a140d",
-    "cdcc2c401dbe30993c",         # L2
-    "250000803f2d0000803f0a140d",
-    "9a99d93f1d0ad7a33c",         # L3
+    "9a99d93f1d0ad7a33c",
     "250000803f2d0000803f12050d0000a042000000"
 ]
 
+sharp_bento_slices = {
+    "Sharp bento low": (0, 6),
+    "Sharp bento high": (6, 12)
+}
 
-# --- Sharp уровни по умолчанию ---
-bento_sharp_levels = [
+all_sharp_levels = [
     {"name": "Sharp bento low", "default": [16.0, 0.0195, 3.10, 0.01975, 1.89, 0.02]},
-    {"name": "Sharp bento high", "default": [18.5, 0.0174, 2.70, 0.0187, 1.70, 0.02]}
+    {"name": "Sharp bento high","default": [18.5, 0.0174, 2.70, 0.0187, 1.70, 0.02]}
 ]
 
 
-# --- Генерация HEX для Sharp Bento Levels ---
-def generate_bento_sharp_hex(values_list, level_names):
+# --- Генерация HEX для Bento Sharp Levels ---
+def generate_bento_sharp_hex(values_list, level_names, level_slices):
     lines = []
 
     for i, values in enumerate(values_list):
         l1, l1a, l2, l2a, l3, l3a = values
         name = level_names[i]["name"]
+        start, end = level_slices[name]
 
-        if name == "Sharp bento low":
-            modified_block = deepcopy(bento_low_block)
-        else:
-            modified_block = deepcopy(bento_high_block)
-
-        # === Меняем нужные части ===
+        modified_block = deepcopy(original_sharp_hex_lines[start:end])
         modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
         modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
         modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
@@ -64,71 +60,53 @@ def generate_bento_sharp_hex(values_list, level_names):
     return full_hex
 
 
-# --- Парсинг HEX-строки в значения (без проверок) ---
-def parse_bento_values_from_hex(hex_input):
-    """Извлекает значения из HEX-строки по точным позициям"""
-    hex_blocks = []
-    idx = 0
+# --- Обратная парсилка: принимает HEX и возвращает L1, L1A, L2, L2A, L3, L3A ---
+def parse_bento_hex(hex_string, level_name):
+    if level_name == "Sharp bento low":
+        offset = 0
+    elif level_name == "Sharp bento high":
+        offset = 6
+    else:
+        return None
 
-    # Sharp bento low
-    for line in bento_low_block:
-        hex_blocks.append(hex_input[idx:idx + len(line)])
-        idx += len(line)
+    try:
+        block = [
+            hex_string[offset*32 : (offset+1)*32],
+            hex_string[(offset+1)*32 : (offset+2)*32],
+            hex_string[(offset+2)*32 : (offset+3)*32],
+            hex_string[(offset+3)*32 : (offset+4)*32],
+            hex_string[(offset+4)*32 : (offset+5)*32],
+            hex_string[(offset+5)*32 : (offset+6)*32]
+        ]
+        # Извлекаем нужные значения из строк блока
+        def get_value(pos): return hex_to_float(block[pos][:8])
+        def get_value_a(pos): return block[pos].split("1d")[1][:8]
 
-    # Sharp bento high
-    for line in bento_high_block:
-        hex_blocks.append(hex_input[idx:idx + len(line)])
-        idx += len(line)
+        l1 = get_value(0)
+        l1a = hex_to_float(get_value_a(0))
+        l2 = get_value(2)
+        l2a = hex_to_float(get_value_a(2))
+        l3 = get_value(4)
+        l3a = hex_to_float(get_value_a(4))
 
-    # Sharp bento low — извлечение
-    l1 = hex_blocks[0][0:8]
-    l1a = hex_blocks[0][16:24]
-    l2 = hex_blocks[2][0:8]
-    l2a = hex_blocks[2][16:24]
-    l3 = hex_blocks[4][0:8]
-    l3a = hex_blocks[4][16:24]
-
-    low_values = [hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)]
-
-    # Sharp bento high — извлечение
-    l1 = hex_blocks[6][0:8]
-    l1a = hex_blocks[6][16:24]
-    l2 = hex_blocks[8][0:8]
-    l2a = hex_blocks[8][16:24]
-    l3 = hex_blocks[10][0:8]
-    l3a = hex_blocks[10][16:24]
-
-    high_values = [hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)]
-
-    return [low_values, high_values]
+        return [l1, l1a, l2, l2a, l3, l3a]
+    except Exception:
+        return None
 
 
 # --- Интерфейс Streamlit ---
-st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
-st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
+st.set_page_config(page_title="HEX Sharp Bento Parser", layout="wide")
+st.title("🔧 Sharp Bento Level HEX Code Generator & Parser")
 
-tab1, tab2 = st.tabs(["🍱 Sharp Bento", "🌪️ Bayer Denoise"])
+tab1, tab2 = st.tabs(["🍱 Редактор Bento Sharp", "🔍 Парсер Bento Sharp"])
 
 
-# === ВКЛАДКА 1: SHARP BENTO ===
+# === ВКЛАДКА 1: РЕДАКТОР BENTO SHARP ===
 with tab1:
-    st.markdown("### 🍱 Sharp Bento Levels")
-    st.markdown("🔹 Подставь HEX-строку (296 символов) — обновятся все значения")
+    st.markdown("### 🍱 Редактирование Sharp Bento уровней")
 
-    hex_input = st.text_area("Введи HEX-строку (296 символов):", value="", height=100)
-
-    if hex_input and len(hex_input) == 296:
-        # Извлекаем значения
-        new_defaults = parse_bento_values_from_hex(hex_input)
-        bento_sharp_levels[0]["default"] = new_defaults[0]
-        bento_sharp_levels[1]["default"] = new_defaults[1]
-
-    elif hex_input and len(hex_input) != 296:
-        st.warning("⚠️ Длина строки должна быть 296 символов")
-
-    # === Поля ввода ===
     bento_inputs = []
-    for idx, level in enumerate(bento_sharp_levels):
+    for idx, level in enumerate(all_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
             l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"bento_l1_{idx}")
@@ -137,8 +115,38 @@ with tab1:
             l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
             l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
             l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
+
             bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
-    if st.button("🚀 Сгенерировать HEX (Bento Sharp)"):
-        full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels)
+    if st.button("🚀 Сгенерировать Bento Sharp HEX"):
+        full_hex = generate_bento_sharp_hex(bento_inputs, all_sharp_levels, sharp_bento_slices)
+        st.text_area("Сгенерированный HEX (Bento Sharp):", value=full_hex, height=400)
         st.code(full_hex, language="text")
+
+
+# === ВКЛАДКА 2: ПАРСЕР BENTO SHARP ===
+with tab2:
+    st.markdown("### 🔍 Обратная парсилка HEX → параметры Bento Sharp")
+
+    hex_input = st.text_area("Вставь HEX-строку", height=400, placeholder="Например: 000080411d77be9f3c250000803f2d0000803f0a140d666646401dc1caa13c250000803f2d0000803f0a140d85ebf13f1d0ad7a33c250000803f2d0000803f12050d000020420a490a140d")
+
+    selected_level = st.selectbox("Выбери уровень для парсинга", ["Sharp bento low", "Sharp bento high"])
+
+    if st.button("🧮 Распарсить HEX"):
+        if not hex_input.strip():
+            st.warning("⚠️ Вставь HEX-код!")
+        else:
+            parsed_values = parse_bento_hex(hex_input, selected_level)
+
+            if parsed_values is None:
+                st.error("❌ Не удалось распарсить HEX — неверный формат или длина.")
+            else:
+                l1, l1a, l2, l2a, l3, l3a = parsed_values
+                st.write("### 🧾 Результаты парсинга:")
+                cols = st.columns(3)
+                cols[0].write(f"- **L1**: {round(l1, 6)}")
+                cols[1].write(f"- **L1A**: {round(l1a, 6)}")
+                cols[0].write(f"- **L2**: {round(l2, 6)}")
+                cols[1].write(f"- **L2A**: {round(l2a, 6)}")
+                cols[0].write(f"- **L3**: {round(l3, 6)}")
+                cols[1].write(f"- **L3A**: {round(l3a, 6)}")
