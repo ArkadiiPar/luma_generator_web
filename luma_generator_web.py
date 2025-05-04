@@ -502,33 +502,33 @@ with tab4:
 
     hex_input = st.text_area("Вставь HEX-строку сюда:", value="", height=200)
 
-    if st.button("🔍 Распарсить Bento HEX"):
+    if st.button("🔍 Распарсить HEX"):
         if not hex_input.strip():
             st.warning("❌ Вставь HEX-строку для расшифровки!")
         else:
             try:
+                # --- Парсинг Sharp bento low ---
                 offset = 0
 
-                # Sharp bento low
                 l1_low = hex_input[offset:offset+8]
-                offset += 8 + 2
+                offset += 8 + 2  # L1 + '1d'
 
                 l1a_low = hex_input[offset:offset+8]
-                offset += 8 + 26
+                offset += 8 + 26  # L1A + служебная строка длиной 26
 
                 l2_low = hex_input[offset:offset+8]
-                offset += 8 + 2
+                offset += 8 + 2  # L2 + '1d'
 
                 l2a_low = hex_input[offset:offset+8]
-                offset += 8 + 26
+                offset += 8 + 26  # L2A + служебная строка длиной 26
 
                 l3_low = hex_input[offset:offset+8]
-                offset += 8 + 2
+                offset += 8 + 2  # L3 + '1d'
 
                 l3a_low = hex_input[offset:offset+8]
-                offset += 8 + 44  # служебная строка после L3A
+                offset += 8 + 44  # L3A + служебная строка длиной 44
 
-                # Sharp bento high (начинается сразу после low)
+                # --- Парсинг Sharp bento high (начинается сразу после Sharp bento low) ---
                 l1_high = hex_input[offset:offset+8]
                 offset += 8 + 2
 
@@ -546,9 +546,11 @@ with tab4:
 
                 l3a_high = hex_input[offset:offset+8]
 
+                # --- Конвертируем в float ---
                 def h2f(h):
                     return round(hex_to_float(h), 6)
 
+                # --- Вывод результата ---
                 st.markdown("#### 📄 Расшифровано из HEX:")
 
                 st.write("🔹 Sharp bento low:")
