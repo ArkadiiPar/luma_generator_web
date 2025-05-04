@@ -13,7 +13,7 @@ def hex_to_float(hex_str):
 
 # === SHARP BENTO LEVELS ===
 
-# --- Исходные строки для Sharp Bento ---
+# --- Исходные строки для Sharp Bento (не меняем!) ---
 bento_low_block = [
     "000080411d77be9f3c",         # L1
     "250000803f2d0000803f0a140d",
@@ -53,7 +53,7 @@ def generate_bento_sharp_hex(values_list, level_names):
         else:
             modified_block = deepcopy(bento_high_block)
 
-        # === Меняем значения в соответствующих строках ===
+        # === Меняем нужные части ===
         modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
         modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
         modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
@@ -64,41 +64,44 @@ def generate_bento_sharp_hex(values_list, level_names):
     return full_hex
 
 
-# --- Функция для парсинга HEX-строки в поля ввода ---
+# --- Парсинг HEX-строки в значения (без проверок) ---
 def parse_bento_values_from_hex(hex_input):
-    """Разбивает HEX на строки и извлекает значения из нужных частей"""
-    idx = 0
+    """Извлекает значения из HEX-строки по точным позициям"""
     hex_blocks = []
-
-    # Сначала разбиваем на строки по длине исходных строк
-    for line in bento_low_block + bento_high_block:
-        length = len(line)
-        if idx + length > len(hex_input):
-            raise ValueError(f"HEX-строка слишком короткая для {line}")
-        hex_blocks.append(hex_input[idx:idx + length])
-        idx += length
-
-    parsed_values = []
+    idx = 0
 
     # Sharp bento low
+    for line in bento_low_block:
+        hex_blocks.append(hex_input[idx:idx + len(line)])
+        idx += len(line)
+
+    # Sharp bento high
+    for line in bento_high_block:
+        hex_blocks.append(hex_input[idx:idx + len(line)])
+        idx += len(line)
+
+    # Sharp bento low — извлечение
     l1 = hex_blocks[0][0:8]
     l1a = hex_blocks[0][16:24]
     l2 = hex_blocks[2][0:8]
     l2a = hex_blocks[2][16:24]
     l3 = hex_blocks[4][0:8]
     l3a = hex_blocks[4][16:24]
-    parsed_values.append([hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)])
 
-    # Sharp bento high
+    low_values = [hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)]
+
+    # Sharp bento high — извлечение
     l1 = hex_blocks[6][0:8]
     l1a = hex_blocks[6][16:24]
     l2 = hex_blocks[8][0:8]
     l2a = hex_blocks[8][16:24]
     l3 = hex_blocks[10][0:8]
     l3a = hex_blocks[10][16:24]
-    parsed_values.append([hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)])
 
-    return parsed_values
+    high_values = [hex_to_float(l1), hex_to_float(l1a), hex_to_float(l2), hex_to_float(l2a), hex_to_float(l3), hex_to_float(l3a)]
+
+    return [low_values, high_values]
+
 
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
@@ -110,20 +113,18 @@ tab1, tab2 = st.tabs(["🍱 Sharp Bento", "🌪️ Bayer Denoise"])
 # === ВКЛАДКА 1: SHARP BENTO ===
 with tab1:
     st.markdown("### 🍱 Sharp Bento Levels")
-    st.markdown("🔹 Подставь HEX-строку (296 символов) — обновятся дефолтные значения")
+    st.markdown("🔹 Подставь HEX-строку (296 символов) — обновятся все значения")
 
     hex_input = st.text_area("Введи HEX-строку (296 символов):", value="", height=100)
 
     if hex_input and len(hex_input) == 296:
-        try:
-            new_defaults = parse_bento_values_from_hex(hex_input)
-            bento_sharp_levels[0]["default"] = new_defaults[0]
-            bento_sharp_levels[1]["default"] = new_defaults[1]
-            st.success("✅ Дефолтные значения обновлены из HEX")
-        except Exception as e:
-            st.error(f"❌ Ошибка разбора: {e}")
+        # Извлекаем значения
+        new_defaults = parse_bento_values_from_hex(hex_input)
+        bento_sharp_levels[0]["default"] = new_defaults[0]
+        bento_sharp_levels[1]["default"] = new_defaults[1]
+
     elif hex_input and len(hex_input) != 296:
-        st.warning("⚠️ Неверная длина строки — должно быть 296 символов")
+        st.warning("⚠️ Длина строки должна быть 296 символов")
 
     # === Поля ввода ===
     bento_inputs = []
@@ -136,7 +137,6 @@ with tab1:
             l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
             l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
             l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
-
             bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать HEX (Bento Sharp)"):
