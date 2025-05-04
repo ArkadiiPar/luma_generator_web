@@ -171,21 +171,40 @@ with tab1:
 with tab2:
     st.markdown("### 🍱 Sharp Bento Levels")
 
+    # Инициализация session_state для полей ввода (если их нет)
+    for idx, level in enumerate(bento_sharp_levels):
+        if f"bento_l1_{idx}" not in st.session_state:
+            st.session_state[f"bento_l1_{idx}"] = level["default"][0]
+        if f"bento_l1a_{idx}" not in st.session_state:
+            st.session_state[f"bento_l1a_{idx}"] = level["default"][1]
+        if f"bento_l2_{idx}" not in st.session_state:
+            st.session_state[f"bento_l2_{idx}"] = level["default"][2]
+        if f"bento_l2a_{idx}" not in st.session_state:
+            st.session_state[f"bento_l2a_{idx}"] = level["default"][3]
+        if f"bento_l3_{idx}" not in st.session_state:
+            st.session_state[f"bento_l3_{idx}"] = level["default"][4]
+        if f"bento_l3a_{idx}" not in st.session_state:
+            st.session_state[f"bento_l3a_{idx}"] = level["default"][5]
+
+    # Поля ввода Sharp Bento
     bento_inputs = []
     for idx, level in enumerate(bento_sharp_levels):
         st.markdown(f"#### {level['name']}")
         cols = st.columns(3)
-        l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"bento_l1_{idx}")
-        l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"bento_l1a_{idx}")
-        l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"bento_l2_{idx}")
-        l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
-        l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
-        l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
+
+        l1 = cols[0].number_input("L1", value=st.session_state[f"bento_l1_{idx}"], format="%.4f", key=f"bento_l1_{idx}", label_visibility="visible")
+        l1a = cols[1].number_input("L1A", value=st.session_state[f"bento_l1a_{idx}"], format="%.4f", key=f"bento_l1a_{idx}", label_visibility="visible")
+        l2 = cols[0].number_input("L2", value=st.session_state[f"bento_l2_{idx}"], format="%.4f", key=f"bento_l2_{idx}", label_visibility="visible")
+        l2a = cols[1].number_input("L2A", value=st.session_state[f"bento_l2a_{idx}"], format="%.4f", key=f"bento_l2a_{idx}", label_visibility="visible")
+        l3 = cols[0].number_input("L3", value=st.session_state[f"bento_l3_{idx}"], format="%.4f", key=f"bento_l3_{idx}", label_visibility="visible")
+        l3a = cols[1].number_input("L3A", value=st.session_state[f"bento_l3a_{idx}"], format="%.4f", key=f"bento_l3a_{idx}", label_visibility="visible")
+
         bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать Bento Sharp", key="generate_bento"):
         full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
         st.code(full_hex, language="text")
+
 
     # === PARSE HEX TO BENTO ===
     st.markdown("### 🧮 Разбор HEX обратно в поля ввода")
@@ -235,20 +254,20 @@ with tab2:
                 ]
             }
 
-            # Обновляем session_state
-            st.session_state["bento_l1_0"] = parsed_values["Sharp bento low"][0]
-            st.session_state["bento_l1a_0"] = parsed_values["Sharp bento low"][1]
-            st.session_state["bento_l2_0"] = parsed_values["Sharp bento low"][2]
-            st.session_state["bento_l2a_0"] = parsed_values["Sharp bento low"][3]
-            st.session_state["bento_l3_0"] = parsed_values["Sharp bento low"][4]
-            st.session_state["bento_l3a_0"] = parsed_values["Sharp bento low"][5]
+            # Сохраняем в отдельные ключи session_state
+            st.session_state["parsed_bento_l1_0"] = parsed_values["Sharp bento low"][0]
+            st.session_state["parsed_bento_l1a_0"] = parsed_values["Sharp bento low"][1]
+            st.session_state["parsed_bento_l2_0"] = parsed_values["Sharp bento low"][2]
+            st.session_state["parsed_bento_l2a_0"] = parsed_values["Sharp bento low"][3]
+            st.session_state["parsed_bento_l3_0"] = parsed_values["Sharp bento low"][4]
+            st.session_state["parsed_bento_l3a_0"] = parsed_values["Sharp bento low"][5]
 
-            st.session_state["bento_l1_1"] = parsed_values["Sharp bento high"][0]
-            st.session_state["bento_l1a_1"] = parsed_values["Sharp bento high"][1]
-            st.session_state["bento_l2_1"] = parsed_values["Sharp bento high"][2]
-            st.session_state["bento_l2a_1"] = parsed_values["Sharp bento high"][3]
-            st.session_state["bento_l3_1"] = parsed_values["Sharp bento high"][4]
-            st.session_state["bento_l3a_1"] = parsed_values["Sharp bento high"][5]
+            st.session_state["parsed_bento_l1_1"] = parsed_values["Sharp bento high"][0]
+            st.session_state["parsed_bento_l1a_1"] = parsed_values["Sharp bento high"][1]
+            st.session_state["parsed_bento_l2_1"] = parsed_values["Sharp bento high"][2]
+            st.session_state["parsed_bento_l2a_1"] = parsed_values["Sharp bento high"][3]
+            st.session_state["parsed_bento_l3_1"] = parsed_values["Sharp bento high"][4]
+            st.session_state["parsed_bento_l3a_1"] = parsed_values["Sharp bento high"][5]
 
             st.success("✅ HEX успешно разобран в поля ввода")
 
@@ -256,30 +275,29 @@ with tab2:
             st.error(f"❌ Ошибка при разборе HEX: {str(e)}")
 
 
-    # Отображаем текущие значения после возможного обновления
+    # Отображаем обновлённые значения из session_state
     st.markdown("#### Текущие значения (после разбора):")
     for idx, level in enumerate(bento_sharp_levels):
-        with st.container():
-            cols = st.columns(3)
-            l1_val = st.session_state.get(f"bento_l1_{idx}", level["default"][0])
-            l1a_val = st.session_state.get(f"bento_l1a_{idx}", level["default"][1])
-            l2_val = st.session_state.get(f"bento_l2_{idx}", level["default"][2])
-            l2a_val = st.session_state.get(f"bento_l2a_{idx}", level["default"][3])
-            l3_val = st.session_state.get(f"bento_l3_{idx}", level["default"][4])
-            l3a_val = st.session_state.get(f"bento_l3a_{idx}", level["default"][5])
+        cols = st.columns(3)
+        l1_val = st.session_state.get(f"parsed_bento_l1_{idx}", level["default"][0])
+        l1a_val = st.session_state.get(f"parsed_bento_l1a_{idx}", level["default"][1])
+        l2_val = st.session_state.get(f"parsed_bento_l2_{idx}", level["default"][2])
+        l2a_val = st.session_state.get(f"parsed_bento_l2a_{idx}", level["default"][3])
+        l3_val = st.session_state.get(f"parsed_bento_l3_{idx}", level["default"][4])
+        l3a_val = st.session_state.get(f"parsed_bento_l3a_{idx}", level["default"][5])
 
-            st.write(f"**{level['name']}**")
-            cols = st.columns(3)
-            cols[0].number_input("L1", value=l1_val, format="%.4f", key=f"bento_l1_{idx}_view", disabled=True)
-            cols[1].number_input("L1A", value=l1a_val, format="%.4f", key=f"bento_l1a_{idx}_view", disabled=True)
-            cols[2].write("")  # выравнивание
+        st.write(f"**{level['name']}**")
+        cols = st.columns(3)
+        cols[0].number_input("L1", value=l1_val, format="%.4f", key=f"bento_l1_{idx}_view", disabled=True)
+        cols[1].number_input("L1A", value=l1a_val, format="%.4f", key=f"bento_l1a_{idx}_view", disabled=True)
+        cols[2].write("")  # выравнивание
 
-            cols = st.columns(3)
-            cols[0].number_input("L2", value=l2_val, format="%.4f", key=f"bento_l2_{idx}_view", disabled=True)
-            cols[1].number_input("L2A", value=l2a_val, format="%.4f", key=f"bento_l2a_{idx}_view", disabled=True)
-            cols[2].write("")  # выравнивание
+        cols = st.columns(3)
+        cols[0].number_input("L2", value=l2_val, format="%.4f", key=f"bento_l2_{idx}_view", disabled=True)
+        cols[1].number_input("L2A", value=l2a_val, format="%.4f", key=f"bento_l2a_{idx}_view", disabled=True)
+        cols[2].write("")  # выравнивание
 
-            cols = st.columns(3)
-            cols[0].number_input("L3", value=l3_val, format="%.4f", key=f"bento_l3_{idx}_view", disabled=True)
-            cols[1].number_input("L3A", value=l3a_val, format="%.4f", key=f"bento_l3a_{idx}_view", disabled=True)
-            cols[2].write("")  # выравнивание
+        cols = st.columns(3)
+        cols[0].number_input("L3", value=l3_val, format="%.4f", key=f"bento_l3_{idx}_view", disabled=True)
+        cols[1].number_input("L3A", value=l3a_val, format="%.4f", key=f"bento_l3a_{idx}_view", disabled=True)
+        cols[2].write("")  # выравнивание
