@@ -53,7 +53,23 @@ original_sharp_hex_lines = [
     "cdcc6c401d6f12033d",
     "250000803f2d0000803f0a140d",
     "333303401ded0dbe3c",
-    "250000803f2d0000803f12050d0000a0410a490a140d"
+    "250000803f2d0000803f12050d0000a0410a490a140d",
+
+    # Sharp bento low
+    "000080411d77be9f3c",
+    "250000803f2d0000803f0a140d",
+    "666646401dc1caa13c",
+    "250000803f2d0000803f0a140d",
+    "85ebf13f1d0ad7a33c",
+    "250000803f2d0000803f12050d000020420a490a140d",
+
+    # Sharp bento high
+    "000094411d728a8e3c",
+    "250000803f2d0000803f0a140d",
+    "cdcc2c401dbe30993c",
+    "250000803f2d0000803f0a140d",
+    "9a99d93f1d0ad7a33c",
+    "250000803f2d0000803f12050d0000a042000000"
 ]
 
 # --- Индексы для Sharp Levels ---
@@ -63,6 +79,11 @@ sharp_slices = {
     "Sharp med": (12, 18),
     "Sharp high": (18, 24),
     "Sharp very high": (24, 30)
+}
+
+sharp_bento_slices = {
+    "Sharp bento low": (30, 36),
+    "Sharp bento high": (36, 42)
 }
 
 # --- Sharp уровни по умолчанию ---
@@ -78,26 +99,6 @@ all_sharp_levels = [
 
 main_sharp_levels = all_sharp_levels[:5]
 bento_sharp_levels = all_sharp_levels[5:]
-
-# --- Генерация HEX только для Bento Sharp ---
-def generate_bento_sharp_hex(values_list, level_names, level_slices):
-    lines = []
-
-    for i, values in enumerate(values_list):
-        l1, l1a, l2, l2a, l3, l3a = values
-        name = level_names[i]["name"]
-        start, end = level_slices[name]
-
-        modified_block = deepcopy(original_sharp_hex_lines[start:end])
-        modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
-        modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
-        modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
-
-        lines.extend(modified_block)
-
-    full_hex = "".join(lines)
-    return full_hex
-
 
 # --- Генерация HEX для Sharp Levels ---
 def generate_sharp_hex(values_list, level_names, level_slices):
@@ -116,6 +117,25 @@ def generate_sharp_hex(values_list, level_names, level_slices):
         lines.extend(modified_block)
 
     full_hex = "0a490a140d" + "".join(lines)
+    return full_hex
+
+# --- Генерация HEX только для Bento Sharp ---
+def generate_bento_sharp_hex(values_list, level_names, level_slices):
+    lines = []
+
+    for i, values in enumerate(values_list):
+        l1, l1a, l2, l2a, l3, l3a = values
+        name = level_names[i]["name"]
+        start, end = level_slices[name]
+
+        modified_block = deepcopy(original_sharp_hex_lines[start:end])
+        modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
+        modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
+        modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
+
+        lines.extend(modified_block)
+
+    full_hex = "".join(lines)
     return full_hex
 
 
@@ -347,73 +367,11 @@ def generate_bayer_hex(values_list, level_names):
     return full_hex
 
 
-# === ОБРАТНАЯ ПАРСИЛКА ДЛЯ MAIN SHARP УРОВНЕЙ ===
-
-# --- Служебные строки для парсинга ---
-SHARP_LEVEL_STRUCT = [
-    {
-        "name": "Sharp very low",
-        "positions": [
-            {"label": "L1",   "offset": 0,   "length": 8},
-            {"label": "L1A",  "offset": 8+2, "length": 8},
-            {"label": "L2",   "offset": 8+2+8+26, "length": 8},
-            {"label": "L2A", "offset": 8+2+8+26+8+2, "length": 8},
-            {"label": "L3",   "offset": 8+2+8+26+8+2+8+26, "length": 8},
-            {"label": "L3A", "offset": 8+2+8+26+8+2+8+26+8+2, "length": 8}
-        ]
-    },
-    {
-        "name": "Sharp low",
-        "positions": [
-            {"label": "L1",   "offset": 0,   "length": 8},
-            {"label": "L1A",  "offset": 8+2, "length": 8},
-            {"label": "L2",   "offset": 8+2+8+26, "length": 8},
-            {"label": "L2A", "offset": 8+2+8+26+8+2, "length": 8},
-            {"label": "L3",   "offset": 8+2+8+26+8+2+8+26, "length": 8},
-            {"label": "L3A", "offset": 8+2+8+26+8+2+8+26+8+2, "length": 8}
-        ]
-    },
-    {
-        "name": "Sharp med",
-        "positions": [
-            {"label": "L1",   "offset": 0,   "length": 8},
-            {"label": "L1A",  "offset": 8+2, "length": 8},
-            {"label": "L2",   "offset": 8+2+8+26, "length": 8},
-            {"label": "L2A", "offset": 8+2+8+26+8+2, "length": 8},
-            {"label": "L3",   "offset": 8+2+8+26+8+2+8+26, "length": 8},
-            {"label": "L3A", "offset": 8+2+8+26+8+2+8+26+8+2, "length": 8}
-        ]
-    },
-    {
-        "name": "Sharp high",
-        "positions": [
-            {"label": "L1",   "offset": 0,   "length": 8},
-            {"label": "L1A",  "offset": 8+2, "length": 8},
-            {"label": "L2",   "offset": 8+2+8+26, "length": 8},
-            {"label": "L2A", "offset": 8+2+8+26+8+2, "length": 8},
-            {"label": "L3",   "offset": 8+2+8+26+8+2+8+26, "length": 8},
-            {"label": "L3A", "offset": 8+2+8+26+8+2+8+26+8+2, "length": 8}
-        ]
-    },
-    {
-        "name": "Sharp very high",
-        "positions": [
-            {"label": "L1",   "offset": 0,   "length": 8},
-            {"label": "L1A",  "offset": 8+2, "length": 8},
-            {"label": "L2",   "offset": 8+2+8+26, "length": 8},
-            {"label": "L2A", "offset": 8+2+8+26+8+2, "length": 8},
-            {"label": "L3",   "offset": 8+2+8+26+8+2+8+26, "length": 8},
-            {"label": "L3A", "offset": 8+2+8+26+8+2+8+26+8+2, "length": 8}
-        ]
-    }
-]
-
-
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🔍 Sharp Main", "🍱 Sharp Bento", "🌪️ Bayer Denoise", "🔁 Парсить Bento HEX", "📊 Парсить Main Sharp"])
+tab1, tab2, tab3, tab4 = st.tabs(["🔍 Sharp Main", "🍱 Sharp Bento", "🌪️ Bayer Denoise", "🔁 Распарсить Bento HEX"])
 
 
 # === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
@@ -573,45 +531,4 @@ with tab4:
                 st.error(f"❌ Ошибка при парсинге: {e}")
 
 
-# === ВКЛАДКА 5: ОБРАТНАЯ ПАРСИЛКА MAIN SHARP ===
-with tab5:
-    st.markdown("### 🔁 Расшифровать HEX обратно (Main Sharp Levels)")
-
-    hex_input_main = st.text_area("Вставь HEX-строку сюда (включая заголовок):", value="", height=200)
-
-    if st.button("🔍 Распарсить Main Sharp HEX"):
-        if not hex_input_main.strip():
-            st.warning("❌ Вставь HEX-строку!")
-        else:
-            try:
-                # --- Пропускаем заголовок '0a490a140d' ---
-                start_offset = 10  # это длина "0a490a140d" в символах
-
-                parsed_levels = []
-
-                for level in SHARP_LEVEL_STRUCT:
-                    parsed = {"name": level["name"], "values": {}}
-
-                    for p in level["positions"]:
-                        start = p["offset"] + start_offset
-                        end = start + p["length"]
-                        val_hex = hex_input_main[start:end]
-                        val_float = h2f(val_hex)
-                        parsed["values"][p["label"]] = val_float
-
-                    parsed_levels.append(parsed)
-
-                # --- Вывод результатов ---
-                st.markdown("#### 📄 Расшифрованные значения из HEX:")
-
-                for item in parsed_levels:
-                    name = item["name"]
-                    values = item["values"]
-
-                    st.write(f"**{name}**: ")
-                    for key, val in values.items():
-                        st.write(f"{key}: {val:.4f}")
-                    st.write("---")
-
-            except Exception as e:
-                st.error(f"❌ Ошибка при парсинге: {e}")
+# --- Конец программы ---
