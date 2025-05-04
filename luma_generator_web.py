@@ -456,7 +456,7 @@ with tab3:
 
 # === ВКЛАДКА 4: ОБРАТНАЯ ПАРСИЛКА BENTO SHARP ===
 with tab4:
-    st.markdown("### 🔁 Расшифровать HEX обратно")
+    st.markdown("### 🔁 Расшифровать HEX обратно (Sharp Bento Low & High)")
 
     hex_input = st.text_area("Вставь HEX-строку сюда:", value="", height=200)
 
@@ -464,13 +464,6 @@ with tab4:
         if not hex_input.strip():
             st.warning("❌ Вставь HEX-строку для расшифровки!")
         else:
-            # --- Проверяем, есть ли заголовок '0a490a140d' ---
-            has_header = hex_input.startswith("0a490a140d")
-            if has_header:
-                offset = 10  # пропускаем заголовок (10 символов)
-            else:
-                offset = 0
-
             try:
                 # --- Парсинг Sharp bento low ---
                 offset = 0
@@ -537,135 +530,74 @@ with tab4:
             except Exception as e:
                 st.error(f"❌ Ошибка при парсинге: {e}")
 
+# === ВКЛАДКА 5: ОБРАТНАЯ ПАРСИЛКА MAIN SHARP УРОВНЕЙ ===
+with st.expander("🔁 Расшифровать Main Sharp HEX", expanded=False):
+    st.markdown("### 🔁 Расшифровать HEX обратно (Sharp Main: very low – very high)")
+
+    hex_input_main = st.text_area("Вставь HEX-строку основных Sharp уровней:", value="", height=200)
+
+    if st.button("🔍 Распарсить Main Sharp HEX"):
+        if not hex_input_main.strip():
+            st.warning("❌ Вставь HEX-строку для расшифровки!")
+        else:
             try:
-                # --- Sharp Main Levels (без пересечения с Bento) ---
-                if has_header and len(hex_input) >= offset + 6 * 8 + 3 * 26 + 2 * 44:
-                    st.markdown("#### 📦 Расшифровано из HEX (Sharp Main):")
+                # --- Убедимся, что есть заголовок ---
+                if not hex_input_main.startswith("0a490a140d"):
+                    st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
+                    start_offset = 0
+                else:
+                    start_offset = 10  # длина "0a490a140d" = 10 символов
 
-                    # === Sharp very low ===
-                    l1_vlow = hex_input[offset:offset+8]
+                offset = start_offset
+
+                results = {}
+
+                # --- Парсим все 5 уровней ---
+                for level_name in ["very low", "low", "med", "high", "very high"]:
+                    l1 = hex_input_main[offset:offset+8]
                     offset += 8 + 2
-                    l1a_vlow = hex_input[offset:offset+8]
+
+                    l1a = hex_input_main[offset:offset+8]
                     offset += 8 + 26
 
-                    l2_vlow = hex_input[offset:offset+8]
+                    l2 = hex_input_main[offset:offset+8]
                     offset += 8 + 2
-                    l2a_vlow = hex_input[offset:offset+8]
+
+                    l2a = hex_input_main[offset:offset+8]
                     offset += 8 + 26
 
-                    l3_vlow = hex_input[offset:offset+8]
+                    l3 = hex_input_main[offset:offset+8]
                     offset += 8 + 2
-                    l3a_vlow = hex_input[offset:offset+8]
-                    offset += 8 + 44
 
-                    # === Sharp low ===
-                    l1_low = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l1a_low = hex_input[offset:offset+8]
-                    offset += 8 + 26
+                    l3a = hex_input_main[offset:offset+8]
+                    offset += 8 + 44  # после L3A служебная строка длиной 44 символа
 
-                    l2_low = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l2a_low = hex_input[offset:offset+8]
-                    offset += 8 + 26
+                    results[level_name] = {
+                        "L1": l1,
+                        "L1A": l1a,
+                        "L2": l2,
+                        "L2A": l2a,
+                        "L3": l3,
+                        "L3A": l3a,
+                    }
 
-                    l3_low = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l3a_low = hex_input[offset:offset+8]
-                    offset += 8 + 44
+                # --- Конвертируем в float ---
+                def h2f(h):
+                    return round(hex_to_float(h), 6)
 
-                    # === Sharp med ===
-                    l1_med = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l1a_med = hex_input[offset:offset+8]
-                    offset += 8 + 26
+                # --- Вывод результата ---
+                st.markdown("#### 📄 Расшифровано из HEX:")
 
-                    l2_med = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l2a_med = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l3_med = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l3a_med = hex_input[offset:offset+8]
-
-                    # === Sharp high ===
-                    offset += 8 + 26  # переходим к следующему блоку после L3A
-                    l1_high = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l1a_high = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l2_high = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l2a_high = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l3_high = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l3a_high = hex_input[offset:offset+8]
-
-                    # === Sharp very high ===
-                    offset += 8 + 26
-                    l1_vhigh = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l1a_vhigh = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l2_vhigh = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l2a_vhigh = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l3_vhigh = hex_input[offset:offset+8]
-                    offset += 8 + 2
-                    l3a_vhigh = hex_input[offset:offset+8]
-
-                    def h2f(h):
-                        return round(hex_to_float(h), 6)
-
-                    # --- Вывод результатов для Main Sharp Levels ---
-                    st.write("🔹 Sharp very low:")
-                    st.write(f"L1: {h2f(l1_vlow):.4f}")
-                    st.write(f"L1A: {h2f(l1a_vlow):.4f}")
-                    st.write(f"L2: {h2f(l2_vlow):.4f}")
-                    st.write(f"L2A: {h2f(l2a_vlow):.4f}")
-                    st.write(f"L3: {h2f(l3_vlow):.4f}")
-                    st.write(f"L3A: {h2f(l3a_vlow):.4f}")
-
-                    st.write("🔸 Sharp low:")
-                    st.write(f"L1: {h2f(l1_low):.4f}")
-                    st.write(f"L1A: {h2f(l1a_low):.4f}")
-                    st.write(f"L2: {h2f(l2_low):.4f}")
-                    st.write(f"L2A: {h2f(l2a_low):.4f}")
-                    st.write(f"L3: {h2f(l3_low):.4f}")
-                    st.write(f"L3A: {h2f(l3a_low):.4f}")
-
-                    st.write("🔹 Sharp med:")
-                    st.write(f"L1: {h2f(l1_med):.4f}")
-                    st.write(f"L1A: {h2f(l1a_med):.4f}")
-                    st.write(f"L2: {h2f(l2_med):.4f}")
-                    st.write(f"L2A: {h2f(l2a_med):.4f}")
-                    st.write(f"L3: {h2f(l3_med):.4f}")
-                    st.write(f"L3A: {h2f(l3a_med):.4f}")
-
-                    st.write("🔸 Sharp high:")
-                    st.write(f"L1: {h2f(l1_high):.4f}")
-                    st.write(f"L1A: {h2f(l1a_high):.4f}")
-                    st.write(f"L2: {h2f(l2_high):.4f}")
-                    st.write(f"L2A: {h2f(l2a_high):.4f}")
-                    st.write(f"L3: {h2f(l3_high):.4f}")
-                    st.write(f"L3A: {h2f(l3a_high):.4f}")
-
-                    st.write("🔹 Sharp very high:")
-                    st.write(f"L1: {h2f(l1_vhigh):.4f}")
-                    st.write(f"L1A: {h2f(l1a_vhigh):.4f}")
-                    st.write(f"L2: {h2f(l2_vhigh):.4f}")
-                    st.write(f"L2A: {h2f(l2a_vhigh):.4f}")
-                    st.write(f"L3: {h2f(l3_vhigh):.4f}")
-                    st.write(f"L3A: {h2f(l3a_vhigh):.4f}")
+                for name, vals in results.items():
+                    st.write(f"🔹 Sharp {name}:")
+                    st.write(f"L1: {h2f(vals['L1']):.4f}")
+                    st.write(f"L1A: {h2f(vals['L1A']):.4f}")
+                    st.write(f"L2: {h2f(vals['L2']):.4f}")
+                    st.write(f"L2A: {h2f(vals['L2A']):.4f}")
+                    st.write(f"L3: {h2f(vals['L3']):.4f}")
+                    st.write(f"L3A: {h2f(vals['L3A']):.4f}")
+                    st.write("---")
 
             except Exception as e:
-                st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
-
+                st.error(f"❌ Ошибка при парсинге: {e}")
 # --- Конец программы ---
