@@ -455,6 +455,7 @@ with tab3:
 
 
 # === ВКЛАДКА 4: ОБРАТНАЯ ПАРСИЛКА BENTO SHARP ===
+# === ВКЛАДКА 4: ОБРАТНАЯ ПАРСИЛКА BENTO SHARP ===
 with tab4:
     st.markdown("### 🔁 Расшифровать HEX обратно (Sharp Bento Low & High)")
 
@@ -469,10 +470,10 @@ with tab4:
                 offset = 0
 
                 l1_low = hex_input[offset:offset+8]
-                offset += 8 + 2  # L1 + "1d"
+                offset += 8 + 2
 
                 l1a_low = hex_input[offset:offset+8]
-                offset += 8 + 26  # L1A + служебная строка
+                offset += 8 + 26
 
                 l2_low = hex_input[offset:offset+8]
                 offset += 8 + 2
@@ -485,9 +486,7 @@ with tab4:
 
                 l3a_low = hex_input[offset:offset+8]
 
-                # --- Sharp bento high ---
-                offset = 36  # начало блока Sharp bento high
-
+                # --- Sharp bento high (продолжаем с того же offset) ---
                 l1_high = hex_input[offset:offset+8]
                 offset += 8 + 2
 
@@ -530,6 +529,5 @@ with tab4:
 
             except Exception as e:
                 st.error(f"❌ Ошибка при парсинге: {e}")
-
 
 # --- Конец программы ---
