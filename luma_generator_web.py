@@ -669,4 +669,221 @@ with tab5:
 
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
+# --- Раздел 3: BAYER DENOISE PARSER ---
+    with st.expander("🌀 Bayer Denoise (все уровни)", expanded=False):
+        st.markdown("Вставь HEX-код из вкладки **Bayer Denoise** — точная структура по строкам")
+        hex_input_bayer = st.text_area("HEX для Bayer Denoise:", value="", height=300, key="bayer_hex_input")
+
+        if st.button("🔍 Распарсить Bayer Denoise"):
+            if not hex_input_bayer.strip():
+                st.warning("❌ Вставь HEX-код для парсинга")
+            else:
+                lines = [line.strip() for line in hex_input_bayer.split('\n') if line.strip()]
+                st.write(f"📊 Всего строк: {len(lines)}")
+
+                bayer_parsed = []
+
+                idx = 0
+                while idx < len(lines):
+                    if lines[idx] == "00000a610a0f0d":
+                        # --- Sharp luma denoise very low ---
+                        try:
+                            l1 = lines[idx + 1]
+                            l1a = lines[idx + 3]
+                            l1b = lines[idx + 5]
+                            l2 = lines[idx + 7]
+                            l2a = lines[idx + 9]
+                            l2b = lines[idx + 11]
+                            l3 = lines[idx + 13]
+                            l3a = lines[idx + 15]
+                            l3b = lines[idx + 17]
+                            l4 = lines[idx + 19]
+                            l4a = lines[idx + 21]
+                            l4b = lines[idx + 23]
+                            l5_marker = lines.index("0a0a0d", idx)
+                            l5 = lines[l5_marker + 1]
+                            l5a = lines[l5_marker + 3]
+
+                            bayer_parsed.append({
+                                "name": "Bayer luma denoise very low",
+                                "values": {
+                                    "L1": l1, "L1A": l1a, "L1B": l1b,
+                                    "L2": l2, "L2A": l2a, "L2B": l2b,
+                                    "L3": l3, "L3A": l3a, "L3B": l3b,
+                                    "L4": l4, "L4A": l4a, "L4B": l4b,
+                                    "L5": l5, "L5A": l5a
+                                }
+                            })
+                            idx += 28  # длина блока "very low" = 28 строк
+                        except Exception:
+                            idx += 1
+                            continue
+
+                    elif lines[idx] == "cdcc4c3f":
+                        # --- Sharp luma denoise low ---
+                        try:
+                            l1 = lines[idx + 1]
+                            l1a = lines[idx + 3]
+                            l1b = lines[idx + 5]
+                            l2 = lines[idx + 7]
+                            l2a = lines[idx + 9]
+                            l2b = lines[idx + 11]
+                            l3 = lines[idx + 13]
+                            l3a = lines[idx + 15]
+                            l3b = lines[idx + 17]
+                            l4 = lines[idx + 19]
+                            l4a = lines[idx + 21]
+                            l4b = lines[idx + 23]
+                            l5_marker = lines.index("0a0a0d", idx)
+                            l5 = lines[l5_marker + 1]
+                            l5a = lines[l5_marker + 3]
+
+                            bayer_parsed.append({
+                                "name": "Bayer luma denoise low",
+                                "values": {
+                                    "L1": l1, "L1A": l1a, "L1B": l1b,
+                                    "L2": l2, "L2A": l2a, "L2B": l2b,
+                                    "L3": l3, "L3A": l3a, "L3B": l3b,
+                                    "L4": l4, "L4A": l4a, "L4B": l4b,
+                                    "L5": l5, "L5A": l5a
+                                }
+                            })
+                            idx += 28
+                        except Exception:
+                            idx += 1
+                            continue
+
+                    elif lines[idx] == "3333333f":
+                        # --- Sharp luma denoise med ---
+                        try:
+                            l1 = lines[idx + 1]
+                            l1a = lines[idx + 3]
+                            l1b = lines[idx + 5]
+                            l2 = lines[idx + 7]
+                            l2a = lines[idx + 9]
+                            l2b = lines[idx + 11]
+                            l3 = lines[idx + 13]
+                            l3a = lines[idx + 15]
+                            l3b = lines[idx + 17]
+                            l4 = lines[idx + 19]
+                            l4a = lines[idx + 21]
+                            l4b = lines[idx + 23]
+                            l5_marker = lines.index("0a0a0d", idx)
+                            l5 = lines[l5_marker + 1]
+                            l5a = lines[l5_marker + 3]
+
+                            bayer_parsed.append({
+                                "name": "Bayer luma denoise med",
+                                "values": {
+                                    "L1": l1, "L1A": l1a, "L1B": l1b,
+                                    "L2": l2, "L2A": l2a, "L2B": l2b,
+                                    "L3": l3, "L3A": l3a, "L3B": l3b,
+                                    "L4": l4, "L4A": l4a, "L4B": l4b,
+                                    "L5": l5, "L5A": l5a
+                                }
+                            })
+                            idx += 28
+                        except Exception:
+                            idx += 1
+                            continue
+
+                    elif lines[idx] == "9a99193f":
+                        # --- Sharp luma denoise high ---
+                        try:
+                            l1 = lines[idx + 1]
+                            l1a = lines[idx + 3]
+                            l1b = lines[idx + 5]
+                            l2 = lines[idx + 7]
+                            l2a = lines[idx + 9]
+                            l2b = lines[idx + 11]
+                            l3 = lines[idx + 13]
+                            l3a = lines[idx + 15]
+                            l3b = lines[idx + 17]
+                            l4 = lines[idx + 19]
+                            l4a = lines[idx + 21]
+                            l4b = lines[idx + 23]
+                            l5_marker = lines.index("0a0a0d", idx)
+                            l5 = lines[l5_marker + 1]
+                            l5a = lines[l5_marker + 3]
+
+                            bayer_parsed.append({
+                                "name": "Bayer luma denoise high",
+                                "values": {
+                                    "L1": l1, "L1A": l1a, "L1B": l1b,
+                                    "L2": l2, "L2A": l2a, "L2B": l2b,
+                                    "L3": l3, "L3A": l3a, "L3B": l3b,
+                                    "L4": l4, "L4A": l4a, "L4B": l4b,
+                                    "L5": l5, "L5A": l5a
+                                }
+                            })
+                            idx += 28
+                        except Exception:
+                            idx += 1
+                            continue
+
+                    elif lines[idx] == "6666263f":
+                        # --- Sharp luma denoise very high ---
+                        try:
+                            l1 = lines[idx + 1]
+                            l1a = lines[idx + 3]
+                            l1b = lines[idx + 5]
+                            l2 = lines[idx + 7]
+                            l2a = lines[idx + 9]
+                            l2b = lines[idx + 11]
+                            l3 = lines[idx + 13]
+                            l3a = lines[idx + 15]
+                            l3b = lines[idx + 17]
+                            l4 = lines[idx + 19]
+                            l4a = lines[idx + 21]
+                            l4b = lines[idx + 23]
+                            l5_marker = lines.index("0a0a0d", idx)
+                            l5 = lines[l5_marker + 1]
+                            l5a = lines[l5_marker + 3]
+
+                            bayer_parsed.append({
+                                "name": "Bayer luma denoise very high",
+                                "values": {
+                                    "L1": l1, "L1A": l1a, "L1B": l1b,
+                                    "L2": l2, "L2A": l2a, "L2B": l2b,
+                                    "L3": l3, "L3A": l3a, "L3B": l3b,
+                                    "L4": l4, "L4A": l4a, "L4B": l4b,
+                                    "L5": l5, "L5A": l5a
+                                }
+                            })
+                            idx += 28
+                        except Exception:
+                            idx += 1
+                            continue
+
+                    else:
+                        idx += 1
+
+                if not bayer_parsed:
+                    st.warning("❌ Ничего не распознано — проверь структуру HEX")
+                else:
+                    def h2f(h):
+                        return round(hex_to_float(h), 6)
+
+                    st.markdown("#### 📄 Расшифрованные значения (Bayer Denoise):")
+                    for parsed in bayer_parsed:
+                        st.write(f"🔹 {parsed['name']}:")
+                        values = parsed["values"]
+                        st.write(f"L1: {h2f(values['L1']):.6f}")
+                        st.write(f"L1A: {h2f(values['L1A']):.6f}")
+                        st.write(f"L1B: {h2f(values['L1B']):.6f}")
+                        st.write(f"L2: {h2f(values['L2']):.6f}")
+                        st.write(f"L2A: {h2f(values['L2A']):.6f}")
+                        st.write(f"L2B: {h2f(values['L2B']):.6f}")
+                        st.write(f"L3: {h2f(values['L3']):.6f}")
+                        st.write(f"L3A: {h2f(values['L3A']):.6f}")
+                        st.write(f"L3B: {h2f(values['L3B']):.6f}")
+                        st.write(f"L4: {h2f(values['L4']):.6f}")
+                        st.write(f"L4A: {h2f(values['L4A']):.6f}")
+                        st.write(f"L4B: {h2f(values['L4B']):.6f}")
+                        st.write(f"L5: {h2f(values['L5']):.6f}")
+                        st.write(f"L5A: {h2f(values['L5A']):.6f}")
+                        st.write("---")
+
+            except Exception as e:
+                st.error(f"❌ Ошибка при парсинге: {e}")
 # --- Конец программы ---
