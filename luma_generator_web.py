@@ -655,37 +655,35 @@ with tab5:
 
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
-    # --- Раздел 3: BAYER DENOISE PARSER ---
+    # --- Раздел 3: BAYER DENOISE PARSER (без разрыва строк) ---
     with st.expander("🔸 Bayer Luma Denoise (все уровни)", expanded=False):
-        st.markdown("Вставь HEX-строку с уровнем `Bayer luma denoise`, сгенерированный программой.")
-        st.markdown("Структура HEX должна быть **точно такой же**, как выдаёт генератор.")
+        st.markdown("Вставь HEX-строку с уровнями шума (без переносов):")
+        st.markdown("`00000a610a0f0d` + 5 уровней по 140 символов + завершающая служебная строка")
 
-        hex_input_bayer = st.text_area("HEX для Bayer Denoise:", value="", height=300, key="bayer_hex_input")
+        hex_input_bayer = st.text_area("HEX для Bayer Denoise:", value="", height=200, key="bayer_parser_input")
 
         if st.button("🔍 Распарсить Bayer Denoise HEX"):
             if not hex_input_bayer.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    offset = 10  # пропускаем заголовок "00000a610a0f0d" (10 символов)
+                    # --- Проверка заголовка ---
+                    if not hex_input_bayer.startswith("00000a610a0f0d"):
+                        st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
+                    offset = 14  # длина заголовка "00000a610a0f0d" = 14 символов
+
                     results = []
 
-                    level_names = [
-                        "very low",
-                        "low",
-                        "med",
-                        "high",
-                        "very high"
-                    ]
+                    level_names = ["very low", "low", "med", "high", "very high"]
 
                     for name in level_names:
                         # === L1, L1A, L1B ===
                         l1 = hex_input_bayer[offset:offset+8]
-                        offset += 8 + 2  # L1 + '15'
+                        offset += 8 + 2
                         l1a = hex_input_bayer[offset:offset+8]
-                        offset += 8 + 2  # L1A + '1d'
+                        offset += 8 + 2
                         l1b = hex_input_bayer[offset:offset+8]
-                        offset += 8 + 4  # L1B + '0a0f0d' (4 символа)
+                        offset += 8 + 6  # "0a0f0d" = 6 символов
 
                         # === L2, L2A, L2B ===
                         l2 = hex_input_bayer[offset:offset+8]
@@ -693,7 +691,7 @@ with tab5:
                         l2a = hex_input_bayer[offset:offset+8]
                         offset += 8 + 2
                         l2b = hex_input_bayer[offset:offset+8]
-                        offset += 8 + 4
+                        offset += 8 + 6
 
                         # === L3, L3A, L3B ===
                         l3 = hex_input_bayer[offset:offset+8]
@@ -701,7 +699,7 @@ with tab5:
                         l3a = hex_input_bayer[offset:offset+8]
                         offset += 8 + 2
                         l3b = hex_input_bayer[offset:offset+8]
-                        offset += 8 + 4
+                        offset += 8 + 6
 
                         # === L4, L4A, L4B ===
                         l4 = hex_input_bayer[offset:offset+8]
@@ -709,12 +707,13 @@ with tab5:
                         l4a = hex_input_bayer[offset:offset+8]
                         offset += 8 + 2
                         l4b = hex_input_bayer[offset:offset+8]
-                        offset += 8 + 4
+                        offset += 8 + 6
 
                         # === L5, L5A ===
                         l5 = hex_input_bayer[offset:offset+8]
                         offset += 8 + 2
                         l5a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 44  # завершающая служебная строка
 
                         results.append({
                             "name": name,
@@ -737,9 +736,11 @@ with tab5:
                     def h2f(h):
                         return round(hex_to_float(h), 6)
 
-                    st.markdown("#### 📄 Расшифрованные значения (Bayer Denoise):")
+                    # --- Вывод результатов ---
+                    st.markdown("#### 📄 Расшифровано (Bayer Denoise):")
+
                     for res in results:
-                        st.write(f"🔹 Bayer luma denoise {res['name']}:")
+                        st.write(f"🔹 {res['name']}:")
                         st.write(f"L1: {h2f(res['L1']):.6f}")
                         st.write(f"L1A: {h2f(res['L1A']):.6f}")
                         st.write(f"L1B: {h2f(res['L1B']):.6f}")
