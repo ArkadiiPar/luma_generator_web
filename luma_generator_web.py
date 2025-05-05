@@ -532,65 +532,58 @@ with tab4:
 
 # === ВКЛАДКА 5: ОБРАТНАЯ ПАРСИЛКА — HEX -> FLOAT для MAIN и BENTO SHARP ===
 with tab5:
-    st.markdown("### 🔁 HEX → Float парсилка")
+    st.markdown("### 🔁 HEX → Float Парсеры")
 
-    # --- Раздел 1: Расшифровка Sharp Bento Levels ---
+    # --- Раздел 1: BENTO SHARP PARSER ---
     with st.expander("🔹 Sharp Bento Low & High", expanded=True):
-        hex_input = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="hex_input_bento")
+        st.markdown("Вставь HEX, содержащий оба уровня Bento Sharp:")
 
-        if st.button("🔍 Распарсить Sharp Bento HEX"):
-            if not hex_input.strip():
-                st.warning("❌ Вставь HEX-строку для расшифровки!")
+        hex_input_bento = st.text_area("HEX для Bento уровней:", value="", height=200, key="bento_hex_input")
+
+        if st.button("🔍 Распарсить Bento Sharp"):
+            if not hex_input_bento.strip():
+                st.warning("❌ Вставь HEX-строку!")
             else:
                 try:
-                    # --- Sharp bento low ---
                     offset = 0
 
-                    l1_low = hex_input[offset:offset+8]
+                    # --- Sharp bento low ---
+                    l1_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
+                    l1a_low = hex_input_bento[offset:offset+8]
+                    offset += 8 + 26  # служебная строка 26 символов
 
-                    l1a_low = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l2_low = hex_input[offset:offset+8]
+                    l2_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
+                    l2a_low = hex_input_bento[offset:offset+8]
+                    offset += 8 + 26  # служебная строка 26 символов
 
-                    l2a_low = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l3_low = hex_input[offset:offset+8]
+                    l3_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
-
-                    l3a_low = hex_input[offset:offset+8]
+                    l3a_low = hex_input_bento[offset:offset+8]
+                    offset += 8 + 44  # служебная строка 44 символа для Sharp bento low
 
                     # --- Sharp bento high ---
-                    offset = offset  # продолжаем после low
-
-                    l1_high = hex_input[offset:offset+8]
+                    l1_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
+                    l1a_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 26  # служебная строка 26
 
-                    l1a_high = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l2_high = hex_input[offset:offset+8]
+                    l2_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
+                    l2a_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 26  # служебная строка 26
 
-                    l2a_high = hex_input[offset:offset+8]
-                    offset += 8 + 26
-
-                    l3_high = hex_input[offset:offset+8]
+                    l3_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
-
-                    l3a_high = hex_input[offset:offset+8]
+                    l3a_high = hex_input_bento[offset:offset+8]
 
                     # --- Конвертируем в float ---
                     def h2f(h):
                         return round(hex_to_float(h), 6)
 
                     # --- Вывод результата ---
-                    st.markdown("#### 📄 Расшифровано из HEX:")
-
-                    st.write("🔸 Sharp bento low:")
+                    st.markdown("#### 📄 Расшифровано (Sharp Bento Low):")
                     st.write(f"L1: {h2f(l1_low):.4f}")
                     st.write(f"L1A: {h2f(l1a_low):.4f}")
                     st.write(f"L2: {h2f(l2_low):.4f}")
@@ -598,7 +591,7 @@ with tab5:
                     st.write(f"L3: {h2f(l3_low):.4f}")
                     st.write(f"L3A: {h2f(l3a_low):.4f}")
 
-                    st.write("🔹 Sharp bento high:")
+                    st.markdown("#### 📦 Расшифровано (Sharp Bento High):")
                     st.write(f"L1: {h2f(l1_high):.4f}")
                     st.write(f"L1A: {h2f(l1a_high):.4f}")
                     st.write(f"L2: {h2f(l2_high):.4f}")
@@ -607,49 +600,49 @@ with tab5:
                     st.write(f"L3A: {h2f(l3a_high):.4f}")
 
                 except Exception as e:
-                    st.error(f"❌ Ошибка при парсинге: {e}")
+                    st.error(f"❌ Ошибка при парсинге Bento Sharp: {e}")
 
-    # --- Раздел 2: Расшифровка Sharp Main Levels (вместе с заголовком) ---
-    with st.expander("🔸 Sharp Main (very low – very high)", expanded=False):
-        st.markdown("#### 🔍 Парсинг HEX → Float для всех основных Sharp уровней")
-        hex_input_main = st.text_area("Вставь HEX-строку основных Sharp уровней:", value="", height=200, key="hex_input_main")
+    # --- Раздел 2: MAIN SHARP PARSER ---
+    with st.expander("🔸 Sharp Main Levels (very low – very high)", expanded=False):
+        st.markdown("Вставь HEX с заголовком `0a490a140d` и всеми 5 уровнями Sharp.")
 
-        if st.button("🔍 Распарсить Sharp Main HEX"):
+        hex_input_main = st.text_area("HEX для Main Sharp:", value="", height=200, key="hex_main_input")
+
+        if st.button("🔍 Распарсить Main Sharp HEX"):
             if not hex_input_main.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # --- Проверяем наличие заголовка ---
-                    if hex_input_main.startswith("0a490a140d"):
-                        offset = 10  # длина "0a490a140d" = 10 символов
-                    else:
+                    # --- Проверяем заголовок ---
+                    if not hex_input_main.startswith("0a490a140d"):
                         st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
-                        offset = 0
+                        start_offset = 0
+                    else:
+                        start_offset = 10  # длина "0a490a140d" = 10 символов
 
+                    offset = start_offset
                     results = {}
+
                     level_names = ["very low", "low", "med", "high", "very high"]
 
-                    for idx, name in enumerate(level_names):
-                        # --- L1, L1A ---
+                    for name in level_names:
                         l1 = hex_input_main[offset:offset+8]
                         offset += 8 + 2
 
                         l1a = hex_input_main[offset:offset+8]
                         offset += 8 + 26
 
-                        # --- L2, L2A ---
                         l2 = hex_input_main[offset:offset+8]
                         offset += 8 + 2
 
                         l2a = hex_input_main[offset:offset+8]
                         offset += 8 + 26
 
-                        # --- L3, L3A ---
                         l3 = hex_input_main[offset:offset+8]
                         offset += 8 + 2
 
                         l3a = hex_input_main[offset:offset+8]
-                        offset += 8 + 44  # служебная строка после L3A — 44 символа
+                        offset += 8 + 44  # после L3A идет служебная строка длиной 44
 
                         results[name] = {
                             "L1": l1,
@@ -660,15 +653,12 @@ with tab5:
                             "L3A": l3a
                         }
 
-                    # --- Конвертируем в float ---
                     def h2f(h):
                         return round(hex_to_float(h), 6)
 
-                    # --- Вывод результата ---
-                    st.markdown("#### 📄 Расшифрованные значения:")
-
+                    st.markdown("#### 📄 Расшифрованные значения (Main Sharp):")
                     for name, vals in results.items():
-                        st.write(f"🟠 Sharp {name}:")
+                        st.write(f"🔹 Sharp {name}:")
                         st.write(f"L1: {h2f(vals['L1']):.4f}")
                         st.write(f"L1A: {h2f(vals['L1A']):.4f}")
                         st.write(f"L2: {h2f(vals['L2']):.4f}")
@@ -678,5 +668,5 @@ with tab5:
                         st.write("---")
 
                 except Exception as e:
-                    st.error(f"❌ Ошибка при парсинге: {e}")
+                    st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
 # --- Конец программы ---
