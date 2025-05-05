@@ -717,7 +717,7 @@ with tab5:
                         l5a = hex_input_bayer[offset:offset+8]
                         offset += 8 + 44  # завершающая служебная строка
 
-                        results.append({
+                        parsed_results.append({
                             "name": name,
                             "L1": l1,
                             "L1A": l1a,
@@ -734,6 +734,7 @@ with tab5:
                             "L5": l5,
                             "L5A": l5a
                         })
+                    st.session_state["parsed_bayer_results"] = parsed_results  # Сохраняем в session_state
 
                     def h2f(h):
                         return round(hex_to_float(h), 6)
@@ -741,7 +742,7 @@ with tab5:
                     # --- Вывод результатов ---
                     st.markdown("#### 📄 Расшифровано (Bayer Denoise):")
 
-                    for res in results:
+                    for res in parsed_results:
                         st.write(f"🔹 {res['name']}:")
                         st.write(f"L1: {h2f(res['L1']):.6f}")
                         st.write(f"L1A: {h2f(res['L1A']):.6f}")
@@ -761,22 +762,27 @@ with tab5:
 
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
-        if st.button("🔁 Заполнить поля ввода (Bayer Denoise)"):
-            for idx, res in enumerate(results):
-                # === Заполняем поля ввода через session_state ===
-                st.session_state[f"bayer_l1_{idx}"] = h2f(res['L1'])
-                st.session_state[f"bayer_l1a_{idx}"] = h2f(res['L1A'])
-                st.session_state[f"bayer_l1b_{idx}"] = h2f(res['L1B'])
-                st.session_state[f"bayer_l2_{idx}"] = h2f(res['L2'])
-                st.session_state[f"bayer_l2a_{idx}"] = h2f(res['L2A'])
-                st.session_state[f"bayer_l2b_{idx}"] = h2f(res['L2B'])
-                st.session_state[f"bayer_l3_{idx}"] = h2f(res['L3'])
-                st.session_state[f"bayer_l3a_{idx}"] = h2f(res['L3A'])
-                st.session_state[f"bayer_l3b_{idx}"] = h2f(res['L3B'])
-                st.session_state[f"bayer_l4_{idx}"] = h2f(res['L4'])
-                st.session_state[f"bayer_l4a_{idx}"] = h2f(res['L4A'])
-                st.session_state[f"bayer_l4b_{idx}"] = h2f(res['L4B'])
-                st.session_state[f"bayer_l5_{idx}"] = h2f(res['L5'])
-                st.session_state[f"bayer_l5a_{idx}"] = h2f(res['L5A'])
-                st.success("✅ Поля ввода обновлены")
+       # --- Кнопка автозаполнения полей ввода ---
+    if st.button("🔁 Заполнить поля ввода (Bayer Denoise)"):
+        if "parsed_bayer_results" not in st.session_state:
+            st.warning("⚠️ Сначала распарсь HEX!")
+        else:
+            parsed_results = st.session_state["parsed_bayer_results"]
+            for idx, res in enumerate(parsed_results):
+                st.session_state[f"bayer_l1_{idx}"] = round(hex_to_float(res['L1']), 6)
+                st.session_state[f"bayer_l1a_{idx}"] = round(hex_to_float(res['L1A']), 6)
+                st.session_state[f"bayer_l1b_{idx}"] = round(hex_to_float(res['L1B']), 6)
+                st.session_state[f"bayer_l2_{idx}"] = round(hex_to_float(res['L2']), 6)
+                st.session_state[f"bayer_l2a_{idx}"] = round(hex_to_float(res['L2A']), 6)
+                st.session_state[f"bayer_l2b_{idx}"] = round(hex_to_float(res['L2B']), 6)
+                st.session_state[f"bayer_l3_{idx}"] = round(hex_to_float(res['L3']), 6)
+                st.session_state[f"bayer_l3a_{idx}"] = round(hex_to_float(res['L3A']), 6)
+                st.session_state[f"bayer_l3b_{idx}"] = round(hex_to_float(res['L3B']), 6)
+                st.session_state[f"bayer_l4_{idx}"] = round(hex_to_float(res['L4']), 6)
+                st.session_state[f"bayer_l4a_{idx}"] = round(hex_to_float(res['L4A']), 6)
+                st.session_state[f"bayer_l4b_{idx}"] = round(hex_to_float(res['L4B']), 6)
+                st.session_state[f"bayer_l5_{idx}"] = round(hex_to_float(res['L5']), 6)
+                st.session_state[f"bayer_l5a_{idx}"] = round(hex_to_float(res['L5A']), 6)
+
+            st.success("✅ Поля ввода Bayer Denoise обновлены!")
 # --- Конец программы ---
