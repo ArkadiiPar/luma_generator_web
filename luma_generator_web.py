@@ -305,67 +305,53 @@ bayer_levels = [
     {"name": "Bayer luma denoise very high", "default": [0.65, 0.15, 0.642869, 0.75, 0.10, 0.627118, 0.38, 0.10, 0.472521, 0.30, 0.10, 0.362973, 0.25, 0.0777525]}
 ]
 
-# --- Функция генерации HEX для Bayer Levels ---
+# --- Функция генерации HEX для Bayer Denoise (по аналогии с Sharp Main) ---
 def generate_bayer_hex(values_list, level_names):
     lines = []
+    
+    # --- Заголовок ---
+    full_hex = "00000a610a0f0d"
 
+    # --- Генерация каждого уровня ---
     for i, values in enumerate(values_list):
         l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a = values
-        name = level_names[i]["name"]
 
-        # --- Глубокая копия — чтобы не менять оригинал ---
-        modified_block = deepcopy(bayer_blocks[name])
+        # --- Шаблон уровня ---
+        level_hex = (
+            f"{float_to_hex(l1)}"
+            "15"
+            f"{float_to_hex(l1a)}"
+            "1d"
+            f"{float_to_hex(l1b)}"
+            "0a0f0d"
+            f"{float_to_hex(l2)}"
+            "15"
+            f"{float_to_hex(l2a)}"
+            "1d"
+            f"{float_to_hex(l2b)}"
+            "0a0f0d"
+            f"{float_to_hex(l3)}"
+            "15"
+            f"{float_to_hex(l3a)}"
+            "1d"
+            f"{float_to_hex(l3b)}"
+            "0a0f0d"
+            f"{float_to_hex(l4)}"
+            "15"
+            f"{float_to_hex(l4a)}"
+            "1d"
+            f"{float_to_hex(l4b)}"
+            "0a0a0d"
+            f"{float_to_hex(l5)}"
+            "1d"
+            f"{float_to_hex(l5a)}"
+            "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"
+        )
 
-        # === Находим позиции через маркеры ===
-        def find_next_marker(marker, start=0):
-            try:
-                return modified_block.index(marker, start)
-            except ValueError:
-                return -1
+        lines.append(level_hex)
 
-        idx = 0
-
-        # === L1, L1A, L1B ===
-        idx = find_next_marker("0a0f0d")
-        if idx != -1 and idx + 5 < len(modified_block):
-            modified_block[idx + 1] = float_to_hex(l1)
-            modified_block[idx + 3] = float_to_hex(l1a)
-            modified_block[idx + 5] = float_to_hex(l1b)
-
-        # === L2, L2A, L2B ===
-        idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1 and idx + 5 < len(modified_block):
-            modified_block[idx + 1] = float_to_hex(l2)
-            modified_block[idx + 3] = float_to_hex(l2a)
-            modified_block[idx + 5] = float_to_hex(l2b)
-
-        # === L3, L3A, L3B ===
-        idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1 and idx + 5 < len(modified_block):
-            modified_block[idx + 1] = float_to_hex(l3)
-            modified_block[idx + 3] = float_to_hex(l3a)
-            modified_block[idx + 5] = float_to_hex(l3b)
-
-        # === L4, L4A, L4B ===
-        idx = find_next_marker("0a0f0d", idx + 6)
-        if idx != -1 and idx + 5 < len(modified_block):
-            modified_block[idx + 1] = float_to_hex(l4)
-            modified_block[idx + 3] = float_to_hex(l4a)
-            modified_block[idx + 5] = float_to_hex(l4b)
-
-        # === L5, L5A (после "0a0a0d") ===
-        idx = find_next_marker("0a0a0d")
-        if idx != -1:
-            if idx + 1 < len(modified_block):
-                modified_block[idx + 1] = float_to_hex(l5)
-            if idx + 3 < len(modified_block):
-                modified_block[idx + 3] = float_to_hex(l5a)
-
-        lines.extend(modified_block)
-
-    full_hex = "\n".join(lines)
+    full_hex += "".join(lines)
     return full_hex
-
 
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
