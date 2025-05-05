@@ -884,6 +884,6 @@ with tab5:
                         st.write(f"L5A: {h2f(values['L5A']):.6f}")
                         st.write("---")
 
-                except Exception as e:
+            except Exception as e:
                     st.error(f"❌ Ошибка при парсинге: {e}")
 # --- Конец программы ---
