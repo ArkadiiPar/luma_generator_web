@@ -657,8 +657,8 @@ with tab5:
                     st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
     # --- Раздел 3: BAYER DENOISE PARSER ---
     with st.expander("🔸 Bayer Luma Denoise (все уровни)", expanded=False):
-        st.markdown("Вставь HEX-строку с уровнем `Bayer luma denoise`, разделённую по строкам.")
-        st.markdown("Структура должна быть **точно такой же**, как на вкладке `Bayer Denoise`.")
+        st.markdown("Вставь HEX-строку с уровнем `Bayer luma denoise`, сгенерированный программой.")
+        st.markdown("Структура HEX должна быть **точно такой же**, как выдаёт генератор.")
 
         hex_input_bayer = st.text_area("HEX для Bayer Denoise:", value="", height=300, key="bayer_hex_input")
 
@@ -667,49 +667,57 @@ with tab5:
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # Разбиваем на строки
-                    lines = [line.strip() for line in hex_input_bayer.split('\n') if line.strip()]
-
+                    offset = 10  # пропускаем заголовок "00000a610a0f0d" (10 символов)
                     results = []
 
-                    # === Парсим каждый уровень по порядку ===
-                    for level_idx, level_name in enumerate([
-                        "Bayer luma denoise very low",
-                        "Bayer luma denoise low",
-                        "Bayer luma denoise med",
-                        "Bayer luma denoise high",
-                        "Bayer luma denoise very high"
-                    ]):
-                        offset = level_idx * 28  # каждый уровень = 28 строк
+                    level_names = [
+                        "very low",
+                        "low",
+                        "med",
+                        "high",
+                        "very high"
+                    ]
 
-                        # === Извлекаем значения ===
-                        l1 = lines[offset + 1]
-                        l1a = lines[offset + 3]
-                        l1b = lines[offset + 5]
+                    for name in level_names:
+                        # === L1, L1A, L1B ===
+                        l1 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2  # L1 + '15'
+                        l1a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2  # L1A + '1d'
+                        l1b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 4  # L1B + '0a0f0d' (4 символа)
 
-                        l2 = lines[offset + 7]
-                        l2a = lines[offset + 9]
-                        l2b = lines[offset + 11]
+                        # === L2, L2A, L2B ===
+                        l2 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l2a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l2b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 4
 
-                        l3 = lines[offset + 13]
-                        l3a = lines[offset + 15]
-                        l3b = lines[offset + 17]
+                        # === L3, L3A, L3B ===
+                        l3 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l3a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l3b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 4
 
-                        l4 = lines[offset + 19]
-                        l4a = lines[offset + 21]
-                        l4b = lines[offset + 23]
+                        # === L4, L4A, L4B ===
+                        l4 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l4a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l4b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 4
 
-                        # === Находим L5 и L5A после "0a0a0d" ===
-                        try:
-                            l5_marker_index = lines.index("0a0a0d", offset + 24)
-                            l5 = lines[l5_marker_index + 1]
-                            l5a = lines[l5_marker_index + 3]
-                        except ValueError:
-                            l5 = "??"
-                            l5a = "??"
+                        # === L5, L5A ===
+                        l5 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l5a = hex_input_bayer[offset:offset+8]
 
                         results.append({
-                            "name": level_name,
+                            "name": name,
                             "L1": l1,
                             "L1A": l1a,
                             "L1B": l1b,
@@ -726,31 +734,26 @@ with tab5:
                             "L5A": l5a
                         })
 
-                    # --- Конвертируем HEX → float ---
                     def h2f(h):
-                        try:
-                            return round(hex_to_float(h), 6)
-                        except:
-                            return "Ошибка"
+                        return round(hex_to_float(h), 6)
 
-                    # --- Вывод результата ---
-                    st.markdown("#### 📄 Расшифровано (Bayer Denoise):")
+                    st.markdown("#### 📄 Расшифрованные значения (Bayer Denoise):")
                     for res in results:
-                        st.write(f"🔹 {res['name']}:")
-                        st.write(f"L1: {h2f(res['L1'])}")
-                        st.write(f"L1A: {h2f(res['L1A'])}")
-                        st.write(f"L1B: {h2f(res['L1B'])}")
-                        st.write(f"L2: {h2f(res['L2'])}")
-                        st.write(f"L2A: {h2f(res['L2A'])}")
-                        st.write(f"L2B: {h2f(res['L2B'])}")
-                        st.write(f"L3: {h2f(res['L3'])}")
-                        st.write(f"L3A: {h2f(res['L3A'])}")
-                        st.write(f"L3B: {h2f(res['L3B'])}")
-                        st.write(f"L4: {h2f(res['L4'])}")
-                        st.write(f"L4A: {h2f(res['L4A'])}")
-                        st.write(f"L4B: {h2f(res['L4B'])}")
-                        st.write(f"L5: {h2f(res['L5'])}")
-                        st.write(f"L5A: {h2f(res['L5A'])}")
+                        st.write(f"🔹 Bayer luma denoise {res['name']}:")
+                        st.write(f"L1: {h2f(res['L1']):.6f}")
+                        st.write(f"L1A: {h2f(res['L1A']):.6f}")
+                        st.write(f"L1B: {h2f(res['L1B']):.6f}")
+                        st.write(f"L2: {h2f(res['L2']):.6f}")
+                        st.write(f"L2A: {h2f(res['L2A']):.6f}")
+                        st.write(f"L2B: {h2f(res['L2B']):.6f}")
+                        st.write(f"L3: {h2f(res['L3']):.6f}")
+                        st.write(f"L3A: {h2f(res['L3A']):.6f}")
+                        st.write(f"L3B: {h2f(res['L3B']):.6f}")
+                        st.write(f"L4: {h2f(res['L4']):.6f}")
+                        st.write(f"L4A: {h2f(res['L4A']):.6f}")
+                        st.write(f"L4B: {h2f(res['L4B']):.6f}")
+                        st.write(f"L5: {h2f(res['L5']):.6f}")
+                        st.write(f"L5A: {h2f(res['L5A']):.6f}")
                         st.write("---")
 
                 except Exception as e:
