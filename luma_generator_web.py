@@ -530,74 +530,125 @@ with tab4:
             except Exception as e:
                 st.error(f"❌ Ошибка при парсинге: {e}")
 
-# === ВКЛАДКА 5: ОБРАТНАЯ ПАРСИЛКА MAIN SHARP УРОВНЕЙ ===
-with st.expander("🔁 Расшифровать Main Sharp HEX", expanded=False):
-    st.markdown("### 🔁 Расшифровать HEX обратно (Sharp Main: very low – very high)")
+# === ВКЛАДКА 5: ОБРАТНАЯ ПАРСИЛКА — HEX -> FLOAT для MAIN и BENTO SHARP ===
+with tab5:
+    st.markdown("### 🔁 Расшифровать HEX обратно — Main и Bento Sharp")
 
-    hex_input_main = st.text_area("Вставь HEX-строку основных Sharp уровней:", value="", height=200)
+    # --- Ввод HEX ---
+    hex_input_main = st.text_area("Вставь HEX (Main Sharp) сюда:", value="", height=200, key="hex_main_float_1")
+    hex_input_bento = st.text_area("Вставь HEX (Bento Sharp) сюда:", value="", height=200, key="hex_main_float_2")
 
-    if st.button("🔍 Распарсить Main Sharp HEX"):
-        if not hex_input_main.strip():
-            st.warning("❌ Вставь HEX-строку для расшифровки!")
-        else:
-            try:
-                # --- Убедимся, что есть заголовок ---
-                if not hex_input_main.startswith("0a490a140d"):
-                    st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
-                    start_offset = 0
-                else:
-                    start_offset = 10  # длина "0a490a140d" = 10 символов
+    col1, col2 = st.columns(2)
 
-                offset = start_offset
+    with col1:
+        if st.button("🔍 Распарсить Main Sharp"):
+            if not hex_input_main.strip():
+                st.warning("❌ Вставь HEX-строку Main Sharp!")
+            else:
+                try:
+                    start_offset = 10 if hex_input_main.startswith("0a490a140d") else 0
+                    offset = start_offset
+                    results = {}
 
-                results = {}
+                    for level_name in ["very low", "low", "med", "high", "very high"]:
+                        l1 = hex_input_main[offset:offset+8]
+                        offset += 8 + 2
+                        l1a = hex_input_main[offset:offset+8]
+                        offset += 8 + 26
 
-                # --- Парсим все 5 уровней ---
-                for level_name in ["very low", "low", "med", "high", "very high"]:
-                    l1 = hex_input_main[offset:offset+8]
+                        l2 = hex_input_main[offset:offset+8]
+                        offset += 8 + 2
+                        l2a = hex_input_main[offset:offset+8]
+                        offset += 8 + 26
+
+                        l3 = hex_input_main[offset:offset+8]
+                        offset += 8 + 2
+                        l3a = hex_input_main[offset:offset+8]
+                        offset += 8 + 44
+
+                        def h2f(h): return round(hex_to_float(h), 6)
+                        results[level_name] = {
+                            "L1": h2f(l1),
+                            "L1A": h2f(l1a),
+                            "L2": h2f(l2),
+                            "L2A": h2f(l2a),
+                            "L3": h2f(l3),
+                            "L3A": h2f(l3a)
+                        }
+
+                    st.markdown("#### 📄 Расшифровано (Main Sharp):")
+                    for name, vals in results.items():
+                        st.write(f"🔹 Sharp {name}:")
+                        st.write(f"L1: {vals['L1']:.4f}")
+                        st.write(f"L1A: {vals['L1A']:.4f}")
+                        st.write(f"L2: {vals['L2']:.4f}")
+                        st.write(f"L2A: {vals['L2A']:.4f}")
+                        st.write(f"L3: {vals['L3']:.4f}")
+                        st.write(f"L3A: {vals['L3A']:.4f}")
+                        st.write("---")
+
+                except Exception as e:
+                    st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
+
+    with col2:
+        if st.button("🔍 Распарсить Bento Sharp"):
+            if not hex_input_bento.strip():
+                st.warning("❌ Вставь HEX-строку Bento Sharp!")
+            else:
+                try:
+                    offset = 0
+
+                    # Sharp bento low
+                    l1_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
-
-                    l1a = hex_input_main[offset:offset+8]
+                    l1a_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 26
 
-                    l2 = hex_input_main[offset:offset+8]
+                    l2_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
-
-                    l2a = hex_input_main[offset:offset+8]
+                    l2a_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 26
 
-                    l3 = hex_input_main[offset:offset+8]
+                    l3_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
+                    l3a_low = hex_input_bento[offset:offset+8]
 
-                    l3a = hex_input_main[offset:offset+8]
-                    offset += 8 + 44  # после L3A служебная строка длиной 44 символа
+                    # Sharp bento high (продолжаем)
+                    offset = 36  # начинается после L3A из Sharp bento low
 
-                    results[level_name] = {
-                        "L1": l1,
-                        "L1A": l1a,
-                        "L2": l2,
-                        "L2A": l2a,
-                        "L3": l3,
-                        "L3A": l3a,
-                    }
+                    l1_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 2
+                    l1a_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 26
 
-                # --- Конвертируем в float ---
-                def h2f(h):
-                    return round(hex_to_float(h), 6)
+                    l2_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 2
+                    l2a_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 26
 
-                # --- Вывод результата ---
-                st.markdown("#### 📄 Расшифровано из HEX:")
+                    l3_high = hex_input_bento[offset:offset+8]
+                    offset += 8 + 2
+                    l3a_high = hex_input_bento[offset:offset+8]
 
-                for name, vals in results.items():
-                    st.write(f"🔹 Sharp {name}:")
-                    st.write(f"L1: {h2f(vals['L1']):.4f}")
-                    st.write(f"L1A: {h2f(vals['L1A']):.4f}")
-                    st.write(f"L2: {h2f(vals['L2']):.4f}")
-                    st.write(f"L2A: {h2f(vals['L2A']):.4f}")
-                    st.write(f"L3: {h2f(vals['L3']):.4f}")
-                    st.write(f"L3A: {h2f(vals['L3A']):.4f}")
-                    st.write("---")
+                    def h2f(h): return round(hex_to_float(h), 6)
 
-            except Exception as e:
-                st.error(f"❌ Ошибка при парсинге: {e}")
+                    st.markdown("#### 📄 Расшифровано (Sharp Bento):")
+                    st.write("🔹 Sharp bento low:")
+                    st.write(f"L1: {h2f(l1_low):.4f}")
+                    st.write(f"L1A: {h2f(l1a_low):.4f}")
+                    st.write(f"L2: {h2f(l2_low):.4f}")
+                    st.write(f"L2A: {h2f(l2a_low):.4f}")
+                    st.write(f"L3: {h2f(l3_low):.4f}")
+                    st.write(f"L3A: {h2f(l3a_low):.4f}")
+                    st.write("")
+                    st.write("🔸 Sharp bento high:")
+                    st.write(f"L1: {h2f(l1_high):.4f}")
+                    st.write(f"L1A: {h2f(l1a_high):.4f}")
+                    st.write(f"L2: {h2f(l2_high):.4f}")
+                    st.write(f"L2A: {h2f(l2a_high):.4f}")
+                    st.write(f"L3: {h2f(l3_high):.4f}")
+                    st.write(f"L3A: {h2f(l3a_high):.4f}")
+
+                except Exception as e:
+                    st.error(f"❌ Ошибка при парсинге Bento Sharp: {e}")
 # --- Конец программы ---
