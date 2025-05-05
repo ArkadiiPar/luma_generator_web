@@ -674,7 +674,7 @@ with tab5:
                         st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
                     offset = 14  # длина заголовка "00000a610a0f0d" = 14 символов
 
-                    results = []
+                    parsed_results = []
 
                     level_names = ["very low", "low", "med", "high", "very high"]
 
