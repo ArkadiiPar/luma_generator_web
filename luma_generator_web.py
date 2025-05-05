@@ -670,81 +670,60 @@ with tab5:
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
     # --- Раздел 3: BAYER DENOISE PARSER ---
-    with st.expander("🌀 Bayer Luma Denoise", expanded=False):
-        st.markdown("Вставь **полный HEX-код Bayer Denoise** (все уровни вместе).")
+    with st.expander("🔸 Bayer Luma Denoise (все уровни)", expanded=False):
+        st.markdown("Вставь HEX-строку с уровнем `Bayer luma denoise`, разделённую по строкам.")
+        st.markdown("Структура должна быть **точно такой же**, как на вкладке `Bayer Denoise`.")
 
-        hex_input_bayer = st.text_area("HEX для Bayer уровней:", value="", height=200, key="bayer_hex_input")
+        hex_input_bayer = st.text_area("HEX для Bayer Denoise:", value="", height=300, key="bayer_hex_input")
 
-        if st.button("🔍 Распарсить Bayer Denoise"):
+        if st.button("🔍 Распарсить Bayer Denoise HEX"):
             if not hex_input_bayer.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # --- Разбиваем HEX на строки ---
-                    lines = [line.strip() for line in hex_input_bayer.strip().splitlines() if line.strip()]
+                    # Разбиваем на строки
+                    lines = [line.strip() for line in hex_input_bayer.split('\n') if line.strip()]
 
-                    # --- Функция поиска маркеров ---
-                    def find_next_marker(marker, start=0):
-                        for i in range(start, len(lines)):
-                            if lines[i] == marker:
-                                return i
-                        return -1
+                    results = []
 
-                    results = {}
-
-                    # --- Парсинг всех 5 уровней ---
-                    level_names = [
+                    # === Парсим каждый уровень по порядку ===
+                    for level_idx, level_name in enumerate([
                         "Bayer luma denoise very low",
                         "Bayer luma denoise low",
                         "Bayer luma denoise med",
                         "Bayer luma denoise high",
                         "Bayer luma denoise very high"
-                    ]
+                    ]):
+                        offset = level_idx * 28  # каждый уровень = 28 строк
 
-                    start_idx = 0
+                        # === Извлекаем значения ===
+                        l1 = lines[offset + 1]
+                        l1a = lines[offset + 3]
+                        l1b = lines[offset + 5]
 
-                    for level_name in level_names:
-                        # Поиск маркера начала уровня
-                        level_start = find_next_marker("0a0f0d", start_idx)
-                        if level_start == -1:
-                            st.warning(f"⚠️ Не найден маркер '0a0f0d' для {level_name}")
-                            continue
+                        l2 = lines[offset + 7]
+                        l2a = lines[offset + 9]
+                        l2b = lines[offset + 11]
 
-                        # === L1, L1A, L1B ===
-                        l1 = lines[level_start + 1]
-                        l1a = lines[level_start + 3]
-                        l1b = lines[level_start + 5]
+                        l3 = lines[offset + 13]
+                        l3a = lines[offset + 15]
+                        l3b = lines[offset + 17]
 
-                        # === L2, L2A, L2B ===
-                        level_start = level_start + 6
-                        l2 = lines[level_start + 1]
-                        l2a = lines[level_start + 3]
-                        l2b = lines[level_start + 5]
+                        l4 = lines[offset + 19]
+                        l4a = lines[offset + 21]
+                        l4b = lines[offset + 23]
 
-                        # === L3, L3A, L3B ===
-                        level_start = level_start + 6
-                        l3 = lines[level_start + 1]
-                        l3a = lines[level_start + 3]
-                        l3b = lines[level_start + 5]
+                        # === Находим L5 и L5A после "0a0a0d" ===
+                        try:
+                            l5_marker_index = lines.index("0a0a0d", offset + 24)
+                            l5 = lines[l5_marker_index + 1]
+                            l5a = lines[l5_marker_index + 3]
+                        except ValueError:
+                            l5 = "??"
+                            l5a = "??"
 
-                        # === L4, L4A, L4B ===
-                        level_start = level_start + 6
-                        l4 = lines[level_start + 1]
-                        l4a = lines[level_start + 3]
-                        l4b = lines[level_start + 5]
-
-                        # === L5, L5A (после "0a0a0d") ===
-                        l5_marker = find_next_marker("0a0a0d", level_start + 6)
-                        if l5_marker == -1:
-                            st.warning(f"⚠️ Не найден маркер '0a0a0d' для {level_name}")
-                            l5 = "00000000"
-                            l5a = "00000000"
-                        else:
-                            l5 = lines[l5_marker + 1] if l5_marker + 1 < len(lines) else "00000000"
-                            l5a = lines[l5_marker + 3] if l5_marker + 3 < len(lines) else "00000000"
-
-                        # --- Сохраняем результат ---
-                        results[level_name] = {
+                        results.append({
+                            "name": level_name,
                             "L1": l1,
                             "L1A": l1a,
                             "L1B": l1b,
@@ -759,37 +738,33 @@ with tab5:
                             "L4B": l4b,
                             "L5": l5,
                             "L5A": l5a
-                        }
+                        })
 
-                        # --- Обновляем start_idx для следующего уровня ---
-                        if l5_marker != -1:
-                            start_idx = l5_marker + 4  # после L5A
-                        else:
-                            # Если нет маркера, пробуем по фиксированному смещению
-                            start_idx += 24  # приблизительно длина уровня
-
-                    # --- Конвертируем в float ---
+                    # --- Конвертируем HEX → float ---
                     def h2f(h):
-                        return round(hex_to_float(h), 6)
+                        try:
+                            return round(hex_to_float(h), 6)
+                        except:
+                            return "Ошибка"
 
-                    # --- Выводим результаты ---
-                    st.markdown("#### 📄 Расшифрованные значения (Bayer Denoise):")
-                    for name, vals in results.items():
-                        st.write(f"🔹 {name}:")
-                        st.write(f"L1: {h2f(vals['L1']):.6f}")
-                        st.write(f"L1A: {h2f(vals['L1A']):.6f}")
-                        st.write(f"L1B: {h2f(vals['L1B']):.6f}")
-                        st.write(f"L2: {h2f(vals['L2']):.6f}")
-                        st.write(f"L2A: {h2f(vals['L2A']):.6f}")
-                        st.write(f"L2B: {h2f(vals['L2B']):.6f}")
-                        st.write(f"L3: {h2f(vals['L3']):.6f}")
-                        st.write(f"L3A: {h2f(vals['L3A']):.6f}")
-                        st.write(f"L3B: {h2f(vals['L3B']):.6f}")
-                        st.write(f"L4: {h2f(vals['L4']):.6f}")
-                        st.write(f"L4A: {h2f(vals['L4A']):.6f}")
-                        st.write(f"L4B: {h2f(vals['L4B']):.6f}")
-                        st.write(f"L5: {h2f(vals['L5']):.6f}")
-                        st.write(f"L5A: {h2f(vals['L5A']):.6f}")
+                    # --- Вывод результата ---
+                    st.markdown("#### 📄 Расшифровано (Bayer Denoise):")
+                    for res in results:
+                        st.write(f"🔹 {res['name']}:")
+                        st.write(f"L1: {h2f(res['L1'])}")
+                        st.write(f"L1A: {h2f(res['L1A'])}")
+                        st.write(f"L1B: {h2f(res['L1B'])}")
+                        st.write(f"L2: {h2f(res['L2'])}")
+                        st.write(f"L2A: {h2f(res['L2A'])}")
+                        st.write(f"L2B: {h2f(res['L2B'])}")
+                        st.write(f"L3: {h2f(res['L3'])}")
+                        st.write(f"L3A: {h2f(res['L3A'])}")
+                        st.write(f"L3B: {h2f(res['L3B'])}")
+                        st.write(f"L4: {h2f(res['L4'])}")
+                        st.write(f"L4A: {h2f(res['L4A'])}")
+                        st.write(f"L4B: {h2f(res['L4B'])}")
+                        st.write(f"L5: {h2f(res['L5'])}")
+                        st.write(f"L5A: {h2f(res['L5A'])}")
                         st.write("---")
 
                 except Exception as e:
