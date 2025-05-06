@@ -569,7 +569,7 @@ with tab3:
         st.code(full_hex, language="text")
 
     # === Парсер HEX → Float для Bayer Denoise (внутри вкладки 3) ===
-    with st.expander("Парсер HEX → Float для Bayer Denoise", expanded=False):
+    with st.expander("Парсер для Bayer Denoise", expanded=False):
         st.markdown("### 🔁 Расшифровать HEX обратно (Bayer Denoise)")
         hex_input_bayer = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="bayer_parser_input_inside_3")
         
