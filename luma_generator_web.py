@@ -379,7 +379,6 @@ with tab1:
 
     if st.button("🚀 Сгенерировать основной Sharp HEX"):
         full_hex = generate_sharp_hex(sharp_inputs, main_sharp_levels, sharp_slices)
-        st.text_area("Сгенерированный HEX (Sharp Main):", value=full_hex, height=400)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸 Sharp Main Levels (very low – very high)", expanded=False):
@@ -470,7 +469,6 @@ with tab2:
     
     if st.button("🚀 Сгенерировать Bento Sharp HEX"):
         full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
-        st.text_area("Сгенерированный HEX (Bento Sharp):", value=full_hex, height=400)
         st.code(full_hex, language="text")
         
     with st.expander("🔹 Sharp Bento Low & High", expanded=False):
@@ -568,7 +566,6 @@ with tab3:
 
     if st.button("🚀 Сгенерировать HEX (Bayer Denoise)"):
         full_hex = generate_bayer_hex(bayer_inputs, bayer_levels)
-        st.text_area("Сгенерированный HEX (Bayer Denoise):", value=full_hex, height=400)
         st.code(full_hex, language="text")
 
     # === Парсер HEX → Float для Bayer Denoise (внутри вкладки 3) ===
