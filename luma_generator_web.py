@@ -572,77 +572,78 @@ with tab3:
         st.code(full_hex, language="text")
 
     # === Парсер HEX → Float для Bayer Denoise (внутри вкладки 3) ===
-    st.markdown("### 🔁 Расшифровать HEX обратно (Bayer Denoise)")
-    hex_input_bayer = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="bayer_parser_input_inside_3")
-    
-    if st.button("🔍 Распарсить HEX (автозаполнение)"):
-        if not hex_input_bayer.strip():
-            st.warning("❌ Вставь HEX-строку для расшифровки!")
-        else:
-            try:
-                # --- Проверяем заголовок ---
-                if not hex_input_bayer.startswith("00000a610a0f0d"):
-                    st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
-                offset = 14  # длина "00000a610a0f0d"
-    
-                # --- Обрабатываем 5 уровней ---
-                for idx in range(5):  # всегда 5 уровней
-                    # === L1, L1A, L1B ===
-                    l1 = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l1a = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l1b = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 6  # "0a0f0d" = 6 символов
-    
-                    # === L2, L2A, L2B ===
-                    l2 = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l2a = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l2b = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 6
-    
-                    # === L3, L3A, L3B ===
-                    l3 = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l3a = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l3b = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 6
-    
-                    # === L4, L4A, L4B ===
-                    l4 = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l4a = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l4b = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 6
-    
-                    # === L5, L5A + служебная строка ===
-                    l5 = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 2
-                    l5a = hex_input_bayer[offset:offset+8]
-                    offset += 8 + 44  # служебная строка после L5A = 44 символа
-    
-                    # === Сохраняем во временные ключи ===
-                    st.session_state[f"bayer_l1_{idx}_temp"] = float(round(hex_to_float(l1), 6))
-                    st.session_state[f"bayer_l1a_{idx}_temp"] = float(round(hex_to_float(l1a), 6))
-                    st.session_state[f"bayer_l1b_{idx}_temp"] = float(round(hex_to_float(l1b), 6))
-                    st.session_state[f"bayer_l2_{idx}_temp"] = float(round(hex_to_float(l2), 6))
-                    st.session_state[f"bayer_l2a_{idx}_temp"] = float(round(hex_to_float(l2a), 6))
-                    st.session_state[f"bayer_l2b_{idx}_temp"] = float(round(hex_to_float(l2b), 6))
-                    st.session_state[f"bayer_l3_{idx}_temp"] = float(round(hex_to_float(l3), 6))
-                    st.session_state[f"bayer_l3a_{idx}_temp"] = float(round(hex_to_float(l3a), 6))
-                    st.session_state[f"bayer_l3b_{idx}_temp"] = float(round(hex_to_float(l3b), 6))
-                    st.session_state[f"bayer_l4_{idx}_temp"] = float(round(hex_to_float(l4), 6))
-                    st.session_state[f"bayer_l4a_{idx}_temp"] = float(round(hex_to_float(l4a), 6))
-                    st.session_state[f"bayer_l4b_{idx}_temp"] = float(round(hex_to_float(l4b), 6))
-                    st.session_state[f"bayer_l5_{idx}_temp"] = float(round(hex_to_float(l5), 6))
-                    st.session_state[f"bayer_l5a_{idx}_temp"] = float(round(hex_to_float(l5a), 6))
-    
-                st.success("✅ Поля ввода обновлены")
-                st.rerun()
+    with st.expander("🔹 Sharp Bento Low & High", expanded=False):
+        st.markdown("### 🔁 Расшифровать HEX обратно (Bayer Denoise)")
+        hex_input_bayer = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="bayer_parser_input_inside_3")
+        
+        if st.button("🔍 Распарсить HEX (автозаполнение)"):
+            if not hex_input_bayer.strip():
+                st.warning("❌ Вставь HEX-строку для расшифровки!")
+            else:
+                try:
+                    # --- Проверяем заголовок ---
+                    if not hex_input_bayer.startswith("00000a610a0f0d"):
+                        st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
+                    offset = 14  # длина "00000a610a0f0d"
+        
+                    # --- Обрабатываем 5 уровней ---
+                    for idx in range(5):  # всегда 5 уровней
+                        # === L1, L1A, L1B ===
+                        l1 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l1a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l1b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 6  # "0a0f0d" = 6 символов
+        
+                        # === L2, L2A, L2B ===
+                        l2 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l2a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l2b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 6
+        
+                        # === L3, L3A, L3B ===
+                        l3 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l3a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l3b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 6
+        
+                        # === L4, L4A, L4B ===
+                        l4 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l4a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l4b = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 6
+        
+                        # === L5, L5A + служебная строка ===
+                        l5 = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 2
+                        l5a = hex_input_bayer[offset:offset+8]
+                        offset += 8 + 44  # служебная строка после L5A = 44 символа
+        
+                        # === Сохраняем во временные ключи ===
+                        st.session_state[f"bayer_l1_{idx}_temp"] = float(round(hex_to_float(l1), 6))
+                        st.session_state[f"bayer_l1a_{idx}_temp"] = float(round(hex_to_float(l1a), 6))
+                        st.session_state[f"bayer_l1b_{idx}_temp"] = float(round(hex_to_float(l1b), 6))
+                        st.session_state[f"bayer_l2_{idx}_temp"] = float(round(hex_to_float(l2), 6))
+                        st.session_state[f"bayer_l2a_{idx}_temp"] = float(round(hex_to_float(l2a), 6))
+                        st.session_state[f"bayer_l2b_{idx}_temp"] = float(round(hex_to_float(l2b), 6))
+                        st.session_state[f"bayer_l3_{idx}_temp"] = float(round(hex_to_float(l3), 6))
+                        st.session_state[f"bayer_l3a_{idx}_temp"] = float(round(hex_to_float(l3a), 6))
+                        st.session_state[f"bayer_l3b_{idx}_temp"] = float(round(hex_to_float(l3b), 6))
+                        st.session_state[f"bayer_l4_{idx}_temp"] = float(round(hex_to_float(l4), 6))
+                        st.session_state[f"bayer_l4a_{idx}_temp"] = float(round(hex_to_float(l4a), 6))
+                        st.session_state[f"bayer_l4b_{idx}_temp"] = float(round(hex_to_float(l4b), 6))
+                        st.session_state[f"bayer_l5_{idx}_temp"] = float(round(hex_to_float(l5), 6))
+                        st.session_state[f"bayer_l5a_{idx}_temp"] = float(round(hex_to_float(l5a), 6))
+        
+                    st.success("✅ Поля ввода обновлены")
+                    st.rerun()
     
             except Exception as e:
                 st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
