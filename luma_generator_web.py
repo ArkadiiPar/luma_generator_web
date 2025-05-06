@@ -388,18 +388,28 @@ with tab2:
     st.markdown("### 🍱 Редактирование Bento Sharp уровней")
 
     bento_inputs = []
-    for idx, level in enumerate(bento_sharp_levels):
-        with st.expander(level["name"], expanded=True):
-            cols = st.columns(3)
-            l1 = cols[0].number_input("L1", value=st.session_state.get(f"sharp_bento_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"bento_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"sharp_bento_l1a_{idx}_temp", level["default"][1]), format="%.4f", key=f"bento_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=st.session_state.get(f"sharp_bento_l2_{idx}_temp", level["default"][2]), format="%.4f", key=f"bento_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"sharp_bento_l2a_{idx}_temp", level["default"][3]), format="%.4f", key=f"bento_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=st.session_state.get(f"sharp_bento_l3_{idx}_temp", level["default"][4]), format="%.4f", key=f"bento_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"sharp_bento_l3a_{idx}_temp", level["default"][5]), format="%.4f", key=f"bento_l3a_{idx}")
-
-            bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
-
+    # === Sharp bento low (index 0) ===
+    with st.expander("Sharp bento low", expanded=True):
+        cols = st.columns(3)
+        l1 = cols[0].number_input("L1", value=st.session_state.get("bento_l1_0_temp", 16.0), format="%.4f", key="bento_l1_0")
+        l1a = cols[1].number_input("L1A", value=st.session_state.get("bento_l1a_0_temp", 0.0195), format="%.4f", key="bento_l1a_0")
+        l2 = cols[0].number_input("L2", value=st.session_state.get("bento_l2_0_temp", 3.10), format="%.4f", key="bento_l2_0")
+        l2a = cols[1].number_input("L2A", value=st.session_state.get("bento_l2a_0_temp", 0.01975), format="%.4f", key="bento_l2a_0")
+        l3 = cols[0].number_input("L3", value=st.session_state.get("bento_l3_0_temp", 1.89), format="%.4f", key="bento_l3_0")
+        l3a = cols[1].number_input("L3A", value=st.session_state.get("bento_l3a_0_temp", 0.02), format="%.4f", key="bento_l3a_0")
+        bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
+    
+    # === Sharp bento high (index 1) ===
+    with st.expander("Sharp bento high", expanded=True):
+        cols = st.columns(3)
+        l1 = cols[0].number_input("L1", value=st.session_state.get("bento_l1_1_temp", 18.5), format="%.4f", key="bento_l1_1")
+        l1a = cols[1].number_input("L1A", value=st.session_state.get("bento_l1a_1_temp", 0.0174), format="%.4f", key="bento_l1a_1")
+        l2 = cols[0].number_input("L2", value=st.session_state.get("bento_l2_1_temp", 2.70), format="%.4f", key="bento_l2_1")
+        l2a = cols[1].number_input("L2A", value=st.session_state.get("bento_l2a_1_temp", 0.0187), format="%.4f", key="bento_l2a_1")
+        l3 = cols[0].number_input("L3", value=st.session_state.get("bento_l3_1_temp", 1.70), format="%.4f", key="bento_l3_1")
+        l3a = cols[1].number_input("L3A", value=st.session_state.get("bento_l3a_1_temp", 0.02), format="%.4f", key="bento_l3a_1")
+        bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
+    
     if st.button("🚀 Сгенерировать Bento Sharp HEX"):
         full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
         st.text_area("Сгенерированный HEX (Bento Sharp):", value=full_hex, height=400)
