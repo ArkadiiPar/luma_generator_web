@@ -745,9 +745,9 @@ with tab4:
     
                         # === Завершающая служебная строка ===
                         if idx == 3:
-                            offset += 8 + 40  # для very high
+                            offset += 8 + 30  # для very high
                         else:
-                            offset += 8 + 44  # для low, med, high
+                            offset += 8 + 24  # для low, med, high
     
                         results.append({
                             "L1": l1,
