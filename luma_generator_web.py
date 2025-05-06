@@ -645,5 +645,5 @@ with tab3:
                     st.success("✅ Поля ввода обновлены")
                     st.rerun()
     
-            except Exception as e:
-                st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
+                except Exception as e:
+                    st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
