@@ -449,19 +449,19 @@ with tab2:
                     l3a_high = hex_input_bento[offset:offset+8]
 
                     # --- Сохраняем во временные ключи в session_state ---
-                    st.session_state["sharp_bento_l1_low_temp"] = float(round(hex_to_float(l1_low), 6))
-                    st.session_state["sharp_bento_l1a_low_temp"] = float(round(hex_to_float(l1a_low), 6))
-                    st.session_state["sharp_bento_l2_low_temp"] = float(round(hex_to_float(l2_low), 6))
-                    st.session_state["sharp_bento_l2a_low_temp"] = float(round(hex_to_float(l2a_low), 6))
-                    st.session_state["sharp_bento_l3_low_temp"] = float(round(hex_to_float(l3_low), 6))
-                    st.session_state["sharp_bento_l3a_low_temp"] = float(round(hex_to_float(l3a_low), 6))
+                    st.session_state["bento_l1_low_temp"] = float(round(hex_to_float(l1_low), 6))
+                    st.session_state["bento_l1a_low_temp"] = float(round(hex_to_float(l1a_low), 6))
+                    st.session_state["bento_l2_low_temp"] = float(round(hex_to_float(l2_low), 6))
+                    st.session_state["bento_l2a_low_temp"] = float(round(hex_to_float(l2a_low), 6))
+                    st.session_state["bento_l3_low_temp"] = float(round(hex_to_float(l3_low), 6))
+                    st.session_state["bento_l3a_low_temp"] = float(round(hex_to_float(l3a_low), 6))
 
-                    st.session_state["sharp_bento_l1_high_temp"] = float(round(hex_to_float(l1_high), 6))
-                    st.session_state["sharp_bento_l1a_high_temp"] = float(round(hex_to_float(l1a_high), 6))
-                    st.session_state["sharp_bento_l2_high_temp"] = float(round(hex_to_float(l2_high), 6))
-                    st.session_state["sharp_bento_l2a_high_temp"] = float(round(hex_to_float(l2a_high), 6))
-                    st.session_state["sharp_bento_l3_high_temp"] = float(round(hex_to_float(l3_high), 6))
-                    st.session_state["sharp_bento_l3a_high_temp"] = float(round(hex_to_float(l3a_high), 6))
+                    st.session_state["bento_l1_high_temp"] = float(round(hex_to_float(l1_high), 6))
+                    st.session_state["bento_l1a_high_temp"] = float(round(hex_to_float(l1a_high), 6))
+                    st.session_state["bento_l2_high_temp"] = float(round(hex_to_float(l2_high), 6))
+                    st.session_state["bento_l2a_high_temp"] = float(round(hex_to_float(l2a_high), 6))
+                    st.session_state["bento_l3_high_temp"] = float(round(hex_to_float(l3_high), 6))
+                    st.session_state["bento_l3a_high_temp"] = float(round(hex_to_float(l3a_high), 6))
 
                     st.success("✅ Поля Sharp Bento обновлены")
                     st.rerun()
