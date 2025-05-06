@@ -716,7 +716,7 @@ with tab4:
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    offset = 20  # длина заголовка "0a3e0a050d0000a0400a0a0d" = 20 символов
+                    offset = 24  # длина заголовка "0a3e0a050d0000a0400a0a0d" = 20 символов
                     results = []
     
                     for idx in range(4):  # 4 уровня
