@@ -432,7 +432,7 @@ with tab2:
                     l3a_low = hex_input_bento[offset:offset+8]
 
                     # --- Sharp bento high (после low) ---
-                    offset = offset + 44  # после low — служебная строка длиной 44 символа
+                    offset = 8 + 44  # после low — служебная строка длиной 44 символа
 
                     l1_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
