@@ -352,6 +352,36 @@ def generate_bayer_hex(values_list, level_names):
 
     full_hex += "".join(lines)
     return full_hex
+    
+# --- Генерация HEX для Chroma Denoise ---
+def generate_chroma_hex(values_list, level_names):
+    lines = []
+
+    # --- Заголовок один раз перед всеми уровнями ---
+    full_hex = "0a3e0a050d0000a0400a0a0d"
+
+    # --- Генерация каждого уровня ---
+    for i, values in enumerate(values_list):
+        l1, l1a, l2, l2a, l3, l3a, l4, l4a = values
+
+        # === Шаблон уровня ===
+        level_hex = (
+            f"{float_to_hex(l1)}1d{float_to_hex(l1a)}0a0a0d"
+            f"{float_to_hex(l2)}1d{float_to_hex(l2a)}0a0a0d"
+            f"{float_to_hex(l3)}1d{float_to_hex(l3a)}0a0a0d"
+            f"{float_to_hex(l4)}1d{float_to_hex(l4a)}"
+        )
+
+        # === Добавляем правильную завершающую служебную строку ===
+        if i == len(values_list) - 1:
+            level_hex += "12050d0000a0410000000000000000"  # для very high
+        else:
+            level_hex += "12050d0000803f0a3e0a050d"  # для low, med, high
+
+        lines.append(level_hex)
+
+    full_hex += "".join(lines)
+    return full_hex
 
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
@@ -644,3 +674,105 @@ with tab3:
     
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
+# === ВКЛАДКА 4: CHROMA DENOISE (новая вкладка) ===
+with tab4:
+    st.markdown("### 🎨 Chroma Denoise (низкий, средний, высокий, очень высокий)")
+
+    chroma_levels = [
+        {"name": "Chroma Denoise Low", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]},
+        {"name": "Chroma Denoise Med", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]},
+        {"name": "Chroma Denoise High", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]},
+        {"name": "Chroma Denoise Very High", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]}
+    ]
+
+    chroma_inputs = []
+    for idx, level in enumerate(chroma_levels):
+        with st.expander(level["name"], expanded=True):
+            cols = st.columns(2)
+            l1 = cols[0].number_input("L1", value=st.session_state.get(f"chroma_l1_{idx}_temp", level["default"][0]), format="%.6f", key=f"chroma_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"chroma_l1a_{idx}_temp", level["default"][1]), format="%.6f", key=f"chroma_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=st.session_state.get(f"chroma_l2_{idx}_temp", level["default"][2]), format="%.6f", key=f"chroma_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"chroma_l2a_{idx}_temp", level["default"][3]), format="%.6f", key=f"chroma_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=st.session_state.get(f"chroma_l3_{idx}_temp", level["default"][4]), format="%.6f", key=f"chroma_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"chroma_l3a_{idx}_temp", level["default"][5]), format="%.6f", key=f"chroma_l3a_{idx}")
+            l4 = cols[0].number_input("L4", value=st.session_state.get(f"chroma_l4_{idx}_temp", level["default"][6]), format="%.6f", key=f"chroma_l4_{idx}")
+            l4a = cols[1].number_input("L4A", value=st.session_state.get(f"chroma_l4a_{idx}_temp", level["default"][7]), format="%.6f", key=f"chroma_l4a_{idx}")
+
+            chroma_inputs.append([l1, l1a, l2, l2a, l3, l3a, l4, l4a])
+
+    if st.button("🚀 Сгенерировать HEX (Chroma Denoise)"):
+        full_hex = generate_chroma_hex(chroma_inputs, chroma_levels)
+        st.text_area("Сгенерированный HEX (Chroma Denoise):", value=full_hex, height=400)
+        st.code(full_hex, language="text")
+    # --- Раздел 4: CHROMA DENOISE PARSER (без вывода значений) ---
+    with st.expander("🔸 Chroma Denoise (все уровни)", expanded=False):
+        st.markdown("Вставь HEX-строку с уровнями `Chroma Denoise`, сгенерированную программой.")
+        st.markdown("Структура: `заголовок` + `low`, `med`, `high`, `very high`")
+    
+        hex_input_chroma = st.text_area("HEX для Chroma Denoise:", value="", height=200, key="chroma_parser_input_inside")
+    
+        if st.button("🔍 Распарсить Chroma Denoise HEX"):
+            if not hex_input_chroma.strip():
+                st.warning("❌ Вставь HEX-строку для расшифровки!")
+            else:
+                try:
+                    offset = 20  # длина заголовка "0a3e0a050d0000a0400a0a0d" = 20 символов
+                    results = []
+    
+                    for idx in range(4):  # 4 уровня
+                        # === L1, L1A ===
+                        l1 = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 2
+                        l1a = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 6
+    
+                        # === L2, L2A ===
+                        l2 = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 2
+                        l2a = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 6
+    
+                        # === L3, L3A ===
+                        l3 = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 2
+                        l3a = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 6
+    
+                        # === L4, L4A ===
+                        l4 = hex_input_chroma[offset:offset+8]
+                        offset += 8 + 2
+                        l4a = hex_input_chroma[offset:offset+8]
+    
+                        # === Завершающая служебная строка ===
+                        if idx == 3:
+                            offset += 8 + 40  # для very high
+                        else:
+                            offset += 8 + 44  # для low, med, high
+    
+                        results.append({
+                            "L1": l1,
+                            "L1A": l1a,
+                            "L2": l2,
+                            "L2A": l2a,
+                            "L3": l3,
+                            "L3A": l3a,
+                            "L4": l4,
+                            "L4A": l4a,
+                        })
+    
+                    # --- Сохраняем во временные ключи ---
+                    for idx, res in enumerate(results):
+                        st.session_state[f"chroma_l1_{idx}_temp"] = float(round(hex_to_float(res["L1"]), 6))
+                        st.session_state[f"chroma_l1a_{idx}_temp"] = float(round(hex_to_float(res["L1A"]), 6))
+                        st.session_state[f"chroma_l2_{idx}_temp"] = float(round(hex_to_float(res["L2"]), 6))
+                        st.session_state[f"chroma_l2a_{idx}_temp"] = float(round(hex_to_float(res["L2A"]), 6))
+                        st.session_state[f"chroma_l3_{idx}_temp"] = float(round(hex_to_float(res["L3"]), 6))
+                        st.session_state[f"chroma_l3a_{idx}_temp"] = float(round(hex_to_float(res["L3A"]), 6))
+                        st.session_state[f"chroma_l4_{idx}_temp"] = float(round(hex_to_float(res["L4"]), 6))
+                        st.session_state[f"chroma_l4a_{idx}_temp"] = float(round(hex_to_float(res["L4A"]), 6))
+    
+                    st.success("✅ Поля Chroma Denoise обновлены")
+                    st.rerun()
+    
+                except Exception as e:
+                    st.error(f"❌ Ошибка при парсинге Chroma Denoise: {e}")
