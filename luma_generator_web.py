@@ -763,26 +763,32 @@ with tab5:
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
        # --- Кнопка автозаполнения полей ввода ---
-    if st.button("🔁 Заполнить поля ввода (Bayer Denoise)"):
-        if "parsed_bayer_results" not in st.session_state:
-            st.warning("⚠️ Сначала распарсь HEX!")
-        else:
-            parsed_results = st.session_state["parsed_bayer_results"]
-            for idx, res in enumerate(parsed_results):
-                st.session_state[f"bayer_l1_{idx}"] = round(hex_to_float(res['L1']), 6)
-                st.session_state[f"bayer_l1a_{idx}"] = round(hex_to_float(res['L1A']), 6)
-                st.session_state[f"bayer_l1b_{idx}"] = round(hex_to_float(res['L1B']), 6)
-                st.session_state[f"bayer_l2_{idx}"] = round(hex_to_float(res['L2']), 6)
-                st.session_state[f"bayer_l2a_{idx}"] = round(hex_to_float(res['L2A']), 6)
-                st.session_state[f"bayer_l2b_{idx}"] = round(hex_to_float(res['L2B']), 6)
-                st.session_state[f"bayer_l3_{idx}"] = round(hex_to_float(res['L3']), 6)
-                st.session_state[f"bayer_l3a_{idx}"] = round(hex_to_float(res['L3A']), 6)
-                st.session_state[f"bayer_l3b_{idx}"] = round(hex_to_float(res['L3B']), 6)
-                st.session_state[f"bayer_l4_{idx}"] = round(hex_to_float(res['L4']), 6)
-                st.session_state[f"bayer_l4a_{idx}"] = round(hex_to_float(res['L4A']), 6)
-                st.session_state[f"bayer_l4b_{idx}"] = round(hex_to_float(res['L4B']), 6)
-                st.session_state[f"bayer_l5_{idx}"] = round(hex_to_float(res['L5']), 6)
-                st.session_state[f"bayer_l5a_{idx}"] = round(hex_to_float(res['L5A']), 6)
+# --- Кнопка автозаполнения полей ввода Bayer Denoise ---
+if st.button("🔁 Заполнить поля ввода (Bayer Denoise)"):
+    if "parsed_bayer_results" not in st.session_state:
+        st.warning("⚠️ Сначала распарсь HEX!")
+    else:
+        parsed_results = st.session_state["parsed_bayer_results"]
 
-            st.success("✅ Поля ввода Bayer Denoise обновлены!")
+        for idx, res in enumerate(parsed_results):
+            try:
+                # Явно конвертируем в `float`
+                st.session_state[f"bayer_l1_{idx}"] = float(round(hex_to_float(res['L1']), 6))
+                st.session_state[f"bayer_l1a_{idx}"] = float(round(hex_to_float(res['L1A']), 6))
+                st.session_state[f"bayer_l1b_{idx}"] = float(round(hex_to_float(res['L1B']), 6))
+                st.session_state[f"bayer_l2_{idx}"] = float(round(hex_to_float(res['L2']), 6))
+                st.session_state[f"bayer_l2a_{idx}"] = float(round(hex_to_float(res['L2A']), 6))
+                st.session_state[f"bayer_l2b_{idx}"] = float(round(hex_to_float(res['L2B']), 6))
+                st.session_state[f"bayer_l3_{idx}"] = float(round(hex_to_float(res['L3']), 6))
+                st.session_state[f"bayer_l3a_{idx}"] = float(round(hex_to_float(res['L3A']), 6))
+                st.session_state[f"bayer_l3b_{idx}"] = float(round(hex_to_float(res['L3B']), 6))
+                st.session_state[f"bayer_l4_{idx}"] = float(round(hex_to_float(res['L4']), 6))
+                st.session_state[f"bayer_l4a_{idx}"] = float(round(hex_to_float(res['L4A']), 6))
+                st.session_state[f"bayer_l4b_{idx}"] = float(round(hex_to_float(res['L4B']), 6))
+                st.session_state[f"bayer_l5_{idx}"] = float(round(hex_to_float(res['L5']), 6))
+                st.session_state[f"bayer_l5a_{idx}"] = float(round(hex_to_float(res['L5A']), 6))
+            except Exception as e:
+                st.error(f"❌ Ошибка при автозаполнении уровня {idx}: {e}")
+
+        st.success("✅ Поля ввода Bayer Denoise обновлены")
 # --- Конец программы ---
