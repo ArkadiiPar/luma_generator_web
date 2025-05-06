@@ -368,12 +368,13 @@ with tab1:
     for idx, level in enumerate(main_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
-            l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"sharp_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"sharp_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"sharp_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"sharp_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"sharp_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"sharp_l3a_{idx}")
+            l1 = cols[0].number_input("L1", value=st.session_state.get(f"sharp_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"sharp_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"sharp_l1a_{idx}_temp", level["default"][1]), format="%.4f", key=f"sharp_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=st.session_state.get(f"sharp_l2_{idx}_temp", level["default"][2]), format="%.4f", key=f"sharp_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"sharp_l2a_{idx}_temp", level["default"][3]), format="%.4f", key=f"sharp_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=st.session_state.get(f"sharp_l3_{idx}_temp", level["default"][4]), format="%.4f", key=f"sharp_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"sharp_l3a_{idx}_temp", level["default"][5]), format="%.4f", key=f"sharp_l3a_{idx}")
+
             sharp_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать основной Sharp HEX"):
@@ -390,12 +391,13 @@ with tab2:
     for idx, level in enumerate(bento_sharp_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
-            l1 = cols[0].number_input("L1", value=level["default"][0], format="%.4f", key=f"bento_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=level["default"][1], format="%.4f", key=f"bento_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=level["default"][2], format="%.4f", key=f"bento_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=level["default"][3], format="%.4f", key=f"bento_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=level["default"][4], format="%.4f", key=f"bento_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=level["default"][5], format="%.4f", key=f"bento_l3a_{idx}")
+            l1 = cols[0].number_input("L1", value=st.session_state.get(f"sharp_bento_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"bento_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"sharp_bento_l1a_{idx}_temp", level["default"][1]), format="%.4f", key=f"bento_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=st.session_state.get(f"sharp_bento_l2_{idx}_temp", level["default"][2]), format="%.4f", key=f"bento_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"sharp_bento_l2a_{idx}_temp", level["default"][3]), format="%.4f", key=f"bento_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=st.session_state.get(f"sharp_bento_l3_{idx}_temp", level["default"][4]), format="%.4f", key=f"bento_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"sharp_bento_l3a_{idx}_temp", level["default"][5]), format="%.4f", key=f"bento_l3a_{idx}")
+
             bento_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать Bento Sharp HEX"):
@@ -440,81 +442,81 @@ with tab3:
         st.text_area("Сгенерированный HEX (Bayer Denoise):", value=full_hex, height=400)
         st.code(full_hex, language="text")
 
-# === Парсер HEX → Float для Bayer Denoise (внутри вкладки 3) ===
-st.markdown("### 🔁 Расшифровать HEX обратно (Bayer Denoise)")
-hex_input_bayer = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="bayer_parser_input_inside_3")
-
-if st.button("🔍 Распарсить HEX (автозаполнение)"):
-    if not hex_input_bayer.strip():
-        st.warning("❌ Вставь HEX-строку для расшифровки!")
-    else:
-        try:
-            # --- Проверяем заголовок ---
-            if not hex_input_bayer.startswith("00000a610a0f0d"):
-                st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
-            offset = 14  # длина "00000a610a0f0d"
-
-            # --- Обрабатываем 5 уровней ---
-            for idx in range(5):  # всегда 5 уровней
-                # === L1, L1A, L1B ===
-                l1 = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l1a = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l1b = hex_input_bayer[offset:offset+8]
-                offset += 8 + 6  # "0a0f0d" = 6 символов
-
-                # === L2, L2A, L2B ===
-                l2 = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l2a = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l2b = hex_input_bayer[offset:offset+8]
-                offset += 8 + 6
-
-                # === L3, L3A, L3B ===
-                l3 = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l3a = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l3b = hex_input_bayer[offset:offset+8]
-                offset += 8 + 6
-
-                # === L4, L4A, L4B ===
-                l4 = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l4a = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l4b = hex_input_bayer[offset:offset+8]
-                offset += 8 + 6
-
-                # === L5, L5A + служебная строка ===
-                l5 = hex_input_bayer[offset:offset+8]
-                offset += 8 + 2
-                l5a = hex_input_bayer[offset:offset+8]
-                offset += 8 + 44  # служебная строка после L5A = 44 символа
-
-                # === Сохраняем во временные ключи ===
-                st.session_state[f"bayer_l1_{idx}_temp"] = float(round(hex_to_float(l1), 6))
-                st.session_state[f"bayer_l1a_{idx}_temp"] = float(round(hex_to_float(l1a), 6))
-                st.session_state[f"bayer_l1b_{idx}_temp"] = float(round(hex_to_float(l1b), 6))
-                st.session_state[f"bayer_l2_{idx}_temp"] = float(round(hex_to_float(l2), 6))
-                st.session_state[f"bayer_l2a_{idx}_temp"] = float(round(hex_to_float(l2a), 6))
-                st.session_state[f"bayer_l2b_{idx}_temp"] = float(round(hex_to_float(l2b), 6))
-                st.session_state[f"bayer_l3_{idx}_temp"] = float(round(hex_to_float(l3), 6))
-                st.session_state[f"bayer_l3a_{idx}_temp"] = float(round(hex_to_float(l3a), 6))
-                st.session_state[f"bayer_l3b_{idx}_temp"] = float(round(hex_to_float(l3b), 6))
-                st.session_state[f"bayer_l4_{idx}_temp"] = float(round(hex_to_float(l4), 6))
-                st.session_state[f"bayer_l4a_{idx}_temp"] = float(round(hex_to_float(l4a), 6))
-                st.session_state[f"bayer_l4b_{idx}_temp"] = float(round(hex_to_float(l4b), 6))
-                st.session_state[f"bayer_l5_{idx}_temp"] = float(round(hex_to_float(l5), 6))
-                st.session_state[f"bayer_l5a_{idx}_temp"] = float(round(hex_to_float(l5a), 6))
-
-            st.success("✅ Поля ввода обновлены")
-            st.rerun()
-
-        except Exception as e:
-            st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
+    # === Парсер HEX → Float для Bayer Denoise (внутри вкладки 3) ===
+    st.markdown("### 🔁 Расшифровать HEX обратно (Bayer Denoise)")
+    hex_input_bayer = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="bayer_parser_input_inside_3")
+    
+    if st.button("🔍 Распарсить HEX (автозаполнение)"):
+        if not hex_input_bayer.strip():
+            st.warning("❌ Вставь HEX-строку для расшифровки!")
+        else:
+            try:
+                # --- Проверяем заголовок ---
+                if not hex_input_bayer.startswith("00000a610a0f0d"):
+                    st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
+                offset = 14  # длина "00000a610a0f0d"
+    
+                # --- Обрабатываем 5 уровней ---
+                for idx in range(5):  # всегда 5 уровней
+                    # === L1, L1A, L1B ===
+                    l1 = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l1a = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l1b = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 6  # "0a0f0d" = 6 символов
+    
+                    # === L2, L2A, L2B ===
+                    l2 = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l2a = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l2b = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 6
+    
+                    # === L3, L3A, L3B ===
+                    l3 = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l3a = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l3b = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 6
+    
+                    # === L4, L4A, L4B ===
+                    l4 = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l4a = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l4b = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 6
+    
+                    # === L5, L5A + служебная строка ===
+                    l5 = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 2
+                    l5a = hex_input_bayer[offset:offset+8]
+                    offset += 8 + 44  # служебная строка после L5A = 44 символа
+    
+                    # === Сохраняем во временные ключи ===
+                    st.session_state[f"bayer_l1_{idx}_temp"] = float(round(hex_to_float(l1), 6))
+                    st.session_state[f"bayer_l1a_{idx}_temp"] = float(round(hex_to_float(l1a), 6))
+                    st.session_state[f"bayer_l1b_{idx}_temp"] = float(round(hex_to_float(l1b), 6))
+                    st.session_state[f"bayer_l2_{idx}_temp"] = float(round(hex_to_float(l2), 6))
+                    st.session_state[f"bayer_l2a_{idx}_temp"] = float(round(hex_to_float(l2a), 6))
+                    st.session_state[f"bayer_l2b_{idx}_temp"] = float(round(hex_to_float(l2b), 6))
+                    st.session_state[f"bayer_l3_{idx}_temp"] = float(round(hex_to_float(l3), 6))
+                    st.session_state[f"bayer_l3a_{idx}_temp"] = float(round(hex_to_float(l3a), 6))
+                    st.session_state[f"bayer_l3b_{idx}_temp"] = float(round(hex_to_float(l3b), 6))
+                    st.session_state[f"bayer_l4_{idx}_temp"] = float(round(hex_to_float(l4), 6))
+                    st.session_state[f"bayer_l4a_{idx}_temp"] = float(round(hex_to_float(l4a), 6))
+                    st.session_state[f"bayer_l4b_{idx}_temp"] = float(round(hex_to_float(l4b), 6))
+                    st.session_state[f"bayer_l5_{idx}_temp"] = float(round(hex_to_float(l5), 6))
+                    st.session_state[f"bayer_l5a_{idx}_temp"] = float(round(hex_to_float(l5a), 6))
+    
+                st.success("✅ Поля ввода обновлены")
+                st.rerun()
+    
+            except Exception as e:
+                st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
 
 # === ВКЛАДКА 4: ОБРАТНАЯ ПАРСИЛКА BENTO SHARP ===
 with tab4:
