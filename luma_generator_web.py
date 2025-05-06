@@ -381,7 +381,7 @@ with tab1:
         full_hex = generate_sharp_hex(sharp_inputs, main_sharp_levels, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
-    with st.expander("🔸 Sharp Main Levels (very low – very high)", expanded=False):
+    with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
         st.markdown("Вставь HEX-строку с уровнями Sharp (с заголовком `0a490a140d`)")
 
         hex_input_main = st.text_area("HEX для Main Sharp:", value="", height=200, key="main_parser_input")
@@ -471,7 +471,7 @@ with tab2:
         full_hex = generate_bento_sharp_hex(bento_inputs, bento_sharp_levels, sharp_bento_slices)
         st.code(full_hex, language="text")
         
-    with st.expander("🔹 Sharp Bento Low & High", expanded=False):
+    with st.expander("Парсер Sharp Bento Low & High", expanded=False):
         st.markdown("Вставь HEX-строку с уровнями Sharp Bento (без заголовка):")
         hex_input_bento = st.text_area("HEX для Bento уровней:", value="", height=200, key="bento_parser_input")
     
@@ -569,7 +569,7 @@ with tab3:
         st.code(full_hex, language="text")
 
     # === Парсер HEX → Float для Bayer Denoise (внутри вкладки 3) ===
-    with st.expander("🔹 Sharp Bento Low & High", expanded=False):
+    with st.expander("Парсер HEX → Float для Bayer Denoise", expanded=False):
         st.markdown("### 🔁 Расшифровать HEX обратно (Bayer Denoise)")
         hex_input_bayer = st.text_area("Вставь HEX-строку сюда:", value="", height=200, key="bayer_parser_input_inside_3")
         
