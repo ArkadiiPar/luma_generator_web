@@ -408,64 +408,62 @@ with tab2:
     with st.expander("🔹 Sharp Bento Low & High", expanded=False):
         st.markdown("Вставь HEX-строку с уровнями Sharp Bento (без заголовка):")
         hex_input_bento = st.text_area("HEX для Bento уровней:", value="", height=200, key="bento_parser_input")
-
+    
         if st.button("🔍 Распарсить Sharp Bento HEX"):
             if not hex_input_bento.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
                     offset = 0
-
-                    # --- Sharp bento low ---
+    
+                    # === Sharp bento low (index 0) ===
                     l1_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
                     l1a_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 26
-
+    
                     l2_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
                     l2a_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 26
-
+    
                     l3_low = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
                     l3a_low = hex_input_bento[offset:offset+8]
-
-                    # --- Sharp bento high (после low) ---
-                    offset = 8 + 44  # после low — служебная строка длиной 44 символа
-
+    
+                    # После low — служебная строка длиной 44
+                    offset += 8 + 44
+    
+                    # === Sharp bento high (index 1) ===
                     l1_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
                     l1a_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 26
-
+    
                     l2_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
                     l2a_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 26
-
+    
                     l3_high = hex_input_bento[offset:offset+8]
                     offset += 8 + 2
                     l3a_high = hex_input_bento[offset:offset+8]
-
-                    # --- Сохраняем во временные ключи в session_state ---
-                    st.session_state["bento_l1_low_temp"] = float(round(hex_to_float(l1_low), 6))
-                    st.session_state["bento_l1a_low_temp"] = float(round(hex_to_float(l1a_low), 6))
-                    st.session_state["bento_l2_low_temp"] = float(round(hex_to_float(l2_low), 6))
-                    st.session_state["bento_l2a_low_temp"] = float(round(hex_to_float(l2a_low), 6))
-                    st.session_state["bento_l3_low_temp"] = float(round(hex_to_float(l3_low), 6))
-                    st.session_state["bento_l3a_low_temp"] = float(round(hex_to_float(l3a_low), 6))
-
-                    st.session_state["bento_l1_high_temp"] = float(round(hex_to_float(l1_high), 6))
-                    st.session_state["bento_l1a_high_temp"] = float(round(hex_to_float(l1a_high), 6))
-                    st.session_state["bento_l2_high_temp"] = float(round(hex_to_float(l2_high), 6))
-                    st.session_state["bento_l2a_high_temp"] = float(round(hex_to_float(l2a_high), 6))
-                    st.session_state["bento_l3_high_temp"] = float(round(hex_to_float(l3_high), 6))
-                    st.session_state["bento_l3a_high_temp"] = float(round(hex_to_float(l3a_high), 6))
-
+    
+                    # === Сохраняем во временные ключи по индексам (0 и 1) ===
+                    for idx, (l1, l1a, l2, l2a, l3, l3a) in enumerate([
+                        [l1_low, l1a_low, l2_low, l2a_low, l3_low, l3a_low],
+                        [l1_high, l1a_high, l2_high, l2a_high, l3_high, l3a_high]
+                    ]):
+                        st.session_state[f"bento_l1_{idx}_temp"] = float(round(hex_to_float(l1), 6))
+                        st.session_state[f"bento_l1a_{idx}_temp"] = float(round(hex_to_float(l1a), 6))
+                        st.session_state[f"bento_l2_{idx}_temp"] = float(round(hex_to_float(l2), 6))
+                        st.session_state[f"bento_l2a_{idx}_temp"] = float(round(hex_to_float(l2a), 6))
+                        st.session_state[f"bento_l3_{idx}_temp"] = float(round(hex_to_float(l3), 6))
+                        st.session_state[f"bento_l3a_{idx}_temp"] = float(round(hex_to_float(l3a), 6))
+    
                     st.success("✅ Поля Sharp Bento обновлены")
                     st.rerun()
-
+    
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bento: {e}")
 
