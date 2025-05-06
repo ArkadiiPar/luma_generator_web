@@ -414,26 +414,96 @@ with tab3:
     for idx, level in enumerate(bayer_levels):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
-
-            l1 = cols[0].number_input("L1", value=st.session_state.get(f"bayer_l1_{idx}", level["default"][0]), format="%.6f", key=f"bayer_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"bayer_l1a_{idx}", level["default"][1]), format="%.6f", key=f"bayer_l1a_{idx}")
-            l1b = cols[2].number_input("L1B", value=st.session_state.get(f"bayer_l1b_{idx}", level["default"][2]), format="%.6f", key=f"bayer_l1b_{idx}")
-
-            l2 = cols[0].number_input("L2", value=st.session_state.get(f"bayer_l2_{idx}", level["default"][3]), format="%.6f", key=f"bayer_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"bayer_l2a_{idx}", level["default"][4]), format="%.6f", key=f"bayer_l2a_{idx}")
-            l2b = cols[2].number_input("L2B", value=st.session_state.get(f"bayer_l2b_{idx}", level["default"][5]), format="%.6f", key=f"bayer_l2b_{idx}")
-
-            l3 = cols[0].number_input("L3", value=st.session_state.get(f"bayer_l3_{idx}", level["default"][6]), format="%.6f", key=f"bayer_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"bayer_l3a_{idx}", level["default"][7]), format="%.6f", key=f"bayer_l3a_{idx}")
-            l3b = cols[2].number_input("L3B", value=st.session_state.get(f"bayer_l3b_{idx}", level["default"][8]), format="%.6f", key=f"bayer_l3b_{idx}")
-
-            l4 = cols[0].number_input("L4", value=st.session_state.get(f"bayer_l4_{idx}", level["default"][9]), format="%.6f", key=f"bayer_l4_{idx}")
-            l4a = cols[1].number_input("L4A", value=st.session_state.get(f"bayer_l4a_{idx}", level["default"][10]), format="%.6f", key=f"bayer_l4a_{idx}")
-            l4b = cols[2].number_input("L4B", value=st.session_state.get(f"bayer_l4b_{idx}", level["default"][11]), format="%.6f", key=f"bayer_l4b_{idx}")
-
-            l5 = cols[0].number_input("L5", value=st.session_state.get(f"bayer_l5_{idx}", level["default"][12]), format="%.6f", key=f"bayer_l5_{idx}")
-            l5a = cols[1].number_input("L5A", value=st.session_state.get(f"bayer_l5a_{idx}", level["default"][13]), format="%.6f", key=f"bayer_l5a_{idx}")
-
+    
+            l1 = cols[0].number_input(
+                "L1",
+                value=st.session_state.get(f"bayer_l1_{idx}_temp", level["default"][0]),
+                format="%.6f",
+                key=f"bayer_l1_{idx}"
+            )
+            l1a = cols[1].number_input(
+                "L1A",
+                value=st.session_state.get(f"bayer_l1a_{idx}_temp", level["default"][1]),
+                format="%.6f",
+                key=f"bayer_l1a_{idx}"
+            )
+            l1b = cols[2].number_input(
+                "L1B",
+                value=st.session_state.get(f"bayer_l1b_{idx}_temp", level["default"][2]),
+                format="%.6f",
+                key=f"bayer_l1b_{idx}"
+            )
+    
+            l2 = cols[0].number_input(
+                "L2",
+                value=st.session_state.get(f"bayer_l2_{idx}_temp", level["default"][3]),
+                format="%.6f",
+                key=f"bayer_l2_{idx}"
+            )
+            l2a = cols[1].number_input(
+                "L2A",
+                value=st.session_state.get(f"bayer_l2a_{idx}_temp", level["default"][4]),
+                format="%.6f",
+                key=f"bayer_l2a_{idx}"
+            )
+            l2b = cols[2].number_input(
+                "L2B",
+                value=st.session_state.get(f"bayer_l2b_{idx}_temp", level["default"][5]),
+                format="%.6f",
+                key=f"bayer_l2b_{idx}"
+            )
+    
+            l3 = cols[0].number_input(
+                "L3",
+                value=st.session_state.get(f"bayer_l3_{idx}_temp", level["default"][6]),
+                format="%.6f",
+                key=f"bayer_l3_{idx}"
+            )
+            l3a = cols[1].number_input(
+                "L3A",
+                value=st.session_state.get(f"bayer_l3a_{idx}_temp", level["default"][7]),
+                format="%.6f",
+                key=f"bayer_l3a_{idx}"
+            )
+            l3b = cols[2].number_input(
+                "L3B",
+                value=st.session_state.get(f"bayer_l3b_{idx}_temp", level["default"][8]),
+                format="%.6f",
+                key=f"bayer_l3b_{idx}"
+            )
+    
+            l4 = cols[0].number_input(
+                "L4",
+                value=st.session_state.get(f"bayer_l4_{idx}_temp", level["default"][9]),
+                format="%.6f",
+                key=f"bayer_l4_{idx}"
+            )
+            l4a = cols[1].number_input(
+                "L4A",
+                value=st.session_state.get(f"bayer_l4a_{idx}_temp", level["default"][10]),
+                format="%.6f",
+                key=f"bayer_l4a_{idx}"
+            )
+            l4b = cols[2].number_input(
+                "L4B",
+                value=st.session_state.get(f"bayer_l4b_{idx}_temp", level["default"][11]),
+                format="%.6f",
+                key=f"bayer_l4b_{idx}"
+            )
+    
+            l5 = cols[0].number_input(
+                "L5",
+                value=st.session_state.get(f"bayer_l5_{idx}_temp", level["default"][12]),
+                format="%.6f",
+                key=f"bayer_l5_{idx}"
+            )
+            l5a = cols[1].number_input(
+                "L5A",
+                value=st.session_state.get(f"bayer_l5a_{idx}_temp", level["default"][13]),
+                format="%.6f",
+                key=f"bayer_l5a_{idx}"
+            )
+    
             bayer_inputs.append([l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a])
 
     if st.button("🚀 Сгенерировать HEX (Bayer Denoise)"):
@@ -769,26 +839,26 @@ if st.button("🔁 Заполнить поля ввода (Bayer Denoise)"):
         st.warning("⚠️ Сначала распарсь HEX!")
     else:
         parsed_results = st.session_state["parsed_bayer_results"]
-
+        
         for idx, res in enumerate(parsed_results):
             try:
-                # Явно конвертируем в `float`
-                st.session_state[f"bayer_l1_{idx}"] = float(round(hex_to_float(res['L1']), 6))
-                st.session_state[f"bayer_l1a_{idx}"] = float(round(hex_to_float(res['L1A']), 6))
-                st.session_state[f"bayer_l1b_{idx}"] = float(round(hex_to_float(res['L1B']), 6))
-                st.session_state[f"bayer_l2_{idx}"] = float(round(hex_to_float(res['L2']), 6))
-                st.session_state[f"bayer_l2a_{idx}"] = float(round(hex_to_float(res['L2A']), 6))
-                st.session_state[f"bayer_l2b_{idx}"] = float(round(hex_to_float(res['L2B']), 6))
-                st.session_state[f"bayer_l3_{idx}"] = float(round(hex_to_float(res['L3']), 6))
-                st.session_state[f"bayer_l3a_{idx}"] = float(round(hex_to_float(res['L3A']), 6))
-                st.session_state[f"bayer_l3b_{idx}"] = float(round(hex_to_float(res['L3B']), 6))
-                st.session_state[f"bayer_l4_{idx}"] = float(round(hex_to_float(res['L4']), 6))
-                st.session_state[f"bayer_l4a_{idx}"] = float(round(hex_to_float(res['L4A']), 6))
-                st.session_state[f"bayer_l4b_{idx}"] = float(round(hex_to_float(res['L4B']), 6))
-                st.session_state[f"bayer_l5_{idx}"] = float(round(hex_to_float(res['L5']), 6))
-                st.session_state[f"bayer_l5a_{idx}"] = float(round(hex_to_float(res['L5A']), 6))
+                # === Сохраняем во временные ключи ===
+                st.session_state[f"bayer_l1_{idx}_temp"] = float(round(hex_to_float(res['L1']), 6))
+                st.session_state[f"bayer_l1a_{idx}_temp"] = float(round(hex_to_float(res['L1A']), 6))
+                st.session_state[f"bayer_l1b_{idx}_temp"] = float(round(hex_to_float(res['L1B']), 6))
+                st.session_state[f"bayer_l2_{idx}_temp"] = float(round(hex_to_float(res['L2']), 6))
+                st.session_state[f"bayer_l2a_{idx}_temp"] = float(round(hex_to_float(res['L2A']), 6))
+                st.session_state[f"bayer_l2b_{idx}_temp"] = float(round(hex_to_float(res['L2B']), 6))
+                st.session_state[f"bayer_l3_{idx}_temp"] = float(round(hex_to_float(res['L3']), 6))
+                st.session_state[f"bayer_l3a_{idx}_temp"] = float(round(hex_to_float(res['L3A']), 6))
+                st.session_state[f"bayer_l3b_{idx}_temp"] = float(round(hex_to_float(res['L3B']), 6))
+                st.session_state[f"bayer_l4_{idx}_temp"] = float(round(hex_to_float(res['L4']), 6))
+                st.session_state[f"bayer_l4a_{idx}_temp"] = float(round(hex_to_float(res['L4A']), 6))
+                st.session_state[f"bayer_l4b_{idx}_temp"] = float(round(hex_to_float(res['L4B']), 6))
+                st.session_state[f"bayer_l5_{idx}_temp"] = float(round(hex_to_float(res['L5']), 6))
+                st.session_state[f"bayer_l5a_{idx}_temp"] = float(round(hex_to_float(res['L5A']), 6))
             except Exception as e:
                 st.error(f"❌ Ошибка при автозаполнении уровня {idx}: {e}")
 
-        st.success("✅ Поля ввода Bayer Denoise обновлены")
+        st.success("✅ Поля обновлены (временные значения)")
 # --- Конец программы ---
