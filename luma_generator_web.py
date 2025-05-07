@@ -383,7 +383,29 @@ def generate_chroma_hex(values_list, level_names):
 
     full_hex += "".join(lines)
     return full_hex
+    
+# --- Плавное затухание при изменении точки ---
+def update_curve_with_smoother(curve, index, new_value):
+    """Обновляет кривую с плавным влиянием на соседей"""
+    updated = curve.copy()
+    updated[index] = new_value
 
+    influence_distance = 3
+    decay_factor = 0.3
+
+    for i in range(len(updated)):
+        dist = abs(i - index)
+        if 0 < dist <= influence_distance:
+            influence = (influence_distance - dist + 1) / influence_distance
+            updated[i] = updated[i] + (new_value - curve[index]) * influence * decay_factor
+            updated[i] = np.clip(updated[i], 0.0, 1.0)
+
+    # --- Фиксируем 0 и 16 точки ---
+    updated[0] = 0.0
+    updated[16] = 1.0
+
+    return updated
+    
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
@@ -778,46 +800,25 @@ with tab4:
                     st.error(f"❌ Ошибка при парсинге Chroma Denoise: {e}")
 # === ВКЛАДКА 5: ТОНОВАЯ КРИВАЯ С ИНТЕРАКТИВНЫМ ГРАФИКОМ ===
 with tab5:
-    st.markdown("### 🎯 Тоновая кривая (16 точек, интерактивная)")
+    st.markdown("### 🎯 Тоновая кривая (17 точек, 0.0 → 1.0)")
 
-    # --- Значения по умолчанию ---
+    # --- Значения кривой (17 точек, 0 и 16 — фиксированные) ---
     default_curve_values = [
         0.0, 0.06, 0.12, 0.18,
         0.24, 0.3, 0.36, 0.42,
         0.48, 0.54, 0.6, 0.66,
-        0.72, 0.78, 0.84, 1.0
+        0.72, 0.78, 0.84, 0.9, 1.0
     ]
 
-    # --- Инициализация session_state ---
     if "curve_values" not in st.session_state:
         st.session_state["curve_values"] = default_curve_values.copy()
 
-    # --- Получаем текущие значения ---
     curve_values = st.session_state["curve_values"]
 
-    # --- Функция плавного изменения соседей ---
-    def update_curve_with_smoother(curve, index, new_value):
-        """Обновляет кривую с плавным влиянием на соседей"""
-        updated = curve.copy()
-        updated[index] = new_value
-
-        # Применяем плавное затухание к соседним точкам
-        influence_distance = 3  # точки, на которые влияет перемещение
-        for i in range(len(updated)):
-            dist = abs(i - index)
-            if dist == 0:
-                updated[i] = new_value
-            elif dist <= influence_distance:
-                # Чем дальше — тем меньше влияние
-                influence = (influence_distance - dist + 1) / influence_distance
-                updated[i] += (new_value - curve[index]) * influence * 0.3
-                updated[i] = np.clip(updated[i], 0.0, 1.0)
-        return updated
-
-    # --- Создаем график Plotly с интерактивностью ---
+    # --- Создаем график Plotly ---
     fig = go.Figure()
 
-    x = list(range(16))
+    x = list(range(17))
     y = curve_values
 
     fig.add_trace(go.Scatter(
@@ -826,18 +827,21 @@ with tab5:
         mode='lines+markers',
         name='Тоновая кривая',
         line=dict(color='blue'),
-        marker=dict(size=8, color='red', line=dict(width=1, color='black')),
-        hovertemplate="X: %{x}<br>Y: %{y:.2f}<extra></extra>"
+        marker=dict(size=8, color=['red' if i not in (0, 16) else 'green' for i in range(17)]  # фиксированные точки — зелёные
     ))
 
     fig.update_layout(
         height=300,
         margin=dict(l=0, r=0, t=0, b=0),
-        xaxis=dict(range=[0, 15], title="Точки кривой"),
-        yaxis=dict(range=[0, 1], title="Значение")
+        xaxis=dict(range=[0, 16], title="Точка"),
+        yaxis=dict(range=[0, 1], title="Значение"),
+        showlegend=False,
+        xaxis_tickmode='array',
+        xaxis_tickvals=x,
+        xaxis_ticktext=[str(i) for i in x]
     )
 
-    # --- Получаем координаты клика на графике ---
+    # --- Получаем клик с графика ---
     from streamlit_plotly_events import plotly_events
 
     clicked_point = plotly_events(fig, click_event=True, override_height=300)
@@ -848,39 +852,60 @@ with tab5:
             clicked_x = clicked_point[0]["x"]
             clicked_y = clicked_point[0]["y"]
 
-            # Находим индекс ближайшей точки
-            nearest_index = min(range(16), key=lambda i: abs(i - clicked_x))
+            # Не позволяем редактировать точку 0 и 16
+            if clicked_x in (0, 16):
+                st.warning("⚠️ Точки 0 и 16 фиксированы")
+                st.rerun()
+                continue
+
+            nearest_index = min(range(1, 16), key=lambda i: abs(i - clicked_x))  # только точки с 1 по 15
             new_y = np.clip(clicked_y, 0.0, 1.0)
 
             # --- Обновляем кривую с плавным затуханием ---
             updated_curve = update_curve_with_smoother(curve_values, nearest_index, new_y)
 
+            # --- Фиксируем 0 и 16 ---
+            updated_curve[0] = 0.0
+            updated_curve[16] = 1.0
+
             # --- Сохраняем обновлённую кривую ---
-            st.session_state["curve_values"] = updated_curve
+            st.session_state["curve_curve_values"] = updated_curve
+            st.rerun()
+
         except Exception as e:
-            st.error(f"Ошибка при обработке клика: {e}")
+            st.error(f"❌ Ошибка при обработке клика: {e}")
 
-    # --- Отображаем график с обновлёнными значениями ---
-    updated_y = st.session_state["curve_values"]
+    # --- Выводим обновлённую кривую ---
+    updated_curve = st.session_state.get("curve_curve_values", curve_values)
 
+    # --- Обновлённый график ---
     fig_updated = go.Figure()
+
     fig_updated.add_trace(go.Scatter(
         x=x,
-        y=updated_y,
+        y=updated_curve,
         mode='lines+markers',
-        name='Тоновая кривая',
         line=dict(color='blue'),
-        marker=dict(size=8, color='red', line=dict(width=1, color='black'))
+        marker=dict(
+            size=8,
+            color=['red' if i not in (0, 16) else 'green' for i in range(17)]
+        )
     ))
+
     fig_updated.update_layout(
         height=300,
-        xaxis=dict(range=[0, 15], title="Точки кривой"),
-        yaxis=dict(range=[0, 1], title="Значение")
+        xaxis=dict(range=[0, 16], title="Точка"),
+        yaxis=dict(range=[0, 1], title="Значение"),
+        showlegend=False,
+        xaxis_tickmode='array',
+        xaxis_tickvals=x,
+        xaxis_ticktext=[str(i) for i in x]
     )
+
     st.plotly_chart(fig_updated, use_container_width=True)
 
     # --- Генерация HEX-строки ---
-    hex_values = [float_to_hex(val) for val in updated_y]
+    hex_values = [float_to_hex(val) for val in updated_curve]
     hex_string = "".join(hex_values)
 
     st.markdown("#### 🔢 Сгенерированная HEX-строка:")
