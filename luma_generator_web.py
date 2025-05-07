@@ -1,7 +1,6 @@
 import streamlit as st
 import struct
 from copy import deepcopy
-import plotly.graph_objects as go
 import numpy as np
 
 # --- Вспомогательные функции ---
