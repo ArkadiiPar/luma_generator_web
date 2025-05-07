@@ -821,7 +821,14 @@ with tab5:
     x = list(range(17))
     y = curve_values
 
-    fig.add_trace(go.Scatter(x=x,y=y,mode='lines+markers',name='Тоновая кривая',line=dict(color='blue'),marker=dict(size=8, color=['red' if i not in (0, 16) else 'green' for i in range(17)])))
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        mode='lines+markers',
+        name='Тоновая кривая',
+        line=dict(color='blue'),
+        marker=dict(size=8, color=['red' if i not in (0, 16) else 'green' for i in range(17)])
+    ))
 
     fig.update_layout(
         height=300,
@@ -849,21 +856,20 @@ with tab5:
             if clicked_x in (0, 16):
                 st.warning("⚠️ Точки 0 и 16 фиксированы")
                 st.rerun()
-                continue
+            else:
+                nearest_index = min(range(1, 16), key=lambda i: abs(i - clicked_x))  # точки 1–15
+                new_y = np.clip(clicked_y, 0.0, 1.0)
 
-            nearest_index = min(range(1, 16), key=lambda i: abs(i - clicked_x))  # только точки с 1 по 15
-            new_y = np.clip(clicked_y, 0.0, 1.0)
+                # --- Обновляем кривую с плавным затуханием ---
+                updated_curve = update_curve_with_smoother(curve_values, nearest_index, new_y)
 
-            # --- Обновляем кривую с плавным затуханием ---
-            updated_curve = update_curve_with_smoother(curve_values, nearest_index, new_y)
+                # --- Фиксируем 0 и 16 ---
+                updated_curve[0] = 0.0
+                updated_curve[16] = 1.0
 
-            # --- Фиксируем 0 и 16 ---
-            updated_curve[0] = 0.0
-            updated_curve[16] = 1.0
-
-            # --- Сохраняем обновлённую кривую ---
-            st.session_state["curve_curve_values"] = updated_curve
-            st.rerun()
+                # --- Сохраняем обновлённую кривую ---
+                st.session_state["curve_curve_values"] = updated_curve
+                st.rerun()
 
         except Exception as e:
             st.error(f"❌ Ошибка при обработке клика: {e}")
@@ -871,7 +877,6 @@ with tab5:
     # --- Выводим обновлённую кривую ---
     updated_curve = st.session_state.get("curve_curve_values", curve_values)
 
-    # --- Обновлённый график ---
     fig_updated = go.Figure()
 
     fig_updated.add_trace(go.Scatter(
