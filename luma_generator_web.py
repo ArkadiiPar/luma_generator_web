@@ -821,7 +821,7 @@ with tab5:
     x = list(range(17))
     y = curve_values
 
-    fig.add_trace(go.Scatter(x=x,y=y,mode='lines+markers',name='Тоновая кривая',line=dict(color='blue'),marker=dict(size=8, color=['red' if i not in (0, 16) else 'green' for i in range(17)]))
+    fig.add_trace(go.Scatter(x=x,y=y,mode='lines+markers',name='Тоновая кривая',line=dict(color='blue'),marker=dict(size=8, color=['red' if i not in (0, 16) else 'green' for i in range(17)])))
 
     fig.update_layout(
         height=300,
