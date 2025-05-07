@@ -4,8 +4,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
 from streamlit_drawable_canvas import st_canvas
-import cv2
-from PIL import Image
+from PIL import Image, ImageDraw
 
 # --- Вспомогательные функции ---
 def float_to_hex(f):
@@ -387,6 +386,33 @@ def generate_chroma_hex(values_list, level_names):
     full_hex += "".join(lines)
     return full_hex
     
+def draw_curve_on_canvas(points):
+    # Создаём белое изображение
+    image = Image.new("RGBA", (WIDTH, HEIGHT), (255, 255, 255, 255))
+    draw = ImageDraw.Draw(image)
+
+    # Рисуем горизонтальные линии сетки
+    for i in range(0, HEIGHT + 1, HEIGHT // 4):
+        draw.line([(0, i), (WIDTH, i)], fill=(200, 200, 200, 255), width=1)
+
+    # Рисуем вертикальные линии сетки
+    for i in range(0, WIDTH + 1, WIDTH // 4):
+        draw.line([(i, 0), (i, HEIGHT)], fill=(200, 200, 200, 255), width=1)
+
+    # Рисуем линии кривой
+    for i in range(POINT_COUNT - 1):
+        x1, y1 = points[i]["x"], points[i]["y"]
+        x2, y2 = points[i + 1]["x"], points[i + 1]["y"]
+        draw.line([(x1, y1), (x2, y2)], fill=(0, 0, 255, 255), width=2)
+
+    # Рисуем точки
+    for p in points:
+        draw.ellipse(
+            [(p["x"] - 6, p["y"] - 6), (p["x"] + 6, p["y"] + 6)],
+            fill=(0, 0, 0, 255)
+        )
+
+    return image
     
 # --- Интерфейс Streamlit ---
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
@@ -781,8 +807,7 @@ with tab4:
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Chroma Denoise: {e}")
 
-
-# --- ВКЛАДКА 5: ТОНОВАЯ КРИВАЯ С РЕДАКТИРОВАНИЕМ МЫШЬЮ ---
+# === ВКЛАДКА 5: ТОНОВАЯ КРИВАЯ С РЕДАКТИРОВАНИЕМ МЫШЬЮ ===
 with tab5:
     st.markdown("### 🎨 Тоновая кривая (17 точек)")
     st.markdown("Перетаскивай точки мышью — HEX и график обновятся автоматически")
@@ -791,7 +816,6 @@ with tab5:
     WIDTH = 800
     HEIGHT = 400
     POINT_COUNT = 17
-    MIN_Y, MAX_Y = 0.0, 1.0
 
     # --- Инициализация точек ---
     if "curve_points" not in st.session_state:
@@ -800,41 +824,7 @@ with tab5:
             for i in range(POINT_COUNT)
         ]
 
-    # --- Функция рисования графика на холсте ---
-    def draw_curve_on_canvas(points):
-        canvas = np.ones((HEIGHT, WIDTH, 4), dtype=np.uint8) * 255  # Белый фон
-
-        # Рисуем сетку
-        for i in range(0, HEIGHT + 1, HEIGHT // 4):
-            cv2.line(canvas, (0, i), (WIDTH, i), (200, 200, 200, 255), 1)
-        for i in range(0, WIDTH + 1, WIDTH // 4):
-            cv2.line(canvas, (i, 0), (i, HEIGHT), (200, 200, 200, 255), 1)
-
-        # Рисуем линии кривой
-        for i in range(POINT_COUNT - 1):
-            x1, y1 = points[i]["x"], points[i]["y"]
-            x2, y2 = points[i + 1]["x"], points[i + 1]["y"]
-            cv2.line(canvas, (x1, y1), (x2, y2), (0, 0, 255, 255), 2)
-
-        # Рисуем точки
-        for p in points:
-            cv2.circle(canvas, (p["x"], p["y"]), 6, (0, 0, 0, 255), -1)
-
-        return canvas
-
-    # --- Обновление позиций точек ---
-    def update_point_positions(points, mouse_x, mouse_y):
-        selected = None
-        for i, p in enumerate(points):
-            if abs(p["x"] - mouse_x) < 10 and abs(p["y"] - mouse_y) < 10:
-                selected = i
-                break
-        if selected is not None:
-            points[selected]["y"] = max(0, min(HEIGHT, mouse_y))
-            points[selected]["x"] = mouse_x
-            st.session_state["curve_points"] = points
-
-    # --- Холст для редактирования ---
+    # --- Холст для редактирования ===
     canvas_result = st_canvas(
         fill_color="rgba(255, 165, 0, 0.3)",
         stroke_width=2,
@@ -849,7 +839,7 @@ with tab5:
         key="tonal_curve_canvas_interactive"
     )
 
-    # --- Обработка кликов и перетаскивания ---
+    # --- Обработка JSON данных (точки с холста) ---
     if canvas_result.json_data is not None:
         objects = canvas_result.json_data.get("objects", [])
         if objects:
@@ -866,32 +856,28 @@ with tab5:
                 for i in range(POINT_COUNT)
             ]
 
-    # --- Перерисовываем холст с кривой ---
+    # --- Обработка перетаскивания точек ---
     if canvas_result.image_data is not None:
         try:
             mouse_x, mouse_y = canvas_result.image_data["mouse"]["x"], canvas_result.image_data["mouse"]["y"]
             if canvas_result.image_data["mouse"]["pressed"]:
-                update_point_positions(st.session_state["curve_points"], mouse_x, mouse_y)
-                st.rerun()
+                selected = None
+                for i, p in enumerate(st.session_state["curve_points"]):
+                    if abs(p["x"] - mouse_x) < 10 and abs(p["y"] - mouse_y) < 10:
+                        selected = i
+                        break
+                if selected is not None:
+                    st.session_state["curve_points"][selected]["y"] = max(0, min(HEIGHT, mouse_y))
+                    st.session_state["curve_points"][selected]["x"] = mouse_x
+                    st.rerun()
         except Exception:
             pass
 
-    # --- Рисуем кривую ---
-    canvas = draw_curve_on_canvas(st.session_state["curve_points"])
+    # --- Рисуем кривую на холсте ---
+    curve_image = draw_curve_on_canvas(st.session_state["curve_points"])
+    st.image(curve_image.resize((WIDTH, HEIGHT)), caption="Тоновая кривая", use_column_width=True)
 
-    # --- Отображаем обновлённый холст ---
-    st_canvas(
-        fill_color="rgba(255, 165, 0, 0.3)",
-        stroke_width=2,
-        stroke_color="#000000",
-        background_image=Image.fromarray(canvas),
-        update_streamlit=False,
-        height=HEIGHT,
-        width=WIDTH,
-        key="tonal_curve_canvas_render"
-    )
-
-    # --- Преобразуем точки в значения от 0.0 до 1.0 ---
+    # --- Преобразуем точки в значения от 0 до 1.0 ---
     point_values = [round((HEIGHT - p["y"]) / HEIGHT, 6) for p in st.session_state["curve_points"]]
 
     # --- Генерация HEX-строки ---
@@ -899,18 +885,15 @@ with tab5:
     st.markdown("#### 🔤 Сгенерированная HEX-строка:")
     st.code(hex_curve, language="text")
 
-    # --- График (матплотлиб) ---
+    # --- График matplotlib ---
+    fig, ax = plt.subplots()
     x = list(range(POINT_COUNT))
     y = point_values
-
-    fig, ax = plt.subplots()
-    ax.plot(x, y, marker='o', color='blue', linestyle='-', linewidth=2, markersize=4)
-    ax.set_xlim(0, 16)
-    ax.set_ylim(0, 1)
+    ax.plot(x, y, marker='o', color='blue')
+    ax.set_xlim(0, POINT_COUNT - 1)
+    ax.set_ylim(0.0, 1.0)
     ax.set_title("Тоновая кривая")
     ax.set_xlabel("Точка")
     ax.set_ylabel("Значение")
     ax.grid(True)
-
-    st.pyplot(fig)
     st.pyplot(fig)
