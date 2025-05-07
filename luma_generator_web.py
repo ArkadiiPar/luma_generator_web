@@ -376,7 +376,7 @@ def generate_chroma_hex(values_list, level_names):
         if i == len(values_list) - 1:
             level_hex += "12050d0000a0410000000000000000"  # для very high
         else:
-            level_hex += "12050d0000803f0a3e0a050d"  # для low, med, high
+            level_hex += "12050d0000803f0a3e0a050d0000a0400a0a0d"  # для low, med, high
 
         lines.append(level_hex)
 
@@ -747,7 +747,7 @@ with tab4:
                         if idx == 3:
                             offset += 8 + 30  # для very high
                         else:
-                            offset += 8 + 24  # для low, med, high
+                            offset += 8 + 38  # для low, med, high
     
                         results.append({
                             "L1": l1,
