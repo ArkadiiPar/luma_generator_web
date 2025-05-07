@@ -1,7 +1,8 @@
 import streamlit as st
 import struct
 from copy import deepcopy
-
+import plotly.graph_objects as go
+import numpy as np
 
 # --- Вспомогательные функции ---
 def float_to_hex(f):
@@ -387,7 +388,7 @@ def generate_chroma_hex(values_list, level_names):
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
-tab1, tab2, tab3, tab4 = st.tabs(["🔍 Sharp Main", "🍱 Sharp Bento", "🌪️ Bayer Denoise", "Chroma Denoise"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🔍 Sharp Main", "🍱 Sharp Bento", "🌪️ Bayer Denoise", "Chroma Denoise", "Tone curve"])
 
 
 # === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
@@ -773,6 +774,115 @@ with tab4:
     
                     st.success("✅ Поля Chroma Denoise обновлены")
                     st.rerun()
-    
+# === ВКЛАДКА 5: ТОНОВАЯ КРИВАЯ С ИНТЕРАКТИВНЫМ ГРАФИКОМ ===
+
+with tab5:
+    st.markdown("### 🎯 Тоновая кривая (16 точек, интерактивная)")
+
+    # --- Значения по умолчанию ---
+    default_curve_values = [
+        0.0, 0.06, 0.12, 0.18,
+        0.24, 0.3, 0.36, 0.42,
+        0.48, 0.54, 0.6, 0.66,
+        0.72, 0.78, 0.84, 1.0
+    ]
+
+    # --- Инициализация session_state ---
+    if "curve_values" not in st.session_state:
+        st.session_state["curve_values"] = default_curve_values.copy()
+
+    # --- Получаем текущие значения ---
+    curve_values = st.session_state["curve_values"]
+
+    # --- Функция плавного изменения соседей ---
+    def update_curve_with_smoother(curve, index, new_value):
+        """Обновляет кривую с плавным влиянием на соседей"""
+        updated = curve.copy()
+        updated[index] = new_value
+
+        # Применяем плавное затухание к соседним точкам
+        influence_distance = 3  # точки, на которые влияет перемещение
+        for i in range(len(updated)):
+            dist = abs(i - index)
+            if dist == 0:
+                updated[i] = new_value
+            elif dist <= influence_distance:
+                # Чем дальше — тем меньше влияние
+                influence = (influence_distance - dist + 1) / influence_distance
+                updated[i] += (new_value - curve[index]) * influence * 0.3
+                updated[i] = np.clip(updated[i], 0.0, 1.0)
+        return updated
+
+    # --- Создаем график Plotly с интерактивностью ---
+    fig = go.Figure()
+
+    x = list(range(16))
+    y = curve_values
+
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        mode='lines+markers',
+        name='Тоновая кривая',
+        line=dict(color='blue'),
+        marker=dict(size=8, color='red', line=dict(width=1, color='black')),
+        hovertemplate="X: %{x}<br>Y: %{y:.2f}<extra></extra>"
+    ))
+
+    fig.update_layout(
+        height=300,
+        margin=dict(l=0, r=0, t=0, b=0),
+        xaxis=dict(range=[0, 15], title="Точки кривой"),
+        yaxis=dict(range=[0, 1], title="Значение")
+    )
+
+    # --- Получаем координаты клика на графике ---
+    from streamlit_plotly_events import plotly_events
+
+    clicked_point = plotly_events(fig, click_event=True, override_height=300)
+
+    if clicked_point:
+        try:
+            # --- Определяем ближайшую точку ---
+            clicked_x = clicked_point[0]["x"]
+            clicked_y = clicked_point[0]["y"]
+
+            # Находим индекс ближайшей точки
+            nearest_index = min(range(16), key=lambda i: abs(i - clicked_x))
+            new_y = np.clip(clicked_y, 0.0, 1.0)
+
+            # --- Обновляем кривую с плавным затуханием ---
+            updated_curve = update_curve_with_smoother(curve_values, nearest_index, new_y)
+
+            # --- Сохраняем обновлённую кривую ---
+            st.session_state["curve_values"] = updated_curve
+        except Exception as e:
+            st.error(f"Ошибка при обработке клика: {e}")
+
+    # --- Отображаем график с обновлёнными значениями ---
+    updated_y = st.session_state["curve_values"]
+
+    fig_updated = go.Figure()
+    fig_updated.add_trace(go.Scatter(
+        x=x,
+        y=updated_y,
+        mode='lines+markers',
+        name='Тоновая кривая',
+        line=dict(color='blue'),
+        marker=dict(size=8, color='red', line=dict(width=1, color='black'))
+    ))
+    fig_updated.update_layout(
+        height=300,
+        xaxis=dict(range=[0, 15], title="Точки кривой"),
+        yaxis=dict(range=[0, 1], title="Значение")
+    )
+    st.plotly_chart(fig_updated, use_container_width=True)
+
+    # --- Генерация HEX-строки ---
+    hex_values = [float_to_hex(val) for val in updated_y]
+    hex_string = "".join(hex_values)
+
+    st.markdown("#### 🔢 Сгенерированная HEX-строка:")
+    st.code(hex_string, language="text")
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Chroma Denoise: {e}")
