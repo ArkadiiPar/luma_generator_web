@@ -716,7 +716,6 @@ with tab4:
             if not hex_input_chroma.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
-                try:
                     offset = 24  # длина заголовка "0a3e0a050d0000a0400a0a0d" = 20 символов
                     results = []
     
