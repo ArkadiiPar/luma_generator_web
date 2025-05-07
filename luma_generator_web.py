@@ -716,6 +716,7 @@ with tab4:
             if not hex_input_chroma.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
+                try:
                     offset = 24  # длина заголовка "0a3e0a050d0000a0400a0a0d" = 20 символов
                     results = []
     
@@ -773,6 +774,8 @@ with tab4:
     
                     st.success("✅ Поля Chroma Denoise обновлены")
                     st.rerun()
+                except Exception as e:
+                    st.error(f"❌ Ошибка при парсинге Chroma Denoise: {e}")
 # === ВКЛАДКА 5: ТОНОВАЯ КРИВАЯ С ИНТЕРАКТИВНЫМ ГРАФИКОМ ===
 with tab5:
     st.markdown("### 🎯 Тоновая кривая (16 точек, интерактивная)")
@@ -882,5 +885,3 @@ with tab5:
 
     st.markdown("#### 🔢 Сгенерированная HEX-строка:")
     st.code(hex_string, language="text")
-                except Exception as e:
-                    st.error(f"❌ Ошибка при парсинге Chroma Denoise: {e}")
