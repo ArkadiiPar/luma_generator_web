@@ -3,4 +3,4 @@ plotly
 streamlit-plotly-events
 streamlit-drawable-canvas
 matplotlib 
-opencv-python
+opencv-python-headles
