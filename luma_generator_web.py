@@ -802,7 +802,7 @@ with tab4:
 with tab5:
     st.markdown("### 🎯 Тоновая кривая (17 точек, 0.0 → 1.0)")
 
-    # --- Значения кривой (17 точек, 0 и 16 — фиксированные) ---
+    # --- Значения кривой (17 точек) ---
     default_curve_values = [
         0.0, 0.06, 0.12, 0.18,
         0.24, 0.3, 0.36, 0.42,
@@ -846,18 +846,23 @@ with tab5:
 
     clicked_point = plotly_events(fig, click_event=True, override_height=300)
 
-    if clicked_point:
+    # --- Обрабатываем клик ---
+    if clicked_point and "processing_click" not in st.session_state:
         try:
-            # --- Определяем ближайшую точку ---
+            # --- Помечаем, что обрабатываем клик ---
+            st.session_state["processing_click"] = True
+
             clicked_x = clicked_point[0]["x"]
             clicked_y = clicked_point[0]["y"]
 
-            # Не позволяем редактировать точку 0 и 16
+            # --- Не позволяем редактировать точку 0 и 16 ---
             if clicked_x in (0, 16):
                 st.warning("⚠️ Точки 0 и 16 фиксированы")
+                st.session_state["processing_click"] = False
                 st.rerun()
             else:
-                nearest_index = min(range(1, 16), key=lambda i: abs(i - clicked_x))  # точки 1–15
+                # --- Ближайшая точка (только 1–15) ---
+                nearest_index = min(range(1, 16), key=lambda i: abs(i - clicked_x))
                 new_y = np.clip(clicked_y, 0.0, 1.0)
 
                 # --- Обновляем кривую с плавным затуханием ---
@@ -867,14 +872,16 @@ with tab5:
                 updated_curve[0] = 0.0
                 updated_curve[16] = 1.0
 
-                # --- Сохраняем обновлённую кривую ---
+                # --- Сохраняем и перезапускаем ---
                 st.session_state["curve_curve_values"] = updated_curve
+                st.session_state["processing_click"] = False
                 st.rerun()
 
         except Exception as e:
+            st.session_state["processing_click"] = False
             st.error(f"❌ Ошибка при обработке клика: {e}")
 
-    # --- Выводим обновлённую кривую ---
+    # --- Если кривая обновлена — выводим только один график ---
     updated_curve = st.session_state.get("curve_curve_values", curve_values)
 
     fig_updated = go.Figure()
@@ -908,3 +915,7 @@ with tab5:
 
     st.markdown("#### 🔢 Сгенерированная HEX-строка:")
     st.code(hex_string, language="text")
+
+    # --- Удаляем флаг после отрисовки ---
+    if "processing_click" in st.session_state:
+        del st.session_state["processing_click"]
