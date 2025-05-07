@@ -4,6 +4,8 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
 from streamlit_drawable_canvas import st_canvas
+import cv2
+from PIL import Image
 
 # --- Вспомогательные функции ---
 def float_to_hex(f):
@@ -781,7 +783,8 @@ with tab4:
 
 
 # --- ВКЛАДКА 5: ТОНОВАЯ КРИВАЯ С РЕДАКТИРОВАНИЕМ МЫШЬЮ ---
-with st.expander("🎨 Тоновая кривая (17 точек)", expanded=True):
+with tab5:
+    st.markdown("### 🎨 Тоновая кривая (17 точек)")
     st.markdown("Перетаскивай точки мышью — HEX и график обновятся автоматически")
 
     # --- Параметры ---
@@ -790,9 +793,8 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
     POINT_COUNT = 17
     MIN_Y, MAX_Y = 0.0, 1.0
 
-    # --- Инициализируем точки в session_state ---
+    # --- Инициализация точек ---
     if "curve_points" not in st.session_state:
-        # По умолчанию — прямая линия от 0 до 1
         st.session_state["curve_points"] = [
             {"x": i * (WIDTH // (POINT_COUNT - 1)), "y": int(HEIGHT - (i / (POINT_COUNT - 1)) * HEIGHT)}
             for i in range(POINT_COUNT)
@@ -820,7 +822,7 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
 
         return canvas
 
-    # --- Обновляем позиции точек по координатам мыши ---
+    # --- Обновление позиций точек ---
     def update_point_positions(points, mouse_x, mouse_y):
         selected = None
         for i, p in enumerate(points):
@@ -832,7 +834,7 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
             points[selected]["x"] = mouse_x
             st.session_state["curve_points"] = points
 
-    # --- Получаем координаты мыши ---
+    # --- Холст для редактирования ---
     canvas_result = st_canvas(
         fill_color="rgba(255, 165, 0, 0.3)",
         stroke_width=2,
@@ -844,40 +846,40 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
         width=WIDTH,
         drawing_mode="point",
         point_display_radius=3,
-        key="tonal_curve_canvas"
+        key="tonal_curve_canvas_interactive"
     )
 
-    # --- Обработка клика/перемещения ---
+    # --- Обработка кликов и перетаскивания ---
     if canvas_result.json_data is not None:
         objects = canvas_result.json_data.get("objects", [])
         if objects:
-            # Обновляем точки из JSON
             points = []
-            for i, obj in enumerate(objects):
+            for obj in objects:
                 x = int(obj["left"])
                 y = int(obj["top"])
                 points.append({"x": x, "y": y})
             st.session_state["curve_points"] = points
         else:
-            # Если объектов нет, восстанавливаем дефолтные
+            # Восстанавливаем дефолтные точки
             st.session_state["curve_points"] = [
                 {"x": i * (WIDTH // (POINT_COUNT - 1)), "y": int(HEIGHT - (i / (POINT_COUNT - 1)) * HEIGHT)}
                 for i in range(POINT_COUNT)
             ]
 
-    # --- Если мышь нажата и двигается — обновляем ближайшую точку ---
+    # --- Перерисовываем холст с кривой ---
     if canvas_result.image_data is not None:
         try:
-            # Получаем позицию мыши
             mouse_x, mouse_y = canvas_result.image_data["mouse"]["x"], canvas_result.image_data["mouse"]["y"]
             if canvas_result.image_data["mouse"]["pressed"]:
                 update_point_positions(st.session_state["curve_points"], mouse_x, mouse_y)
-                st.experimental_rerun()  # Перерисовываем
+                st.rerun()
         except Exception:
             pass
 
     # --- Рисуем кривую ---
     canvas = draw_curve_on_canvas(st.session_state["curve_points"])
+
+    # --- Отображаем обновлённый холст ---
     st_canvas(
         fill_color="rgba(255, 165, 0, 0.3)",
         stroke_width=2,
@@ -886,8 +888,6 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
         update_streamlit=False,
         height=HEIGHT,
         width=WIDTH,
-        drawing_mode="point",
-        point_display_radius=3,
         key="tonal_curve_canvas_render"
     )
 
@@ -899,8 +899,7 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
     st.markdown("#### 🔤 Сгенерированная HEX-строка:")
     st.code(hex_curve, language="text")
 
-    # --- График с использованием matplotlib (для наглядности) ---
-    st.markdown("#### 📈 График тоновой кривой")
+    # --- График (матплотлиб) ---
     x = list(range(POINT_COUNT))
     y = point_values
 
@@ -913,4 +912,5 @@ with st.expander("🎨 Тоновая кривая (17 точек)", expanded=Tr
     ax.set_ylabel("Значение")
     ax.grid(True)
 
+    st.pyplot(fig)
     st.pyplot(fig)
