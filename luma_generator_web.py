@@ -679,10 +679,10 @@ with tab4:
     st.markdown("### 🎨 Chroma Denoise (низкий, средний, высокий, очень высокий)")
 
     chroma_levels = [
-        {"name": "Chroma Denoise Low", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]},
-        {"name": "Chroma Denoise Med", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]},
-        {"name": "Chroma Denoise High", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]},
-        {"name": "Chroma Denoise Very High", "default": [1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 0.75, 0.75]}
+        {"name": "Chroma Denoise Low", "default": [5.0, 5.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0]},
+        {"name": "Chroma Denoise Med", "default": [5.0, 5.0, 5.0, 5.0, 1.0, 4.0, 2.0, 4.0]},
+        {"name": "Chroma Denoise High", "default": [5.0, 5.0, 4.0, 5.0, 1.0, 4.0, 1.5, 4.0]},
+        {"name": "Chroma Denoise Very High", "default": [4.0, 5.0, 4.0, 5.0, 0.8, 4.0, 1.0, 4.0]}
     ]
 
     chroma_inputs = []
