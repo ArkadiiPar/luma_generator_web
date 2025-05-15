@@ -550,7 +550,7 @@ with tab2:
     st.markdown("### 🔧 Редактирование основных Sharp уровней")
 
     sharp_inputs2 = []
-    for idx, level in enumerate(main_sharp_levels2):
+    for idx, level in enumerate(all_sharp_levels2):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
             l1 = cols[0].number_input("L1", value=st.session_state.get(f"2sharp_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"2sharp_l1_{idx}")
