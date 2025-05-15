@@ -564,7 +564,7 @@ with tab2:
 
             sharp_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
-    if st.button("🚀 Сгенерировать основной Sharp HEX"):
+    if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
         full_hex = generate_sharp_hex(sharp_inputs2, main_sharp_levels2, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
@@ -573,7 +573,7 @@ with tab2:
 
         hex_input_main = st.text_area("HEX для Main Sharp:", value="", height=200, key="main_parser_input")
 
-        if st.button("🔍 Распарсить Main Sharp HEX"):
+        if st.button("🔍 Распарсить Main Sharp HEX ID14"):
             if not hex_input_main.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
