@@ -175,10 +175,10 @@ def generate_sharp_hex(values_list, level_names, level_slices):
     return full_hex
     
 # --- Генерация HEX для Sharp Levels ID14 ---
-def generate_sharp_hex2(values_list2, level_names, level_slices):
+def generate_sharp_hex2(values_list, level_names, level_slices):
     lines2 = []
 
-    for i, values in enumerate(values_list2):
+    for i, values in enumerate(values_list):
         l1, l1a, l2, l2a, l3, l3a = values
         name = level_names[i]["name"]
         start, end = level_slices[name]
