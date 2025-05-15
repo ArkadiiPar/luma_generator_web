@@ -174,6 +174,25 @@ def generate_sharp_hex(values_list, level_names, level_slices):
     full_hex = "0a490a140d" + "".join(lines)
     return full_hex
     
+# --- Генерация HEX для Sharp Levels ---
+def generate_sharp_hex2(values_list, level_names, level_slices):
+    lines2 = []
+
+    for i, values in enumerate(values_list):
+        l1, l1a, l2, l2a, l3, l3a = values
+        name = level_names[i]["name"]
+        start, end = level_slices[name]
+
+        modified_block = deepcopy(original_sharp_hex_lines2[start:end])
+        modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
+        modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
+        modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
+
+        lines2.extend(modified_block)
+
+    full_hex = "0a490a140d" + "".join(lines)
+    return full_hex
+    
 # --- Генерация HEX только для Bento Sharp ---
 def generate_bento_sharp_hex(values_list, level_names, level_slices):
     lines = []
@@ -544,7 +563,7 @@ with tab2:
             sharp_inputs2.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
-        full_hex = generate_sharp_hex(sharp_inputs2, all_sharp_levels2, sharp_slices)
+        full_hex = generate_sharp_hex2(sharp_inputs2, all_sharp_levels2, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
