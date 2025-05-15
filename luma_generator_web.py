@@ -177,10 +177,10 @@ def generate_sharp_hex(values_list, level_names, level_slices):
     return full_hex
     
 # --- Генерация HEX для Sharp Levels ID14 ---
-def generate_sharp_hex(values_list, level_names, level_slices):
-    lines = []
+def generate_sharp_hex(values_list2, level_names, level_slices):
+    lines2 = []
 
-    for i, values in enumerate(values_list):
+    for i, values in enumerate(values_list2):
         l1, l1a, l2, l2a, l3, l3a = values
         name = level_names[i]["name"]
         start, end = level_slices[name]
@@ -192,7 +192,7 @@ def generate_sharp_hex(values_list, level_names, level_slices):
 
         lines.extend(modified_block)
 
-    full_hex = "0a490a140d" + "".join(lines)
+    full_hex = "0a490a140d" + "".join(lines2)
     return full_hex
     
 # --- Генерация HEX только для Bento Sharp ---
