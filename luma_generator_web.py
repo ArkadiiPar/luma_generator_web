@@ -155,8 +155,6 @@ all_sharp_levels2 = [
     {"name": "Sharp very high", "default": [11.3, 0.0436, 3.70, 0.032, 2.05, 0.0232]},
 ]
 
-main_sharp_levels2 = all_sharp_levels2[:5]
-
 # --- Генерация HEX для Sharp Levels ---
 def generate_sharp_hex(values_list, level_names, level_slices):
     lines = []
@@ -555,17 +553,17 @@ with tab2:
     for idx, level in enumerate(main_sharp_levels2):
         with st.expander(level["name"], expanded=True):
             cols = st.columns(3)
-            l1 = cols[0].number_input("L1", value=st.session_state.get(f"sharp_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"2sharp_l1_{idx}")
-            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"sharp_l1a_{idx}_temp", level["default"][1]), format="%.4f", key=f"2sharp_l1a_{idx}")
-            l2 = cols[0].number_input("L2", value=st.session_state.get(f"sharp_l2_{idx}_temp", level["default"][2]), format="%.4f", key=f"2sharp_l2_{idx}")
-            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"sharp_l2a_{idx}_temp", level["default"][3]), format="%.4f", key=f"2sharp_l2a_{idx}")
-            l3 = cols[0].number_input("L3", value=st.session_state.get(f"sharp_l3_{idx}_temp", level["default"][4]), format="%.4f", key=f"2sharp_l3_{idx}")
-            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"sharp_l3a_{idx}_temp", level["default"][5]), format="%.4f", key=f"2sharp_l3a_{idx}")
+            l1 = cols[0].number_input("L1", value=st.session_state.get(f"2sharp_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"2sharp_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"2sharp_l1a_{idx}_temp", level["default"][1]), format="%.4f", key=f"2sharp_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=st.session_state.get(f"2sharp_l2_{idx}_temp", level["default"][2]), format="%.4f", key=f"2sharp_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"2sharp_l2a_{idx}_temp", level["default"][3]), format="%.4f", key=f"2sharp_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=st.session_state.get(f"2sharp_l3_{idx}_temp", level["default"][4]), format="%.4f", key=f"2sharp_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"2sharp_l3a_{idx}_temp", level["default"][5]), format="%.4f", key=f"2sharp_l3a_{idx}")
 
             sharp_inputs.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
-        full_hex = generate_sharp_hex2(sharp_inputs2, main_sharp_levels2, sharp_slices)
+        full_hex = generate_sharp_hex2(sharp_inputs2, all_sharp_levels2, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
