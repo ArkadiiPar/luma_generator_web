@@ -571,15 +571,15 @@ with tab2:
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
         st.markdown("Вставь HEX-строку с уровнями Sharp (с заголовком `0a490a140d`)")
 
-        hex_input_main = st.text_area("HEX для Main Sharp:", value="", height=200, key="main_parser_input")
+        hex_input_main2 = st.text_area("HEX для Main Sharp ID14:", value="", height=200, key="main_parser_input2")
 
         if st.button("🔍 Распарсить Main Sharp HEX ID14"):
-            if not hex_input_main.strip():
+            if not hex_input_main2.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
                     # --- Проверка заголовка ---
-                    if not hex_input_main.startswith("0a490a140d"):
+                    if not hex_input_main2.startswith("0a490a140d"):
                         st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
                     offset = 10  # длина "0a490a140d" = 10
 
@@ -587,19 +587,19 @@ with tab2:
 
                     for level_name in ["very low", "low", "med", "high", "very high"]:
                         # === L1, L1A, L2, L2A, L3, L3A ===
-                        l1 = hex_input_main[offset:offset+8]
+                        l1 = hex_input_main2[offset:offset+8]
                         offset += 8 + 2
-                        l1a = hex_input_main[offset:offset+8]
+                        l1a = hex_input_main2[offset:offset+8]
                         offset += 8 + 26
 
-                        l2 = hex_input_main[offset:offset+8]
+                        l2 = hex_input_main2[offset:offset+8]
                         offset += 8 + 2
-                        l2a = hex_input_main[offset:offset+8]
+                        l2a = hex_input_main2[offset:offset+8]
                         offset += 8 + 26
 
-                        l3 = hex_input_main[offset:offset+8]
+                        l3 = hex_input_main2[offset:offset+8]
                         offset += 8 + 2
-                        l3a = hex_input_main[offset:offset+8]
+                        l3a = hex_input_main2[offset:offset+8]
                         offset += 8 + 44
 
                         results.append({
@@ -621,11 +621,11 @@ with tab2:
                         st.session_state[f"2sharp_l3_{idx}_temp"] = float(round(hex_to_float(res['L3']), 6))
                         st.session_state[f"2sharp_l3a_{idx}_temp"] = float(round(hex_to_float(res['L3A']), 6))
 
-                    st.success("✅ Поля Main Sharp обновлены")
+                    st.success("✅ Поля Main Sharp ID14 обновлены")
                     st.rerun()
 
                 except Exception as e:
-                    st.error(f"❌ Ошибка при парсинге Main Sharp: {e}")
+                    st.error(f"❌ Ошибка при парсинге Main Sharp ID14: {e}")
                     
 # === ВКЛАДКА 2: BENTO SHARP ===
 with tab3:
