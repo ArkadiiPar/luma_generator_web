@@ -190,7 +190,7 @@ def generate_sharp_hex2(values_list, level_names, level_slices):
 
         lines2.extend(modified_block)
 
-    full_hex = "0a490a140d" + "".join(lines)
+    full_hex = "0a490a140d" + "".join(lines2)
     return full_hex
     
 # --- Генерация HEX только для Bento Sharp ---
