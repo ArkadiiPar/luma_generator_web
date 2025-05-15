@@ -419,9 +419,12 @@ def generate_bayer_hex(values_list, level_names):
             f"{float_to_hex(l5)}"
             "1d"
             f"{float_to_hex(l5a)}"
-            "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"
         )
-
+        # === Добавляем правильную завершающую служебную строку ===
+        if i == len(values_list) - 1:
+            level_hex += "12050d"  # для very high
+        else:
+            level_hex += "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"  # для low, med, high
         lines.append(level_hex)
 
     full_hex += "".join(lines)
