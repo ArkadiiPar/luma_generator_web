@@ -544,7 +544,7 @@ with tab2:
             sharp_inputs2.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
-        full_hex = generate_sharp_hex2(sharp_inputs2, all_sharp_levels2, sharp_slices)
+        full_hex = generate_sharp_hex(sharp_inputs2, all_sharp_levels2, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
