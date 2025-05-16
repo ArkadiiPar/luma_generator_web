@@ -523,9 +523,12 @@ def generate_chroma_hex(values_list, level_names):
         )
 
         # === Добавляем правильную завершающую служебную строку ===
-        if not i == len(values_list) - 1:
-            level_hex += "12050d0000803f0a3e0a050d0000a0400a0a0d"  # для low, med, high
-
+        if i == len(values_list) - 4:
+            level_hex += "12050d0000803f0a3e0a050d0000a0400a0a0d"
+        if i == len(values_list) - 3:
+            level_hex += "12050d0000a0400a3e0a050d0000a0400a0a0d"
+        if i == len(values_list) - 2:
+            level_hex += "12050d000020410a3e0a050d0000a0400a0a0d" 
         lines.append(level_hex)
 
     full_hex = "".join(lines)
