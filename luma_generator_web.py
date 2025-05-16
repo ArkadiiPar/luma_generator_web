@@ -535,7 +535,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🔍 Sharp Main ID15", "�
 
 # === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
 with tab1:
-    st.markdown("### 🔧 Редактирование основных Sharp уровней")
+    st.markdown("### 🔧 Редактирование основных Sharp уровней: 10A8B45")
 
     sharp_inputs = []
     for idx, level in enumerate(main_sharp_levels):
@@ -610,7 +610,7 @@ with tab1:
                     
 # === ВКЛАДКА 2: ОСНОВНЫЕ SHARP УРОВНИ ID14 ===
 with tab2:
-    st.markdown("### 🔧 Редактирование основных Sharp уровней")
+    st.markdown("### 🔧 Редактирование основных Sharp уровней: 10A8315")
 
     sharp_inputs2 = []
     for idx, level in enumerate(all_sharp_levels2):
@@ -685,7 +685,7 @@ with tab2:
 
 # === ВКЛАДКА 3: ОСНОВНЫЕ SHARP УРОВНИ ID16 ===
 with tab3:
-    st.markdown("### 🔧 Редактирование основных Sharp уровней")
+    st.markdown("### 🔧 Редактирование основных Sharp уровней: 10A8D55")
 
     sharp_inputs3 = []
     for idx, level in enumerate(all_sharp_levels3):
