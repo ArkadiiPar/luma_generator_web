@@ -224,7 +224,7 @@ def generate_sharp_hex(values_list, level_names, level_slices):
 
         lines.extend(modified_block)
 
-    full_hex = "0a490a140d" + "".join(lines)
+    full_hex = "".join(lines)
     return full_hex
     
 # --- Генерация HEX для Sharp Levels ---
@@ -243,7 +243,7 @@ def generate_sharp_hex2(values_list, level_names, level_slices):
 
         lines2.extend(modified_block)
 
-    full_hex = "0a490a140d" + "".join(lines2)
+    full_hex = "".join(lines2)
     return full_hex
     
 # --- Генерация HEX для Sharp Levels ---
@@ -454,9 +454,6 @@ bayer_levels = [
 # --- Функция генерации HEX для Bayer Denoise (по аналогии с Sharp Main) ---
 def generate_bayer_hex(values_list, level_names):
     lines = []
-    
-    # --- Заголовок ---
-    full_hex = "00000a610a0f0d"
 
     # --- Генерация каждого уровня ---
     for i, values in enumerate(values_list):
@@ -493,9 +490,7 @@ def generate_bayer_hex(values_list, level_names):
             f"{float_to_hex(l5a)}"
         )
         # === Добавляем правильную завершающую служебную строку ===
-        if i == len(values_list) - 1:
-            level_hex += "12050d"  # для very high
-        else:
+        if else i == len(values_list) - 1:
             level_hex += "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"  # для low, med, high
         lines.append(level_hex)
 
@@ -522,9 +517,7 @@ def generate_chroma_hex(values_list, level_names):
         )
 
         # === Добавляем правильную завершающую служебную строку ===
-        if i == len(values_list) - 1:
-            level_hex += "12050d0000a0410000000000000000"  # для very high
-        else:
+        if else i == len(values_list) - 1:
             level_hex += "12050d0000803f0a3e0a050d0000a0400a0a0d"  # для low, med, high
 
         lines.append(level_hex)
@@ -562,7 +555,7 @@ with tab1:
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
-        st.markdown("Вставь HEX-строку с уровнями Sharp (с заголовком `0a490a140d`)")
+        st.markdown("Вставь HEX-строку с уровнями Sharp")
 
         hex_input_main = st.text_area("HEX для Main Sharp:", value="", height=200, key="main_parser_input")
 
@@ -571,13 +564,8 @@ with tab1:
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # --- Проверка заголовка ---
-                    if not hex_input_main.startswith("0a490a140d"):
-                        st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
-                    offset = 10  # длина "0a490a140d" = 10
-
                     results = []
-
+                    offset = 0
                     for level_name in ["very low", "low", "med", "high", "very high"]:
                         # === L1, L1A, L2, L2A, L3, L3A ===
                         l1 = hex_input_main[offset:offset+8]
@@ -642,7 +630,7 @@ with tab2:
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
-        st.markdown("Вставь HEX-строку с уровнями Sharp (с заголовком `0a490a140d`)")
+        st.markdown("Вставь HEX-строку с уровнями Sharp")
 
         hex_input_main2 = st.text_area("HEX для Main Sharp ID14:", value="", height=200, key="main_parser_input2")
 
@@ -651,13 +639,8 @@ with tab2:
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # --- Проверка заголовка ---
-                    if not hex_input_main2.startswith("0a490a140d"):
-                        st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
-                    offset = 10  # длина "0a490a140d" = 10
-
                     results = []
-
+                    offset = 0
                     for level_name in ["very low", "low", "med", "high", "very high"]:
                         # === L1, L1A, L2, L2A, L3, L3A ===
                         l1 = hex_input_main2[offset:offset+8]
@@ -722,7 +705,7 @@ with tab3:
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
-        st.markdown("Вставь HEX-строку с уровнями Sharp (с заголовком `0a490a140d`)")
+        st.markdown("Вставь HEX-строку с уровнями Sharp")
 
         hex_input_main3 = st.text_area("HEX для Main Sharp ID16:", value="", height=200, key="main_parser_input3")
 
@@ -731,13 +714,8 @@ with tab3:
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # --- Проверка заголовка ---
-                    if not hex_input_main2.startswith("0a490a140d"):
-                        st.warning("⚠️ Отсутствует заголовок '0a490a140d'")
-                    offset = 10  # длина "0a490a140d" = 10
-
                     results = []
-
+                    offset = 0
                     for level_name in ["very low", "low", "med", "high", "very high"]:
                         # === L1, L1A, L2, L2A, L3, L3A ===
                         l1 = hex_input_main2[offset:offset+8]
@@ -918,10 +896,7 @@ with tab5:
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
-                    # --- Проверяем заголовок ---
-                    if not hex_input_bayer.startswith("00000a610a0f0d"):
-                        st.warning("⚠️ Отсутствует заголовок '00000a610a0f0d'")
-                    offset = 14  # длина "00000a610a0f0d"
+                    offset = 0
         
                     # --- Обрабатываем 5 уровней ---
                     for idx in range(5):  # всегда 5 уровней
