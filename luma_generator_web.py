@@ -494,7 +494,7 @@ def generate_bayer_hex(values_list, level_names):
             level_hex += "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"  # для low, med, high
         lines.append(level_hex)
 
-    full_hex += "".join(lines)
+    full_hex = "".join(lines)
     return full_hex
     
 # --- Генерация HEX для Chroma Denoise ---
@@ -522,7 +522,7 @@ def generate_chroma_hex(values_list, level_names):
 
         lines.append(level_hex)
 
-    full_hex += "".join(lines)
+    full_hex = "".join(lines)
     return full_hex
     
     
