@@ -717,7 +717,7 @@ with tab3:
 
             sharp_inputs3.append([l1, l1a, l2, l2a, l3, l3a])
 
-    if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
+    if st.button("🚀 Сгенерировать основной Sharp HEX ID16"):
         full_hex = generate_sharp_hex3(sharp_inputs3, all_sharp_levels3, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
