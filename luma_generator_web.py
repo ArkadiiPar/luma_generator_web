@@ -490,7 +490,7 @@ def generate_bayer_hex(values_list, level_names):
             f"{float_to_hex(l5a)}"
         )
         # === Добавляем правильную завершающую служебную строку ===
-        if else i == len(values_list) - 1:
+        if not i == len(values_list) - 1:
             level_hex += "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"  # для low, med, high
         lines.append(level_hex)
 
@@ -517,7 +517,7 @@ def generate_chroma_hex(values_list, level_names):
         )
 
         # === Добавляем правильную завершающую служебную строку ===
-        if else i == len(values_list) - 1:
+        if not i == len(values_list) - 1:
             level_hex += "12050d0000803f0a3e0a050d0000a0400a0a0d"  # для low, med, high
 
         lines.append(level_hex)
