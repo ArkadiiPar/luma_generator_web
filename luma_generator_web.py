@@ -730,17 +730,17 @@ with tab3:
                         l1 = hex_input_main2[offset:offset+8]
                         offset += 8 + 2
                         l1a = hex_input_main2[offset:offset+8]
-                        offset += 8 + 26
+                        offset += 8 + 36
 
                         l2 = hex_input_main2[offset:offset+8]
                         offset += 8 + 2
                         l2a = hex_input_main2[offset:offset+8]
-                        offset += 8 + 26
+                        offset += 8 + 36
 
                         l3 = hex_input_main2[offset:offset+8]
                         offset += 8 + 2
                         l3a = hex_input_main2[offset:offset+8]
-                        offset += 8 + 44
+                        offset += 8 + 54
 
                         results.append({
                             "name": level_name,
