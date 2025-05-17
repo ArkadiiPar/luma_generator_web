@@ -506,10 +506,6 @@ def generate_bayer_hex(values_list, level_names):
 # --- Генерация HEX для Chroma Denoise ---
 def generate_chroma_hex(values_list, level_names):
     lines = []
-
-    # --- Заголовок один раз перед всеми уровнями ---
-    full_hex = "0a3e0a050d0000a0400a0a0d"
-
     # --- Генерация каждого уровня ---
     for i, values in enumerate(values_list):
         l1, l1a, l2, l2a, l3, l3a, l4, l4a = values
@@ -970,7 +966,7 @@ with tab5:
                     st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
 # === ВКЛАДКА 6: CHROMA DENOISE (новая вкладка) ===
 with tab6:
-    st.markdown("### 🎨 Chroma Denoise (низкий, средний, высокий, очень высокий)")
+    st.markdown("### 🎨 Chroma Denoise: 010A3C2C")
 
     chroma_levels = [
         {"name": "Chroma Denoise Low", "default": [5.0, 5.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0]},
