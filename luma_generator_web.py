@@ -858,7 +858,7 @@ with tab4:
 
 # === ВКЛАДКА 5: BAYER DENOISE (генератор + парсер) ===
 with tab5:
-    st.markdown("### 🌪️ Настройка параметров: Bayer Luma Denoise")
+    st.markdown("### 🌪️ Настройка параметров Luma Denoise, id 14 - 10a42a5, id 15 - 10a4a95, id 16 - 10a4c85")
 
     bayer_inputs = []
 
