@@ -535,7 +535,7 @@ def generate_chroma_hex(values_list, level_names):
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🔍 Sharp Main ID15", "🔍 Sharp Main ID14", "🔍 Sharp Main ID16", "🍱 Sharp Bento", "🌪️ Bayer Denoise", "Chroma Denoise"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🔍 Sharp Main ID15", "🔍 Sharp Main ID14", "🔍 Sharp Main ID16", "🍱 Sharp Bento", "🌪️ Luma Denoise", "Chroma Denoise"])
 
 
 # === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
@@ -856,7 +856,7 @@ with tab4:
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bento: {e}")
 
-# === ВКЛАДКА 5: BAYER DENOISE (генератор + парсер) ===
+# === ВКЛАДКА 5: LUMA DENOISE (генератор + парсер) ===
 with tab5:
     st.markdown("### 🌪️ Настройка параметров Luma Denoise, id 14 - 10a42a5, id 15 - 10a4a95, id 16 - 10a4c85")
 
