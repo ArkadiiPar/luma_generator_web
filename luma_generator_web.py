@@ -208,6 +208,60 @@ all_sharp_levels3 = [
     {"name": "Sharp high",      "default": [6.38, 0.016, 2.59, 0.018, 1.13, 0.02]},
     {"name": "Sharp very high", "default": [5.56, 0.016, 2.37, 0.018, 2.25, 0.02]},
 ]
+# === SHARP LEVELS ID12 ===
+
+# --- Все строки из оригинального сообщения (Sharp) ---
+original_sharp_hex_lines4 = [
+    # Sharp very low
+    "000080401dc9763e3e",
+    "258fc2f53c2d0000003f0a140d",
+    "0000803f1de3a51b3e",
+    "258fc2f53c2d0000003f0a140d",
+    "3333f33f1d68916d3d",
+    "258fc2f53c2d0000003f12050d0000a0400a490a140d",
+
+    # Sharp low
+    "9a9909411d8fc2753d",
+    "258fc2f53c2d0000003f0a140d",
+    "f6286c401d0ad7233d",
+    "258fc2f53c2d0000003f0a140d",
+    "000010401d68916d3d",
+    "258fc2f53c2d0000003f12050d000020410a490a140d",
+
+    # Sharp med
+    "000020411d8fc2753d",
+    "258fc2f53c2d0000003f0a140d",
+    "333387401d0ad7233d",
+    "258fc2f53c2d0000003f0a140d",
+    "000020401d68916d3d",
+    "258fc2f53c2d0000003f12050d0000a0410a490a140d",
+
+    # Sharp high
+    "000020411d022b873d",
+    "258fc2f53c2d0000003f0a140d",
+    "14ae77401d0ad7233d",
+    "258fc2f53c2d0000003f0a140d",
+    "0ad793401d3480b73c",
+    "258fc2f53c2d0000003f12050d000020420a490a140d",
+
+    # Sharp very high
+    "cdcc34411dea95323d",
+    "258fc2f53c2d0000003f0a140d",
+    "cdcc6c401d6f12033d",
+    "258fc2f53c2d0000003f0a140d",
+    "333303401ded0dbe3c",
+    "258fc2f53c2d0000003f12050d0000a042"
+]
+
+
+# --- Sharp уровни по умолчанию ---
+all_sharp_levels4 = [
+    {"name": "Sharp very low",  "default": [4.0, 0.186, 1.0, 0.1520, 1.9, 0.058]},
+    {"name": "Sharp low",       "default": [5.2, 0.066, 2.24, 0.1, 2.17, 0.011]},
+    {"name": "Sharp med",       "default": [6.55, 0.034, 2.19, 0.2, 1.31, 0.13]},
+    {"name": "Sharp high",      "default": [6.38, 0.016, 2.59, 0.018, 1.13, 0.02]},
+    {"name": "Sharp very high", "default": [5.56, 0.016, 2.37, 0.018, 2.25, 0.02]},
+]
 # --- Генерация HEX для Sharp Levels ---
 def generate_sharp_hex(values_list, level_names, level_slices):
     lines = []
@@ -264,7 +318,25 @@ def generate_sharp_hex3(values_list, level_names, level_slices):
 
     full_hex = "".join(lines3)
     return full_hex
+    
+# --- Генерация HEX для Sharp Levels ---
+def generate_sharp_hex4(values_list, level_names, level_slices):
+    lines4 = []
 
+    for i, values in enumerate(values_list):
+        l1, l1a, l2, l2a, l3, l3a = values
+        name = level_names[i]["name"]
+        start, end = level_slices[name]
+
+        modified_block = deepcopy(original_sharp_hex_lines4[start:end])
+        modified_block[0] = f"{float_to_hex(l1)}1d{float_to_hex(l1a)}"
+        modified_block[2] = f"{float_to_hex(l2)}1d{float_to_hex(l2a)}"
+        modified_block[4] = f"{float_to_hex(l3)}1d{float_to_hex(l3a)}"
+
+        lines4.extend(modified_block)
+
+    full_hex = "".join(lines)
+    return full_hex
 # --- Генерация HEX только для Bento Sharp ---
 def generate_bento_sharp_hex(values_list, level_names, level_slices):
     lines = []
@@ -535,7 +607,7 @@ def generate_chroma_hex(values_list, level_names):
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🔍 Sharp Main ID15", "🔍 Sharp Main ID14", "🔍 Sharp Main ID16", "🍱 Sharp Bento", "🌪️ Luma Denoise", "Chroma Denoise"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🔍 Sharp Main ID15", "🔍 Sharp Main ID14", "🔍 Sharp Main ID16", "🔍 Sharp Main ID12", "🍱 Sharp Bento", "🌪️ Luma Denoise", "Chroma Denoise"])
 
 
 # === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
@@ -855,9 +927,85 @@ with tab4:
     
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bento: {e}")
-
-# === ВКЛАДКА 5: LUMA DENOISE (генератор + парсер) ===
+                    
+# === ВКЛАДКА 5: ОСНОВНЫЕ SHARP УРОВНИ ID12 ===
 with tab5:
+    st.markdown("### 🔧 Редактирование основных Sharp уровней: 10A8315")
+
+    sharp_inputs4 = []
+    for idx, level in enumerate(all_sharp_levels4):
+        with st.expander(level["name"], expanded=True):
+            cols = st.columns(3)
+            l1 = cols[0].number_input("L1", value=st.session_state.get(f"4sharp_l1_{idx}_temp", level["default"][0]), format="%.4f", key=f"2sharp_l1_{idx}")
+            l1a = cols[1].number_input("L1A", value=st.session_state.get(f"4sharp_l1a_{idx}_temp", level["default"][1]), format="%.4f", key=f"2sharp_l1a_{idx}")
+            l2 = cols[0].number_input("L2", value=st.session_state.get(f"4sharp_l2_{idx}_temp", level["default"][2]), format="%.4f", key=f"2sharp_l2_{idx}")
+            l2a = cols[1].number_input("L2A", value=st.session_state.get(f"4sharp_l2a_{idx}_temp", level["default"][3]), format="%.4f", key=f"2sharp_l2a_{idx}")
+            l3 = cols[0].number_input("L3", value=st.session_state.get(f"4sharp_l3_{idx}_temp", level["default"][4]), format="%.4f", key=f"2sharp_l3_{idx}")
+            l3a = cols[1].number_input("L3A", value=st.session_state.get(f"4sharp_l3a_{idx}_temp", level["default"][5]), format="%.4f", key=f"2sharp_l3a_{idx}")
+
+            sharp_inputs4.append([l1, l1a, l2, l2a, l3, l3a])
+
+    if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
+        full_hex = generate_sharp_hex2(sharp_inputs4, all_sharp_levels4, sharp_slices)
+        st.code(full_hex, language="text")
+    # --- Раздел 2: MAIN SHARP PARSER ---
+    with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
+        st.markdown("Вставь HEX-строку с уровнями Sharp")
+
+        hex_input_main4 = st.text_area("HEX для Main Sharp ID14:", value="", height=200, key="main_parser_input2")
+
+        if st.button("🔍 Распарсить Main Sharp HEX ID14"):
+            if not hex_input_main4.strip():
+                st.warning("❌ Вставь HEX-строку для расшифровки!")
+            else:
+                try:
+                    results = []
+                    offset = 0
+                    for level_name in ["very low", "low", "med", "high", "very high"]:
+                        # === L1, L1A, L2, L2A, L3, L3A ===
+                        l1 = hex_input_main2[offset:offset+8]
+                        offset += 8 + 2
+                        l1a = hex_input_main2[offset:offset+8]
+                        offset += 8 + 26
+
+                        l2 = hex_input_main2[offset:offset+8]
+                        offset += 8 + 2
+                        l2a = hex_input_main2[offset:offset+8]
+                        offset += 8 + 26
+
+                        l3 = hex_input_main2[offset:offset+8]
+                        offset += 8 + 2
+                        l3a = hex_input_main2[offset:offset+8]
+                        offset += 8 + 44
+
+                        results.append({
+                            "name": level_name,
+                            "L1": l1,
+                            "L1A": l1a,
+                            "L2": l2,
+                            "L2A": l2a,
+                            "L3": l3,
+                            "L3A": l3a
+                        })
+
+                    # --- Сохраняем в session_state ---
+                    for idx, res in enumerate(results):
+                        st.session_state[f"4sharp_l1_{idx}_temp"] = float(round(hex_to_float(res['L1']), 6))
+                        st.session_state[f"4sharp_l1a_{idx}_temp"] = float(round(hex_to_float(res['L1A']), 6))
+                        st.session_state[f"4sharp_l2_{idx}_temp"] = float(round(hex_to_float(res['L2']), 6))
+                        st.session_state[f"4sharp_l2a_{idx}_temp"] = float(round(hex_to_float(res['L2A']), 6))
+                        st.session_state[f"4sharp_l3_{idx}_temp"] = float(round(hex_to_float(res['L3']), 6))
+                        st.session_state[f"4sharp_l3a_{idx}_temp"] = float(round(hex_to_float(res['L3A']), 6))
+
+                    st.success("✅ Поля Main Sharp ID14 обновлены")
+                    st.rerun()
+
+                except Exception as e:
+                    st.error(f"❌ Ошибка при парсинге Main Sharp ID14: {e}")
+
+
+# === ВКЛАДКА 6: LUMA DENOISE (генератор + парсер) ===
+with tab6:
     st.markdown("### 🌪️ Настройка параметров Luma Denoise, id 14 - 10a42a5, id 15 - 10a4a95, id 16 - 10a4c85")
 
     bayer_inputs = []
@@ -964,8 +1112,8 @@ with tab5:
     
                 except Exception as e:
                     st.error(f"❌ Ошибка при парсинге Bayer Denoise: {e}")
-# === ВКЛАДКА 6: CHROMA DENOISE (новая вкладка) ===
-with tab6:
+# === ВКЛАДКА 7: CHROMA DENOISE (новая вкладка) ===
+with tab7:
     st.markdown("### 🎨 Chroma Denoise: 010A3C2C")
 
     chroma_levels = [
