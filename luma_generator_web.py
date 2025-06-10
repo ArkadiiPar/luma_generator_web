@@ -608,7 +608,7 @@ def generate_chroma_hex(values_list, level_names):
 st.set_page_config(page_title="HEX Sharp & Denoise Generator", layout="wide")
 st.title("🔧 Sharp & Bayer Denoise HEX Code Generator")
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🔍 Sharp Main ID15", "🔍 Sharp Main ID14", "🔍 Sharp Main ID16", "🔍 Sharp Main ID12", "🍱 Sharp Bento", "🌪️ Luma Denoise", "Chroma Denoise"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🔍 Sharp Main ID15", "🔍 Sharp Main ID14", "🔍 Sharp Main ID16", "🍱 Sharp Bento", "🔍 Sharp Main ID12", "🌪️ Luma Denoise", "Chroma Denoise"])
 
 
 # === ВКЛАДКА 1: ОСНОВНЫЕ SHARP УРОВНИ ===
@@ -947,7 +947,7 @@ with tab5:
             sharp_inputs4.append([l1, l1a, l2, l2a, l3, l3a])
 
     if st.button("🚀 Сгенерировать основной Sharp HEX ID12"):
-        full_hex = generate_sharp_hex2(sharp_inputs4, all_sharp_levels4, sharp_slices)
+        full_hex = generate_sharp_hex4(sharp_inputs4, all_sharp_levels4, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
