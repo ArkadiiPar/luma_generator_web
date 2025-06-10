@@ -576,54 +576,6 @@ def generate_bayer_hex(values_list, level_names):
     full_hex = "".join(lines)
     return full_hex
 
-# --- Функция генерации HEX для Bayer Denoise (по аналогии с Sharp Main) ---
-def generate_bayer_hex2(values_list, level_names):
-    lines = []
-
-    # --- Генерация каждого уровня ---
-    for i, values in enumerate(values_list):
-        l1, l1a, l1b, l2, l2a, l2b, l3, l3a, l3b, l4, l4a, l4b, l5, l5a = values
-
-        # --- Шаблон уровня ---
-        level_hex = (
-            f"{float_to_hex(l1)}"
-            "15"
-            f"{float_to_hex(l1a)}"
-            "1d"
-            f"{float_to_hex(l1b)}"
-            "0a0f0d"
-            f"{float_to_hex(l2)}"
-            "15"
-            f"{float_to_hex(l2a)}"
-            "1d"
-            f"{float_to_hex(l2b)}"
-            "0a0f0d"
-            f"{float_to_hex(l3)}"
-            "15"
-            f"{float_to_hex(l3a)}"
-            "1d"
-            f"{float_to_hex(l3b)}"
-            "0a0f0d"
-            f"{float_to_hex(l4)}"
-            "15"
-            f"{float_to_hex(l4a)}"
-            "1d"
-            f"{float_to_hex(l4b)}"
-            "0a0a0d"
-            f"{float_to_hex(l5)}"
-            "1d"
-            f"{float_to_hex(l5a)}"
-        )
-        # === Добавляем правильную завершающую служебную строку ===
-        if i == len(values_list) - 3:
-            level_hex += "12050d0000a0401dcdcccc3f250000003f0a610a0f0d"
-        if i == len(values_list) - 2:
-            level_hex += "12050d0000a0411dcdcccc3f250000003f0a610a0f0d"
-        lines.append(level_hex)
-
-    full_hex = "0a610a0f0d" + "".join(lines)
-    return full_hex
-
 # --- Генерация HEX для Chroma Denoise ---
 def generate_chroma_hex(values_list, level_names):
     lines = []
