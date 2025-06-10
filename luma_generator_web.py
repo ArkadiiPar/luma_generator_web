@@ -946,16 +946,16 @@ with tab5:
 
             sharp_inputs4.append([l1, l1a, l2, l2a, l3, l3a])
 
-    if st.button("🚀 Сгенерировать основной Sharp HEX ID14"):
+    if st.button("🚀 Сгенерировать основной Sharp HEX ID12"):
         full_hex = generate_sharp_hex2(sharp_inputs4, all_sharp_levels4, sharp_slices)
         st.code(full_hex, language="text")
     # --- Раздел 2: MAIN SHARP PARSER ---
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
         st.markdown("Вставь HEX-строку с уровнями Sharp")
 
-        hex_input_main4 = st.text_area("HEX для Main Sharp ID14:", value="", height=200, key="main_parser_input2")
+        hex_input_main4 = st.text_area("HEX для Main Sharp ID12:", value="", height=200, key="main_parser_input2")
 
-        if st.button("🔍 Распарсить Main Sharp HEX ID14"):
+        if st.button("🔍 Распарсить Main Sharp HEX ID12"):
             if not hex_input_main4.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
@@ -998,11 +998,11 @@ with tab5:
                         st.session_state[f"4sharp_l3_{idx}_temp"] = float(round(hex_to_float(res['L3']), 6))
                         st.session_state[f"4sharp_l3a_{idx}_temp"] = float(round(hex_to_float(res['L3A']), 6))
 
-                    st.success("✅ Поля Main Sharp ID14 обновлены")
+                    st.success("✅ Поля Main Sharp ID12 обновлены")
                     st.rerun()
 
                 except Exception as e:
-                    st.error(f"❌ Ошибка при парсинге Main Sharp ID14: {e}")
+                    st.error(f"❌ Ошибка при парсинге Main Sharp ID12: {e}")
 
 
 # === ВКЛАДКА 6: LUMA DENOISE (генератор + парсер) ===
