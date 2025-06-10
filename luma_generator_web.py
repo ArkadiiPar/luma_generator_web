@@ -335,7 +335,7 @@ def generate_sharp_hex4(values_list, level_names, level_slices):
 
         lines4.extend(modified_block)
 
-    full_hex = "".join(lines)
+    full_hex = "".join(lines4)
     return full_hex
     
 # --- Генерация HEX только для Bento Sharp ---
