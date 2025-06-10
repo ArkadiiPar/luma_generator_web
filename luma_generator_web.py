@@ -953,7 +953,7 @@ with tab5:
     with st.expander("🔸Парсер Sharp Main Levels", expanded=False):
         st.markdown("Вставь HEX-строку с уровнями Sharp")
 
-        hex_input_main4 = st.text_area("HEX для Main Sharp ID12:", value="", height=200, key="main_parser_input2")
+        hex_input_main4 = st.text_area("HEX для Main Sharp ID12:", value="", height=200, key="main_parser_input4")
 
         if st.button("🔍 Распарсить Main Sharp HEX ID12"):
             if not hex_input_main4.strip():
@@ -964,19 +964,19 @@ with tab5:
                     offset = 0
                     for level_name in ["very low", "low", "med", "high", "very high"]:
                         # === L1, L1A, L2, L2A, L3, L3A ===
-                        l1 = hex_input_main2[offset:offset+8]
+                        l1 = hex_input_main4[offset:offset+8]
                         offset += 8 + 2
-                        l1a = hex_input_main2[offset:offset+8]
+                        l1a = hex_input_main4[offset:offset+8]
                         offset += 8 + 26
 
-                        l2 = hex_input_main2[offset:offset+8]
+                        l2 = hex_input_main4[offset:offset+8]
                         offset += 8 + 2
-                        l2a = hex_input_main2[offset:offset+8]
+                        l2a = hex_input_main4[offset:offset+8]
                         offset += 8 + 26
 
-                        l3 = hex_input_main2[offset:offset+8]
+                        l3 = hex_input_main4[offset:offset+8]
                         offset += 8 + 2
-                        l3a = hex_input_main2[offset:offset+8]
+                        l3a = hex_input_main4[offset:offset+8]
                         offset += 8 + 44
 
                         results.append({
