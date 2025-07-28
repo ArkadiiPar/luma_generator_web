@@ -788,7 +788,7 @@ with tab3:
         hex_input_main3 = st.text_area("HEX для Main Sharp ID16:", value="", height=200, key="main_parser_input3")
 
         if st.button("🔍 Распарсить Main Sharp HEX ID16"):
-            if not hex_input_main2.strip():
+            if not hex_input_main3.strip():
                 st.warning("❌ Вставь HEX-строку для расшифровки!")
             else:
                 try:
