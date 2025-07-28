@@ -796,19 +796,19 @@ with tab3:
                     offset = 0
                     for level_name in ["very low", "low", "med", "high", "very high"]:
                         # === L1, L1A, L2, L2A, L3, L3A ===
-                        l1 = hex_input_main2[offset:offset+8]
+                        l1 = hex_input_main3[offset:offset+8]
                         offset += 8 + 2
-                        l1a = hex_input_main2[offset:offset+8]
+                        l1a = hex_input_main3[offset:offset+8]
                         offset += 8 + 36
 
-                        l2 = hex_input_main2[offset:offset+8]
+                        l2 = hex_input_main3[offset:offset+8]
                         offset += 8 + 2
-                        l2a = hex_input_main2[offset:offset+8]
+                        l2a = hex_input_main3[offset:offset+8]
                         offset += 8 + 36
 
-                        l3 = hex_input_main2[offset:offset+8]
+                        l3 = hex_input_main3[offset:offset+8]
                         offset += 8 + 2
-                        l3a = hex_input_main2[offset:offset+8]
+                        l3a = hex_input_main3[offset:offset+8]
                         offset += 8 + 54
 
                         results.append({
